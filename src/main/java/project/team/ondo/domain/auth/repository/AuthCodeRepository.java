@@ -8,9 +8,11 @@ import project.team.ondo.domain.auth.entity.AuthCodeEntity;
 @Repository
 public interface AuthCodeRepository extends CrudRepository<@NonNull AuthCodeEntity,@NonNull String> {
 
-    AuthCodeEntity findByAuthCode(String code);
+    AuthCodeEntity findAuthCodeByCode(String authCode);
 
-    Boolean existsByAuthCode(String code);
+    Boolean existsByCode(String code);
 
-    void deleteByAuthCode(String code);
+    void deleteByCode(String code);
+
+    AuthCodeEntity saveAuthCode(AuthCodeEntity authCode);
 }

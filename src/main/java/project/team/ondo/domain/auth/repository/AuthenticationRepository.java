@@ -9,5 +9,10 @@ import java.util.Optional;
 
 @Repository
 public interface AuthenticationRepository extends CrudRepository<@NonNull AuthenticationEntity, @NonNull String> {
+
     Optional<AuthenticationEntity> findByEmail(String email);
+
+    Boolean existsAuthenticationByEmail(String email);
+
+    AuthenticationEntity saveAuthentication(AuthenticationEntity authenticationEntity);
 }
