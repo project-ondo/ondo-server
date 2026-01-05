@@ -18,7 +18,7 @@ public class AuthCodeEntity {
     @Id
     private String email;
     @Indexed
-    private String authCode;
+    private String code;
     @TimeToLive(unit = TimeUnit.SECONDS)
     private Long ttl;
 }
