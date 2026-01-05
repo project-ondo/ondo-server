@@ -18,6 +18,20 @@ spring:
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  security:
+    cors:
+      allowed-origins:
+        - "http://localhost:3000"
+        - "http://localhost:3001"
+
+    jwt:
+      access-token:
+        secret: ${JWT_ACCESS_TOKEN_SECRET}
+        expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+      refresh-token:
+        secret: ${JWT_REFRESH_TOKEN_SECRET}
+        expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
   data:
     redis:
       host: localhost
@@ -28,6 +42,22 @@ spring:
     port: 5672
     username: user
     password: 123456
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectionTimeout: 5000
+          timeout: 5000
+          writeTimeout: 5000
+
 
 messaging:
   relay:
