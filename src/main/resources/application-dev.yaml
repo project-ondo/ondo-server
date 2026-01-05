@@ -7,3 +7,31 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/ondo?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: user
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: user
+    password: 123456
+
+messaging:
+  relay:
+    host: localhost
+    port: 61613
+    username: user
+    password: 123456
