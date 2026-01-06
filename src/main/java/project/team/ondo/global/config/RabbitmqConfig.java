@@ -6,7 +6,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import project.team.ondo.global.rabbitmq.data.RabbitmqEnvironment;
+import project.team.ondo.global.data.RabbitmqEnvironment;
 
 @Configuration
 @EnableWebSocketMessageBroker
