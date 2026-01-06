@@ -2,7 +2,6 @@ package project.team.ondo.domain.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import project.team.ondo.domain.auth.data.request.SendEmailRequest;
 import project.team.ondo.domain.auth.entity.AuthCodeEntity;
 import project.team.ondo.domain.auth.exception.EmailAlreadyExistsException;
 import project.team.ondo.domain.auth.repository.AuthCodeRepository;
@@ -25,8 +24,8 @@ public class SendAuthCodeServiceImpl implements SendAuthCodeService {
     private final SecureRandom random = new SecureRandom();
 
     @Override
-    public void execute(SendEmailRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
+    public void execute(String email) {
+        if (userRepository.existsByEmail(email)) {
             throw new EmailAlreadyExistsException();
         }
 
@@ -34,12 +33,12 @@ public class SendAuthCodeServiceImpl implements SendAuthCodeService {
 
         authCodeRepository.save(
                 AuthCodeEntity.builder()
-                        .email(request.email())
+                        .email(email)
                         .code(authCode)
                         .ttl(AUTH_CODE_TTL)
                         .build()
         );
 
-        sendEmailService.sendAuthCode(request.email(), authCode);
+        sendEmailService.sendAuthCode(email, authCode);
     }
 }

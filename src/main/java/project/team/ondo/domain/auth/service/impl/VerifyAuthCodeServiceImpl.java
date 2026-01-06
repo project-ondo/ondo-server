@@ -2,7 +2,6 @@ package project.team.ondo.domain.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import project.team.ondo.domain.auth.data.request.VerificationCodeRequest;
 import project.team.ondo.domain.auth.entity.AuthCodeEntity;
 import project.team.ondo.domain.auth.entity.EmailVerificationTokenEntity;
 import project.team.ondo.domain.auth.exception.AttemptLimitExceededException;
@@ -24,8 +23,8 @@ public class VerifyAuthCodeServiceImpl implements VerifyAuthCodeService {
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
 
     @Override
-    public String execute(VerificationCodeRequest request) {
-        AuthCodeEntity savedAuthCode = authCodeRepository.findById(request.email())
+    public String execute(String email, String code) {
+        AuthCodeEntity savedAuthCode = authCodeRepository.findById(email)
                 .orElseThrow(AuthCodeExpiresException::new);
 
         int attempt = savedAuthCode.getAttemptCount() == null ? 0 : savedAuthCode.getAttemptCount();
@@ -34,7 +33,7 @@ public class VerifyAuthCodeServiceImpl implements VerifyAuthCodeService {
             throw new AttemptLimitExceededException();
         }
 
-        if (!savedAuthCode.getCode().equals(request.code())) {
+        if (!savedAuthCode.getCode().equals(code)) {
             savedAuthCode.increaseAttemptCount();
             authCodeRepository.save(savedAuthCode);
 
@@ -45,13 +44,13 @@ public class VerifyAuthCodeServiceImpl implements VerifyAuthCodeService {
             throw new InvalidAuthCodeException();
         }
 
-        authCodeRepository.deleteById(request.email());
+        authCodeRepository.deleteById(email);
 
         String token = UUID.randomUUID().toString();
         emailVerificationTokenRepository.save(
                 EmailVerificationTokenEntity.builder()
                         .token(token)
-                        .email(request.email())
+                        .email(email)
                         .ttl(TOKEN_TTL_SECONDS)
                         .build()
         );
