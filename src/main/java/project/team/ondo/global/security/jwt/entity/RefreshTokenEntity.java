@@ -1,4 +1,4 @@
-package project.team.ondo.global.jwt.entity;
+package project.team.ondo.global.security.jwt.entity;
 
 import jakarta.persistence.Id;
 import lombok.*;
