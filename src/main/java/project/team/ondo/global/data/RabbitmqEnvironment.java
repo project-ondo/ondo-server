@@ -1,4 +1,4 @@
-package project.team.ondo.global.rabbitmq.data;
+package project.team.ondo.global.data;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
