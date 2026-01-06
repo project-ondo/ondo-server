@@ -5,23 +5,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import project.team.ondo.global.data.MailEnvironment;
+import project.team.ondo.global.data.EmailEnvironment;
 
 import java.util.Properties;
 
 @Configuration
 @RequiredArgsConstructor
-public class MailConfig {
+public class EmailConfig {
 
-    private final MailEnvironment mailEnvironment;
+    private final EmailEnvironment emailEnvironment;
 
     @Bean
     public JavaMailSender mailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(mailEnvironment.host());
-        mailSender.setPort(mailEnvironment.port());
-        mailSender.setUsername(mailEnvironment.username());
-        mailSender.setPassword(mailEnvironment.password());
+        mailSender.setHost(emailEnvironment.host());
+        mailSender.setPort(emailEnvironment.port());
+        mailSender.setUsername(emailEnvironment.username());
+        mailSender.setPassword(emailEnvironment.password());
 
         Properties properties = new Properties();
         properties.put("mail.smtp.auth", "true");
