@@ -6,6 +6,6 @@ import jakarta.validation.constraints.Size;
 
 public record VerificationCodeRequest(
         @Email @NotBlank String email,
-        @NotBlank @Size(min=8, max=8) String code
+        @NotBlank @Size(min=6, max=6) String code
 ) {
 }
