@@ -40,7 +40,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setRelayPort(rabbitmqEnvironment.port())
                 .setClientLogin(rabbitmqEnvironment.username())
                 .setClientPasscode(rabbitmqEnvironment.password())
-                .setSystemLogin(rabbitmqEnvironment.host())
+                .setSystemLogin(rabbitmqEnvironment.username())
                 .setSystemPasscode(rabbitmqEnvironment.password())
                 .setSystemHeartbeatSendInterval(10000)
                 .setSystemHeartbeatReceiveInterval(10000)
