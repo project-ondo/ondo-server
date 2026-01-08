@@ -12,7 +12,7 @@ public class JwtRefreshTokenManagementServiceImpl implements JwtRefreshTokenMana
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
-    public void deleteRefreshToken(String refreshToken) {
+    public void execute(String refreshToken) {
         refreshTokenRepository.deleteById(refreshToken);
     }
 }
