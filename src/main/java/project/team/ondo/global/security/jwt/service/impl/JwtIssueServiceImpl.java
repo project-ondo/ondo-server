@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -36,12 +37,12 @@ public class JwtIssueServiceImpl implements JwtIssueService {
     }
 
     @Override
-    public AuthToken issueAccessToken(long userId, UserRole role) {
+    public AuthToken issueAccessToken(UUID publicId, UserRole role) {
         Instant now = Instant.now();
         Instant expiration = now.plusSeconds(jwtEnvironment.accessToken().expiration());
         return new AuthToken(
                 Jwts.builder()
-                        .subject(Long.toString(userId))
+                        .subject(publicId.toString())
                         .claim("role", role.name())
                         .issuedAt(Date.from(now))
                         .expiration(Date.from(expiration))
@@ -52,12 +53,12 @@ public class JwtIssueServiceImpl implements JwtIssueService {
     }
 
     @Override
-    public AuthToken issueRefreshToken(long userId) {
+    public AuthToken issueRefreshToken(UUID publicId) {
         Instant now = Instant.now();
         Instant expiration = now.plusSeconds(jwtEnvironment.refreshToken().expiration());
         AuthToken token = new AuthToken(
                 Jwts.builder()
-                        .subject(Long.toString(userId))
+                        .subject(publicId.toString())
                         .issuedAt(Date.from(now))
                         .expiration(Date.from(expiration))
                         .signWith(refreshTokenKey)
