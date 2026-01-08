@@ -10,6 +10,7 @@ public enum ErrorCode {
 
     //USER
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
+    USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "유저 인증에 실패했습니다."),
 
     //MAIL
     INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 인증 코드입니다."),
