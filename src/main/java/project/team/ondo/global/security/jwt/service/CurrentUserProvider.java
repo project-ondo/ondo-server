@@ -8,6 +8,8 @@ import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.exception.UserUnauthorizedException;
 import project.team.ondo.domain.user.repository.UserRepository;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class CurrentUserProvider {
@@ -24,18 +26,18 @@ public class CurrentUserProvider {
         }
 
         Object principal = authentication.getPrincipal();
-        if (!(principal instanceof String userIdStr)) {
+        if (!(principal instanceof String publicIdStr)) {
             throw new UserUnauthorizedException();
         }
 
-        Long userId;
+        UUID publicId;
         try {
-            userId = Long.valueOf(userIdStr);
+            publicId = UUID.fromString(publicIdStr);
         } catch (NumberFormatException e) {
             throw new UserUnauthorizedException();
         }
 
-        return userRepository.findById(userId)
+        return userRepository.findByPublicId(publicId)
                 .orElseThrow(UserNotFoundException::new);
     }
 }
