@@ -1,17 +1,16 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:latest
     container_name: ondo-mysql
     environment:
+      MYSQL_DATABASE: ondo
       MYSQL_USER: user
       MYSQL_PASSWORD: 123456
       MYSQL_ROOT_PASSWORD: 123456
     ports:
       - '3306:3306'
     volumes:
-      - mysql:data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
   redis:
     image: redis:latest

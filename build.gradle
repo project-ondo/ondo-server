@@ -61,6 +61,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     runtimeOnly 'org.springframework.boot:spring-boot-docker-compose'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'io.projectreactor.netty:reactor-netty'
 }
 dependencyManagement {
     imports {
