@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<@NonNull UserEntity,@NonNull Long>, UserSearchRepository {
+public interface UserRepository extends JpaRepository<@NonNull UserEntity,@NonNull Long>, UserSearchRepository, UserRecommendRepository {
     boolean existsByEmail(String email);
 
     boolean existsByLoginId(String loginId);
