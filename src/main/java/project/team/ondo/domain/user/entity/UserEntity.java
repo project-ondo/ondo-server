@@ -69,6 +69,7 @@ public class UserEntity extends BaseEntity {
     @PrePersist
     void prePersist() {
         if (publicId == null) publicId = UUID.randomUUID();
+        if (bio == null) bio = "";
     }
 
     public static UserEntity create(
@@ -96,4 +97,23 @@ public class UserEntity extends BaseEntity {
                 .build();
     }
 
+    public void updateProfile (
+            String displayName,
+            Gender gender,
+            String major,
+            List<String> interests,
+            String profileImageUrl,
+            String bio
+    ) {
+        this.displayName = displayName;
+        this.gender = gender;
+        this.major = major;
+        this.interests = interests != null ? interests : new ArrayList<>();
+        this.profileImageUrl = profileImageUrl;
+        this.bio = bio != null ? bio : "";
+    }
+
+    public void withdraw() {
+        this.status = UserStatus.DELETED;
+    }
 }
