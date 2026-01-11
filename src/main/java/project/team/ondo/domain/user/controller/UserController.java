@@ -3,17 +3,20 @@ package project.team.ondo.domain.user.controller;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.team.ondo.domain.user.data.request.UpdateMyProfileRequest;
+import project.team.ondo.domain.user.data.request.UserSearchCondition;
 import project.team.ondo.domain.user.data.response.MyProfileResponse;
 import project.team.ondo.domain.user.data.response.UserPublicProfileResponse;
-import project.team.ondo.domain.user.service.GetMyProfileService;
-import project.team.ondo.domain.user.service.GetUserPublicProfileService;
-import project.team.ondo.domain.user.service.UpdateMyProfileService;
-import project.team.ondo.domain.user.service.UserWithdrawService;
+import project.team.ondo.domain.user.data.response.UserSearchItemResponse;
+import project.team.ondo.domain.user.service.*;
 import project.team.ondo.global.response.ApiResponse;
+import project.team.ondo.global.response.PageResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,6 +28,7 @@ public class UserController {
     private final GetUserPublicProfileService getUserPublicProfileService;
     private final UpdateMyProfileService updateMyProfileService;
     private final UserWithdrawService userWithdrawService;
+    private final SearchUserService searchUserService;
 
     @GetMapping("/my/profile")
     public ResponseEntity<@NonNull ApiResponse<MyProfileResponse>> getMyProfile() {
@@ -62,6 +66,28 @@ public class UserController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "회원 탈퇴가 성공적으로 완료되었습니다."
+                )
+        );
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<@NonNull ApiResponse<PageResponse<@NonNull UserSearchItemResponse>>> searchUsers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String major,
+            @RequestParam(required = false) List<String> interests,
+            @RequestParam(required = false, defaultValue = "") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        UserSearchCondition condition = new UserSearchCondition(keyword, major, interests, sort);
+
+        var resultPage = searchUserService.execute(condition, pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "유저 검색에 성공했습니다.",
+                        PageResponse.from(resultPage)
                 )
         );
     }
