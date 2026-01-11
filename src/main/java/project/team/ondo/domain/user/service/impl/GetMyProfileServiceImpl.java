@@ -8,6 +8,8 @@ import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.service.GetMyProfileService;
 import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
+import java.util.ArrayList;
+
 @Service
 @RequiredArgsConstructor
 public class GetMyProfileServiceImpl implements GetMyProfileService {
@@ -25,7 +27,7 @@ public class GetMyProfileServiceImpl implements GetMyProfileService {
                 user.getDisplayName(),
                 user.getGender(),
                 user.getMajor(),
-                user.getInterests(),
+                new ArrayList<>(user.getInterests()),
                 user.getProfileImageUrl(),
                 user.getBio(),
                 user.getRole(),
