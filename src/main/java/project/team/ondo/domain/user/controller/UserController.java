@@ -11,6 +11,7 @@ import project.team.ondo.domain.user.data.request.UpdateMyProfileRequest;
 import project.team.ondo.domain.user.data.request.UserSearchCondition;
 import project.team.ondo.domain.user.data.response.MyProfileResponse;
 import project.team.ondo.domain.user.data.response.UserPublicProfileResponse;
+import project.team.ondo.domain.user.data.response.UserRecommendItemResponse;
 import project.team.ondo.domain.user.data.response.UserSearchItemResponse;
 import project.team.ondo.domain.user.service.*;
 import project.team.ondo.global.response.ApiResponse;
@@ -29,6 +30,7 @@ public class UserController {
     private final UpdateMyProfileService updateMyProfileService;
     private final UserWithdrawService userWithdrawService;
     private final SearchUserService searchUserService;
+    private final RecommendUserService recommendUserService;
 
     @GetMapping("/my/profile")
     public ResponseEntity<@NonNull ApiResponse<MyProfileResponse>> getMyProfile() {
@@ -87,6 +89,22 @@ public class UserController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "유저 검색에 성공했습니다.",
+                        PageResponse.from(resultPage)
+                )
+        );
+    }
+
+    @GetMapping("/recommend")
+    public ResponseEntity<@NonNull ApiResponse<PageResponse<UserRecommendItemResponse>>> recommendUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        var resultPage = recommendUserService.execute(pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "추천유저 조회에 성공했습니다.",
                         PageResponse.from(resultPage)
                 )
         );
