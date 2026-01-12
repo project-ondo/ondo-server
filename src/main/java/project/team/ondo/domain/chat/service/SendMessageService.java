@@ -6,5 +6,5 @@ import project.team.ondo.domain.chat.entity.ChatMessageEntity;
 import java.util.UUID;
 
 public interface SendMessageService {
-    ChatMessageEntity execute(UUID chatRoomId, MessageType messageType, String content);
+    ChatMessageEntity execute(UUID senderPublicId, UUID chatRoomId, MessageType messageType, String content);
 }

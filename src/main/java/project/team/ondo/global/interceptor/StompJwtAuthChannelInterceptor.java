@@ -8,6 +8,7 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,33 +28,25 @@ public class StompJwtAuthChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        StompHeaderAccessor accessor =
+                MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        StompCommand command = accessor.getCommand();
-        if (command == null) {
+        if (accessor == null || accessor.getCommand() == null) {
             return message;
         }
 
-        if (StompCommand.CONNECT.equals(command)) {
+        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             String authHeader = accessor.getFirstNativeHeader("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 throw new MessagingException("Missing Authorization header");
             }
 
             String token = authHeader.substring(7);
-
             if (!Boolean.TRUE.equals(jwtParserService.validateAccessToken(token))) {
                 throw new MessagingException("Invalid access token");
             }
 
-            String subject = jwtParserService.getUserIdFromAccessToken(token);
-            UUID publicId;
-            try {
-                publicId = UUID.fromString(subject);
-            } catch (IllegalArgumentException e) {
-                throw new MessagingException("Invalid subject uuid");
-            }
-
+            UUID publicId = UUID.fromString(jwtParserService.getUserIdFromAccessToken(token));
             UserRole role = jwtParserService.getRoleFromAccessToken(token);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -63,12 +56,11 @@ public class StompJwtAuthChannelInterceptor implements ChannelInterceptor {
             );
 
             accessor.setUser(authentication);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             return message;
         }
 
-        if (StompCommand.DISCONNECT.equals(command)) {
+        if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
             SecurityContextHolder.clearContext();
             return message;
         }
