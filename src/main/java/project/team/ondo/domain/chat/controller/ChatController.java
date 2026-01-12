@@ -12,10 +12,7 @@ import project.team.ondo.domain.chat.data.request.CreateRoomRequest;
 import project.team.ondo.domain.chat.data.response.ChatMessageResponse;
 import project.team.ondo.domain.chat.data.response.ChatRoomListItemResponse;
 import project.team.ondo.domain.chat.data.response.CreateRoomResponse;
-import project.team.ondo.domain.chat.service.CreateRoomService;
-import project.team.ondo.domain.chat.service.GetMyRoomsService;
-import project.team.ondo.domain.chat.service.GetRoomMessagesService;
-import project.team.ondo.domain.chat.service.MarkRoomReadService;
+import project.team.ondo.domain.chat.service.*;
 import project.team.ondo.global.response.ApiResponse;
 import project.team.ondo.global.response.PageResponse;
 
@@ -30,6 +27,9 @@ public class ChatController {
     private final GetMyRoomsService getMyRoomsService;
     private final GetRoomMessagesService getRoomMessagesService;
     private final MarkRoomReadService markRoomReadService;
+    private final LeaveRoomService leaveRoomService;
+    private final BlockRoomService blockRoomService;
+    private final UnblockRoomService unblockRoomService;
 
     @PostMapping("/rooms")
     public ResponseEntity<@NonNull ApiResponse<CreateRoomResponse>> createRoom(@Valid @RequestBody CreateRoomRequest createRoomRequest) {
@@ -82,6 +82,36 @@ public class ChatController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "채팅방 읽음 처리에 성공했습니다."
+                )
+        );
+    }
+
+    @DeleteMapping("/rooms/{chatRoomId}")
+    public ResponseEntity<@NonNull ApiResponse<Void>> leaveRoom(@PathVariable UUID chatRoomId) {
+        leaveRoomService.execute(chatRoomId);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "채팅방 나가기에 성공했습니다."
+                )
+        );
+    }
+
+    @PutMapping("/rooms/{chatRoomId}/block")
+    public ResponseEntity<@NonNull ApiResponse<Void>> blockRoom(@PathVariable UUID chatRoomId) {
+        blockRoomService.execute(chatRoomId);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "채팅방 차단에 성공했습니다."
+                )
+        );
+    }
+
+    @DeleteMapping("/rooms/{chatRoomId}/block")
+    public ResponseEntity<@NonNull ApiResponse<Void>> unblockRoom(@PathVariable UUID chatRoomId) {
+        unblockRoomService.execute(chatRoomId);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "채팅방 차단 해제에 성공했습니다."
                 )
         );
     }
