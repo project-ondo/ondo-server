@@ -11,6 +11,9 @@ import project.team.ondo.domain.chat.data.response.ChatMessageResponse;
 import project.team.ondo.domain.chat.entity.ChatMessageEntity;
 import project.team.ondo.domain.chat.service.SendMessageService;
 
+import java.security.Principal;
+import java.util.UUID;
+
 @Controller
 @RequiredArgsConstructor
 public class ChatWebSocketController {
@@ -19,8 +22,12 @@ public class ChatWebSocketController {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @MessageMapping("/chat.send")
-    public void send(@Valid @Payload SendMessageRequest request) {
+    public void send(@Valid @Payload SendMessageRequest request, Principal principal) {
+
+        UUID senderPublicId = UUID.fromString(principal.getName());
+
         ChatMessageEntity savedMessage = sendMessageService.execute(
+                senderPublicId,
                 request.roomId(),
                 request.messageType(),
                 request.content()
@@ -35,6 +42,6 @@ public class ChatWebSocketController {
                 savedMessage.getCreatedAt()
         );
 
-        simpMessagingTemplate.convertAndSend("/sub/chat/rooms" + request.roomId(), payload);
+        simpMessagingTemplate.convertAndSend("/topic/chat.rooms." + request.roomId(), payload);
     }
 }
