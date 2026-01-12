@@ -10,6 +10,7 @@ public class DomainAuthorizationConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/ws/**").permitAll()
                 .anyRequest().authenticated()
         );
     }
