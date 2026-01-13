@@ -30,6 +30,7 @@ public enum ErrorCode {
     //CHAT
     CHAT_ROOM_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방 멤버를 찾을 수 없습니다."),
     USER_CHAT_BLOCKED(HttpStatus.FORBIDDEN, "차단된 유저와는 채팅할 수 없습니다."),
+    CHAT_ROOM_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 채팅방입니다."),
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다.");
 
     private final HttpStatus status;

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
+import project.team.ondo.domain.chat.exception.ChatRoomDuplicatedException;
 import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
@@ -49,6 +50,14 @@ public class CreateRoomServiceImpl implements CreateRoomService {
         final long targetUserId = targetUser.getId();
 
         ChatRoomMemberEntity meMember = chatRoomMemberRepository.findByRoomIdAndUserId(roomId, meId).orElse(null);
+        ChatRoomMemberEntity targetMember = chatRoomMemberRepository.findByRoomIdAndUserId(roomId, targetUserId).orElse(null);
+
+        boolean meActive = meMember != null && meMember.isActive();
+        boolean targetActive = targetMember != null && targetMember.isActive();
+
+        if (meActive && targetActive) {
+            throw new ChatRoomDuplicatedException();
+        }
 
         if (meMember == null) {
             chatRoomMemberRepository.save(ChatRoomMemberEntity.create(roomId, meId));
@@ -56,7 +65,7 @@ public class CreateRoomServiceImpl implements CreateRoomService {
             meMember.join();
         }
 
-        ChatRoomMemberEntity targetMember = chatRoomMemberRepository.findByRoomIdAndUserId(roomId, targetUserId).orElse(null);
+
         if (targetMember == null) {
             chatRoomMemberRepository.save(ChatRoomMemberEntity.create(roomId, targetUserId));
         } else if (!targetMember.isActive()) {
