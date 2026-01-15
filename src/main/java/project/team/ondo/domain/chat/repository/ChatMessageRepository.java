@@ -10,4 +10,6 @@ import project.team.ondo.domain.chat.entity.ChatMessageEntity;
 @Repository
 public interface ChatMessageRepository extends JpaRepository<@NonNull ChatMessageEntity, @NonNull Long>, ChatMessageQueryRepository {
     Page<@NonNull ChatMessageEntity> findAllByRoomIdOrderByIdDesc(Long roomId, Pageable pageable);
+
+    Page<@NonNull ChatMessageEntity> findAllByRoomIdAndIdLessThanOrderByIdDesc(Long roomId, Long cursor, Pageable pageable);
 }

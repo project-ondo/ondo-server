@@ -3,6 +3,7 @@ package project.team.ondo.domain.chat.service.impl;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +17,10 @@ import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.GetRoomMessagesService;
 import project.team.ondo.domain.user.entity.UserEntity;
+import project.team.ondo.global.response.CursorResponse;
 import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -31,21 +34,34 @@ public class GetRoomMessagesServiceImpl implements GetRoomMessagesService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<@NonNull ChatMessageResponse> execute(UUID roomId, Pageable pageable) {
+    public CursorResponse<@NonNull ChatMessageResponse> execute(UUID roomPublicId, Long cursor, int size) {
         UserEntity me = currentUserProvider.getCurrentUser();
-        ChatRoomEntity chatRoom = chatRoomRepository.findByPublicId(roomId).orElseThrow(ChatRoomNotFoundException::new);
 
-        chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), me.getId()).orElseThrow(ChatRoomMemberNotFoundException::new);
+        ChatRoomEntity chatRoom = chatRoomRepository.findByPublicId(roomPublicId)
+                .orElseThrow(ChatRoomNotFoundException::new);
 
-        Page<@NonNull ChatMessageEntity> page = chatMessageRepository.findAllByRoomIdOrderByIdDesc(chatRoom.getId(), pageable);
+        chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), me.getId())
+                .orElseThrow(ChatRoomMemberNotFoundException::new);
 
-        return page.map(message -> new ChatMessageResponse(
-                message.getId(),
-                roomId,
-                message.getSenderId(),
-                message.getMessageType(),
-                message.getContent(),
-                message.getCreatedAt()
-        ));
+        Pageable pageable = PageRequest.of(0, size);
+
+        Page<@NonNull ChatMessageEntity> page = (cursor == null)
+                ? chatMessageRepository.findAllByRoomIdOrderByIdDesc(chatRoom.getId(), pageable)
+                : chatMessageRepository.findAllByRoomIdAndIdLessThanOrderByIdDesc(chatRoom.getId(), cursor, pageable);
+
+        List<ChatMessageResponse> items = page.getContent().stream()
+                .map(message -> new ChatMessageResponse(
+                        message.getId(),
+                        roomPublicId,
+                        message.getSenderId(),
+                        message.getMessageType(),
+                        message.getContent(),
+                        message.getCreatedAt()
+                ))
+                .toList();
+
+        Long nextCursor = items.isEmpty() ? null : items.getLast().messageId();
+
+        return CursorResponse.of(items, nextCursor, page.hasNext());
     }
 }
