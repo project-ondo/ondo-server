@@ -55,3 +55,11 @@ messaging:
     port: 61613
     username: user
     password: 123456
+
+aws:
+  s3:
+    bucket: ${AWS_S3_BUCKET}
+    region: ${AWS_REGION:ap-northeast-2}
+    presign:
+      put-expiration-seconds: 120
+      get-expiration-seconds: 600
