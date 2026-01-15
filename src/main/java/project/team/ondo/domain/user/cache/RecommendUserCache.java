@@ -43,7 +43,7 @@ public class RecommendUserCache {
                         user.getGender(),
                         user.getMajor(),
                         List.copyOf(user.getInterests()),
-                        user.getProfileImageUrl()
+                        user.getProfileImageKey()
                 ))
                 .toList();
 

@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import project.team.ondo.domain.user.data.request.UpdateMyProfileImageRequest;
 import project.team.ondo.domain.user.data.request.UpdateMyProfileRequest;
 import project.team.ondo.domain.user.data.request.UserSearchCondition;
 import project.team.ondo.domain.user.data.response.MyProfileResponse;
@@ -31,6 +32,7 @@ public class UserController {
     private final UserWithdrawService userWithdrawService;
     private final SearchUserService searchUserService;
     private final RecommendUserService recommendUserService;
+    private final UpdateMyProfileImageService updateMyProfileImageService;
 
     @GetMapping("/my/profile")
     public ResponseEntity<@NonNull ApiResponse<MyProfileResponse>> getMyProfile() {
@@ -107,6 +109,16 @@ public class UserController {
                         "추천유저 조회에 성공했습니다.",
                         PageResponse.from(resultPage)
                 )
+        );
+    }
+
+    @PutMapping("/my/profile/image")
+    public ResponseEntity<@NonNull ApiResponse<Void>> updateMyProfileImage(
+            @Valid @RequestBody UpdateMyProfileImageRequest request
+    ) {
+        updateMyProfileImageService.execute(request);
+        return ResponseEntity.ok(
+                ApiResponse.success("프로필 이미지가 성공적으로 변경되었습니다.")
         );
     }
 }

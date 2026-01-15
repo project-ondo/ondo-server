@@ -43,7 +43,6 @@ public class UpdateMyProfileServiceImpl implements UpdateMyProfileService {
                 request.gender(),
                 request.major(),
                 request.interests(),
-                request.profileImageUrl(),
                 request.bio()
         );
 

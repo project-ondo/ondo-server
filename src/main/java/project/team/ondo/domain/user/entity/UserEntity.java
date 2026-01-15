@@ -52,8 +52,8 @@ public class UserEntity extends BaseEntity {
     @Column(name = "interest", nullable = false, length = 30)
     private List<String> interests = new ArrayList<>();
 
-    @Column(length = 50)
-    private String profileImageUrl;
+    @Column(length = 512)
+    private String profileImageKey;
 
     @Column(length = 500)
     private String bio;
@@ -90,7 +90,7 @@ public class UserEntity extends BaseEntity {
                 .gender(gender)
                 .major(major)
                 .interests(interests != null ? interests : new ArrayList<>())
-                .profileImageUrl(profileImageUrl)
+                .profileImageKey(profileImageUrl)
                 .bio("")
                 .role(UserRole.ROLE_USER)
                 .status(UserStatus.ACTIVE)
@@ -102,18 +102,20 @@ public class UserEntity extends BaseEntity {
             Gender gender,
             String major,
             List<String> interests,
-            String profileImageUrl,
             String bio
     ) {
         this.displayName = displayName;
         this.gender = gender;
         this.major = major;
         this.interests = interests != null ? interests : new ArrayList<>();
-        this.profileImageUrl = profileImageUrl;
         this.bio = bio != null ? bio : "";
     }
 
     public void withdraw() {
         this.status = UserStatus.DELETED;
+    }
+
+    public void updateProfileImage(String profileImageKey) {
+        this.profileImageKey = profileImageKey;
     }
 }

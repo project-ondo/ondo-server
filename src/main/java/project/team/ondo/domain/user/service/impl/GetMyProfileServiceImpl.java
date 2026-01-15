@@ -28,7 +28,7 @@ public class GetMyProfileServiceImpl implements GetMyProfileService {
                 user.getGender(),
                 user.getMajor(),
                 new ArrayList<>(user.getInterests()),
-                user.getProfileImageUrl(),
+                user.getProfileImageKey(),
                 user.getBio(),
                 user.getRole(),
                 user.getStatus()

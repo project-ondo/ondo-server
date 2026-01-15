@@ -11,7 +11,6 @@ public record UpdateMyProfileRequest(
         Gender gender,
         @NotBlank @Size(max=20) String major,
         List<@NotBlank @Size(max=20) String> interests,
-        String profileImageUrl,
         @Size(max=500) String bio
 ) {
 }
