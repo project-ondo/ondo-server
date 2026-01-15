@@ -119,7 +119,7 @@ public class GetMyRoomsServiceImpl implements GetMyRoomsService {
                     room.getPublicId(),
                     opponent.getPublicId(),
                     opponent.getDisplayName(),
-                    opponent.getProfileImageUrl(),
+                    opponent.getProfileImageKey(),
                     false,
                     unread,
                     preview,

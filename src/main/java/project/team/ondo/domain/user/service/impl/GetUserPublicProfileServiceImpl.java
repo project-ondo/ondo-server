@@ -30,7 +30,7 @@ public class GetUserPublicProfileServiceImpl implements GetUserPublicProfileServ
                 user.getGender(),
                 user.getMajor(),
                 new ArrayList<>(user.getInterests()),
-                user.getProfileImageUrl(),
+                user.getProfileImageKey(),
                 user.getBio(),
                 user.getRole()
         );
