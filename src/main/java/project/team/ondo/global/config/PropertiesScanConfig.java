@@ -2,16 +2,14 @@ package project.team.ondo.global.config;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import project.team.ondo.global.data.CorsEnvironment;
-import project.team.ondo.global.data.JwtEnvironment;
-import project.team.ondo.global.data.EmailEnvironment;
-import project.team.ondo.global.data.RabbitmqEnvironment;
+import project.team.ondo.global.data.*;
 
 @EnableConfigurationProperties({
         RabbitmqEnvironment.class,
         JwtEnvironment.class,
         CorsEnvironment.class,
-        EmailEnvironment.class
+        EmailEnvironment.class,
+        S3Environment.class
 })
 @Configuration
 public class PropertiesScanConfig {

@@ -23,7 +23,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final List<String> PUBLIC_PATTERNS = List.of(
             "/",
-            "/auth/**"
+            "/auth/**",
+            "/ws/**"
     );
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 

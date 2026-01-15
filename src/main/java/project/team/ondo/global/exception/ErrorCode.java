@@ -25,7 +25,13 @@ public enum ErrorCode {
     ATTEMPT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "인증 시도 횟수를 초과했습니다."),
     EMAIL_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST, "이미 인증된 이메일입니다."),
     EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증이 필요합니다."),
-    EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다.");
+    EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
+
+    //CHAT
+    CHAT_ROOM_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방 멤버를 찾을 수 없습니다."),
+    USER_CHAT_BLOCKED(HttpStatus.FORBIDDEN, "차단된 유저와는 채팅할 수 없습니다."),
+    CHAT_ROOM_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 채팅방입니다."),
+    CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;
