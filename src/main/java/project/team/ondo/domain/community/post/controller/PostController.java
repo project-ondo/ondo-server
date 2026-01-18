@@ -12,6 +12,8 @@ import project.team.ondo.domain.community.post.data.request.UpdatePostRequest;
 import project.team.ondo.domain.community.post.data.response.PostDetailResponse;
 import project.team.ondo.domain.community.post.data.response.PostRecommendItemResponse;
 import project.team.ondo.domain.community.post.service.*;
+import project.team.ondo.domain.community.postlike.service.LikePostService;
+import project.team.ondo.domain.community.postlike.service.UnlikePostService;
 import project.team.ondo.global.response.ApiResponse;
 import project.team.ondo.global.response.PageResponse;
 
@@ -25,6 +27,8 @@ public class PostController {
     private final UpdatePostService updatePostService;
     private final GetPostDetailService getPostDetailService;
     private final DeletePostService deletePostService;
+    private final LikePostService likePostService;
+    private final UnlikePostService unlikePostService;
 
     @GetMapping("/recommend")
     public ResponseEntity<@NonNull ApiResponse<PageResponse<PostRecommendItemResponse>>> recommendPosts(
@@ -83,6 +87,26 @@ public class PostController {
         deletePostService.execute(postId);
         return ResponseEntity.ok(
                 ApiResponse.success("게시물 삭제에 성공했습니다.")
+        );
+    }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<@NonNull ApiResponse<Void>> likePost(
+            @PathVariable Long postId
+    ) {
+        likePostService.execute(postId);
+        return ResponseEntity.ok(
+                ApiResponse.success("게시물 좋아요에 성공했습니다.")
+        );
+    }
+
+    @DeleteMapping("/{postId}/like")
+    public ResponseEntity<@NonNull ApiResponse<Void>> unlikePost(
+            @PathVariable Long postId
+    ) {
+        unlikePostService.execute(postId);
+        return ResponseEntity.ok(
+                ApiResponse.success("게시물 좋아요 취소에 성공했습니다.")
         );
     }
 
