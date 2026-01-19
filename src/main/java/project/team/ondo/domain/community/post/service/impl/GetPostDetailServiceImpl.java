@@ -16,7 +16,7 @@ public class GetPostDetailServiceImpl implements GetPostDetailService {
 
     private final PostRepository postRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public PostDetailResponse execute(Long postId) {
         PostEntity post = postRepository.findByIdAndStatus(postId, PostStatus.ACTIVE)
