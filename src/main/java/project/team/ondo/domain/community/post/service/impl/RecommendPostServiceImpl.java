@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.community.post.data.response.PostRecommendItemResponse;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.community.post.service.RecommendPostService;
@@ -19,6 +20,7 @@ public class RecommendPostServiceImpl implements RecommendPostService {
     private final CurrentUserProvider currentUserProvider;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<@NonNull PostRecommendItemResponse> execute(Pageable pageable){
         UserEntity me = currentUserProvider.getCurrentUser();
         return postRepository.recommend(me, pageable);
