@@ -1,6 +1,5 @@
 package project.team.ondo.domain.community.post.repository.impl;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -14,13 +13,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.data.response.PostRecommendItemResponse;
+import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.entity.QPostEntity;
 import project.team.ondo.domain.community.post.repository.PostRecommendRepository;
 import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.domain.user.entity.QUserEntity;
 import project.team.ondo.domain.user.entity.UserEntity;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -91,31 +95,30 @@ public class PostRecommendRepositoryImpl implements PostRecommendRepository {
             return Page.empty(pageable);
         }
 
-        List<PostRecommendItemResponse> content =
-                jpaQueryFactory
-                        .select(
-                                Projections.constructor(
-                                        PostRecommendItemResponse.class,
-                                        post.id,
-                                        post.title,
-                                        post.author.displayName,
-                                        post.tags,
-                                        post.viewCount,
-                                        post.likeCount,
-                                        post.commentCount
-                                )
-                        )
-                        .from(post)
-                        .where(post.id.in(postIds))
-                        .orderBy(
-                                Expressions.numberTemplate(
-                                        Integer.class,
-                                        "FIELD({0}, {1})",
-                                        post.id,
-                                        postIds
-                                ).asc()
-                        )
-                        .fetch();
+        List<PostEntity> posts = jpaQueryFactory
+                .selectFrom(post)
+                .join(post.author, user).fetchJoin()
+                .leftJoin(post.tags, tag).fetchJoin()
+                .where(post.id.in(postIds))
+                .distinct()
+                .fetch();
+
+        Map<Long, PostEntity> postMap = posts.stream()
+                .collect(Collectors.toMap(PostEntity::getId, p -> p));
+
+        List<PostRecommendItemResponse> content = postIds.stream()
+                .map(postMap::get)
+                .filter(Objects::nonNull)
+                .map(p -> new PostRecommendItemResponse(
+                        p.getId(),
+                        p.getTitle(),
+                        p.getAuthor().getDisplayName(),
+                        new ArrayList<>(p.getTags()),
+                        p.getViewCount(),
+                        p.getLikeCount(),
+                        p.getCommentCount()
+                ))
+                .toList();
 
         Long total = jpaQueryFactory
                 .select(post.id.count())
