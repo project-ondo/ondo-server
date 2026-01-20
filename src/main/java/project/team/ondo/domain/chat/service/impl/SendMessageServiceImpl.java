@@ -1,12 +1,14 @@
 package project.team.ondo.domain.chat.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.constant.MessageType;
 import project.team.ondo.domain.chat.entity.ChatMessageEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
+import project.team.ondo.domain.chat.event.ChatMessageSentEvent;
 import project.team.ondo.domain.chat.exception.ChatRoomMemberNotFoundException;
 import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.exception.UserChatBlockedException;
@@ -28,6 +30,7 @@ public class SendMessageServiceImpl implements SendMessageService {
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
@@ -59,6 +62,12 @@ public class SendMessageServiceImpl implements SendMessageService {
             opponentMember.join();
         }
 
-        return chatMessageRepository.save(ChatMessageEntity.create(chatRoom.getId(), me.getId(), messageType, content));
+        ChatMessageEntity message = chatMessageRepository.save(ChatMessageEntity.create(chatRoom.getId(), me.getId(), messageType, content));
+
+        eventPublisher.publishEvent(
+                new ChatMessageSentEvent(message)
+        );
+
+        return message;
     }
 }
