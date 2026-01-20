@@ -11,6 +11,7 @@ public record ChatRoomListItemResponse(
         boolean opponentOnline,
         long unreadCount,
         String lastMessagePreview,
+        boolean muted,
         LocalDateTime lastMessageAt
 ) {
 }
