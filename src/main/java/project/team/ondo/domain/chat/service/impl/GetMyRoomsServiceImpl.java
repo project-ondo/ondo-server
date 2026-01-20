@@ -14,6 +14,7 @@ import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
 import project.team.ondo.domain.chat.repository.ChatMessageRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
+import project.team.ondo.domain.chat.service.ChatPresenceService;
 import project.team.ondo.domain.chat.service.GetMyRoomsService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.repository.UserRepository;
@@ -36,7 +37,7 @@ public class GetMyRoomsServiceImpl implements GetMyRoomsService {
     private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
     private final CurrentUserProvider currentUserProvider;
-
+    private final ChatPresenceService chatPresenceService;
 
     @Transactional(readOnly = true)
     @Override
@@ -115,14 +116,18 @@ public class GetMyRoomsServiceImpl implements GetMyRoomsService {
 
             LocalDateTime lastMessageAt = lastMessage == null ? null : lastMessage.getCreatedAt();
 
+            boolean opponentOnline = chatPresenceService.isOnline(opponent.getPublicId());
+            boolean muted = myMember != null && myMember.isMuted();
+
             content.add(new ChatRoomListItemResponse(
                     room.getPublicId(),
                     opponent.getPublicId(),
                     opponent.getDisplayName(),
                     opponent.getProfileImageKey(),
-                    false,
+                    opponentOnline,
                     unread,
                     preview,
+                    muted,
                     lastMessageAt
             ));
         }
