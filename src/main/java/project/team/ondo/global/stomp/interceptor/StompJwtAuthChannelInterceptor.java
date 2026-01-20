@@ -1,4 +1,4 @@
-package project.team.ondo.global.interceptor;
+package project.team.ondo.global.stomp.interceptor;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
