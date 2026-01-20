@@ -38,3 +38,6 @@ out/
 
 ### env ###
 .env
+
+### Firebase ###
+ondo-firebase-admin-sdk.json
