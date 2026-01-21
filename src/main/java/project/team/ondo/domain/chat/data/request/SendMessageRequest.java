@@ -6,7 +6,7 @@ import project.team.ondo.domain.chat.constant.MessageType;
 import java.util.UUID;
 
 public record SendMessageRequest(
-        @NotNull UUID roomId,
+        @NotNull UUID chatRoomPublicId,
         @NotNull MessageType messageType,
         @NotNull String content
 ) {
