@@ -36,6 +36,9 @@ public class ChatRoomMemberEntity extends BaseEntity {
     @Column(name = "last_read_message_id")
     private Long lastReadMessageId;
 
+    @Column(nullable = false)
+    private boolean muted;
+
     public static ChatRoomMemberEntity create(Long roomId, Long userId) {
         return ChatRoomMemberEntity.builder()
                 .roomId(roomId)
@@ -43,6 +46,7 @@ public class ChatRoomMemberEntity extends BaseEntity {
                 .active(true)
                 .blocked(false)
                 .lastReadMessageId(null)
+                .muted(false)
                 .build();
     }
 
@@ -60,6 +64,14 @@ public class ChatRoomMemberEntity extends BaseEntity {
 
     public void unblock() {
         this.blocked = false;
+    }
+
+    public void mute() {
+        this.muted = true;
+    }
+
+    public void unmute() {
+        this.muted = false;
     }
 
     public void updateLastReadMessageId(Long messageId) {

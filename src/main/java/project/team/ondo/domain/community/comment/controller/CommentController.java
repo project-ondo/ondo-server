@@ -25,8 +25,8 @@ public class CommentController {
     private final GetCommentsService getCommentsService;
     private final DeleteCommentService deleteCommentService;
 
-    @PostMapping("/{postId}/comments")
-    public ResponseEntity<ApiResponse<Void>> create(
+    @PostMapping("/{postId}")
+    public ResponseEntity<@NonNull ApiResponse<Void>> create(
             @PathVariable Long postId,
             @Valid @RequestBody CreateCommentRequest request
     ) {
@@ -36,7 +36,7 @@ public class CommentController {
         );
     }
 
-    @GetMapping("/{postId}/comments")
+    @GetMapping("/{postId}")
     public ResponseEntity<@NonNull ApiResponse<PageResponse<CommentItemResponse>>> getComments(
             @PathVariable Long postId,
             @RequestParam(defaultValue = "0") int page,
@@ -58,7 +58,7 @@ public class CommentController {
         );
     }
 
-    @DeleteMapping("/comments/{commentId}")
+    @DeleteMapping("/{commentId}")
     public ResponseEntity<@NonNull ApiResponse<Void>> delete(
             @PathVariable Long commentId
     ) {

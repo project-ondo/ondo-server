@@ -31,6 +31,8 @@ public class ChatController {
     private final LeaveRoomService leaveRoomService;
     private final BlockRoomService blockRoomService;
     private final UnblockRoomService unblockRoomService;
+    private final MuteChatRoomService muteChatRoomService;
+    private final UnmuteChatRoomService unmuteChatRoomService;
 
     @PostMapping("/rooms")
     public ResponseEntity<@NonNull ApiResponse<CreateRoomResponse>> createRoom(@Valid @RequestBody CreateRoomRequest createRoomRequest) {
@@ -113,5 +115,19 @@ public class ChatController {
                         "채팅방 차단 해제에 성공했습니다."
                 )
         );
+    }
+
+    @PutMapping("/rooms/{chatRoomPublicId}/mute")
+    public ResponseEntity<@NonNull ApiResponse<Void>> muteRoom(@PathVariable UUID chatRoomPublicId) {
+        muteChatRoomService.execute(chatRoomPublicId);
+        return ResponseEntity.ok(
+                ApiResponse.success("채팅방 알림 끄기에 성공했습니다.")
+        );
+    }
+
+    @DeleteMapping("/rooms/{chatRoomPublicId}/mute")
+    public ResponseEntity<@NonNull ApiResponse<Void>> unmuteRoom(@PathVariable UUID chatRoomPublicId) {
+        unmuteChatRoomService.execute(chatRoomPublicId);
+        return ResponseEntity.ok(ApiResponse.success("채팅방 알림 켜기에 성공했습니다."));
     }
 }

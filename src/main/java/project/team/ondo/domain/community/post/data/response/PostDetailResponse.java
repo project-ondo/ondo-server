@@ -2,6 +2,7 @@ package project.team.ondo.domain.community.post.data.response;
 
 import project.team.ondo.domain.community.post.entity.PostEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record PostDetailResponse(
@@ -20,7 +21,7 @@ public record PostDetailResponse(
                 post.getTitle(),
                 post.getContent(),
                 post.getAuthor().getDisplayName(),
-                post.getTags(),
+                new ArrayList<>(post.getTags()),
                 post.getViewCount(),
                 post.getLikeCount(),
                 post.getCommentCount()
