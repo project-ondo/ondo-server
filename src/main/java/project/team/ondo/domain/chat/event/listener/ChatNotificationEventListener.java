@@ -15,6 +15,7 @@ import project.team.ondo.domain.chat.service.ChatPresenceService;
 import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.entity.NotificationEntity;
 import project.team.ondo.domain.notification.repository.NotificationRepository;
+import project.team.ondo.domain.notification.service.NotificationPolicyService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
@@ -34,9 +35,10 @@ public class ChatNotificationEventListener {
     private final ChatPresenceService chatPresenceService;
     private final NotificationRepository notificationRepository;
     private final ChatRoomMuteRepository chatRoomMuteRepository;
+    private final NotificationPolicyService notificationPolicyService;
 
     @Async
-    @Transactional(readOnly = true)
+    @Transactional
     @EventListener
     public void handle(ChatMessageSentEvent event) {
         ChatMessageEntity message = event.message();
@@ -73,6 +75,8 @@ public class ChatNotificationEventListener {
                         "chatRoomPublicId=" + roomPublicId
                 )
         );
+
+        if (!notificationPolicyService.shouldSendPush(receiver.getPublicId(), NotificationType.CHAT_MESSAGE)) return;
 
         fcmPushService.send(
                 new FcmPushCommand(
