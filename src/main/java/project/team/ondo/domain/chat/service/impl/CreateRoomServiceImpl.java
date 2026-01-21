@@ -1,11 +1,13 @@
 package project.team.ondo.domain.chat.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
+import project.team.ondo.domain.chat.event.ChatRoomMatchedEvent;
 import project.team.ondo.domain.chat.exception.ChatRoomDuplicatedException;
 import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
@@ -26,6 +28,7 @@ public class CreateRoomServiceImpl implements CreateRoomService {
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final UserRepository userRepository;
     private final CurrentUserProvider currentUserProvider;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -42,7 +45,8 @@ public class CreateRoomServiceImpl implements CreateRoomService {
             chatRoom = chatRoomRepository.findByUserAIdAndUserBId(a, b)
                     .orElseGet(() -> chatRoomRepository.save(ChatRoomEntity.create(a, b)));
         } catch (DataIntegrityViolationException e) {
-            chatRoom = chatRoomRepository.findByUserAIdAndUserBId(a, b).orElseThrow(ChatRoomNotFoundException::new);
+            chatRoom = chatRoomRepository.findByUserAIdAndUserBId(a, b)
+                    .orElseThrow(ChatRoomNotFoundException::new);
         }
 
         final long roomId = chatRoom.getId();
@@ -71,6 +75,14 @@ public class CreateRoomServiceImpl implements CreateRoomService {
         } else if (!targetMember.isActive()) {
             targetMember.join();
         }
+
+        eventPublisher.publishEvent(
+                new ChatRoomMatchedEvent(
+                        targetUser.getPublicId(),
+                        chatRoom.getPublicId(),
+                        me.getPublicId()
+                )
+        );
 
         return chatRoom.getPublicId();
     }
