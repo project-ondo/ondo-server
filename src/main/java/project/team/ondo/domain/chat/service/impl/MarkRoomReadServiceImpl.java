@@ -1,10 +1,12 @@
 package project.team.ondo.domain.chat.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
+import project.team.ondo.domain.chat.event.ChatRoomReadMarkedEvent;
 import project.team.ondo.domain.chat.exception.ChatRoomMemberNotFoundException;
 import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
@@ -22,6 +24,7 @@ public class MarkRoomReadServiceImpl implements MarkRoomReadService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final CurrentUserProvider currentUserProvider;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
@@ -33,6 +36,19 @@ public class MarkRoomReadServiceImpl implements MarkRoomReadService {
         ChatRoomMemberEntity chatRoomMember = chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), me.getId())
                 .orElseThrow(ChatRoomMemberNotFoundException::new);
 
-        chatRoomMember.updateLastReadMessageId(lastReadMessageId);
+        long current = chatRoomMember.getLastReadMessageId() == null ? 0L : chatRoomMember.getLastReadMessageId();
+        long next = Math.max(current, lastReadMessageId == null ? 0L : lastReadMessageId);
+
+        chatRoomMember.updateLastReadMessageId(next);
+
+        eventPublisher.publishEvent(
+                new ChatRoomReadMarkedEvent(
+                        chatRoom.getId(),
+                        chatRoom.getPublicId(),
+                        me.getId(),
+                        me.getPublicId(),
+                        next
+                )
+        );
     }
 }
