@@ -1,4 +1,4 @@
-package project.team.ondo.domain.notification;
+package project.team.ondo.domain.notification.constant;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

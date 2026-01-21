@@ -10,7 +10,7 @@ import project.team.ondo.domain.community.comment.event.PostCommentCreatedEvent;
 import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
-import project.team.ondo.domain.notification.NotificationType;
+import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.entity.NotificationEntity;
 import project.team.ondo.domain.notification.repository.NotificationRepository;
 import project.team.ondo.domain.user.entity.UserEntity;

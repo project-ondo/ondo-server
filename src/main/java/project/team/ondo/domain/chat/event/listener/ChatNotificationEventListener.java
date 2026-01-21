@@ -12,7 +12,7 @@ import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.repository.ChatRoomMuteRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.ChatPresenceService;
-import project.team.ondo.domain.notification.NotificationType;
+import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.entity.NotificationEntity;
 import project.team.ondo.domain.notification.repository.NotificationRepository;
 import project.team.ondo.domain.user.entity.UserEntity;

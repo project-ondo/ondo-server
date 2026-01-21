@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.event.ChatRoomMatchedEvent;
-import project.team.ondo.domain.notification.NotificationType;
+import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.entity.NotificationEntity;
 import project.team.ondo.domain.notification.repository.NotificationRepository;
 import project.team.ondo.domain.user.entity.UserEntity;
