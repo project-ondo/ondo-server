@@ -43,7 +43,9 @@ public class RecommendUserCache {
                         user.getGender(),
                         user.getMajor(),
                         List.copyOf(user.getInterests()),
-                        user.getProfileImageKey()
+                        user.getProfileImageKey(),
+                        user.getRatingAvg(),
+                        user.getRatingCount()
                 ))
                 .toList();
 

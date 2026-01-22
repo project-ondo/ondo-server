@@ -11,6 +11,8 @@ public record UserRecommendItemResponse(
         Gender gender,
         String major,
         List<String> interests,
-        String profileImageUrl
+        String profileImageUrl,
+        double ratingAverage,
+        long ratingCount
 ) {
 }
