@@ -1,17 +1,16 @@
-version: '3.8'
-
 services:
-  maria-db:
-    image: mariadb:latest
-    container_name: ondo-mariadb
+  mysql:
+    image: mysql:latest
+    container_name: ondo-mysql
     environment:
+      MYSQL_DATABASE: ondo
       MYSQL_USER: user
       MYSQL_PASSWORD: 123456
       MYSQL_ROOT_PASSWORD: 123456
     ports:
       - '3306:3306'
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
   redis:
     image: redis:latest
@@ -37,4 +36,4 @@ services:
       retries: 20
 
 volumes:
-  mariadb_data:
+  mysql_data:
