@@ -2,7 +2,7 @@ package project.team.ondo.domain.notification.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import project.team.ondo.domain.notification.NotificationType;
+import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.global.entity.BaseEntity;
 
 import java.util.UUID;
@@ -45,6 +45,10 @@ public class NotificationEntity extends BaseEntity {
     @Column(nullable = false, name = "`read`")
     private boolean read = false;
 
+    @Builder.Default
+    @Column(name = "group_count", nullable = false)
+    private long groupCount = 1L;
+
     public static NotificationEntity create(
             UUID receiverPublicId,
             NotificationType type,
@@ -77,7 +81,19 @@ public class NotificationEntity extends BaseEntity {
                 .build();
     }
 
+    public void increaseGroupCount() {
+        this.groupCount++;
+    }
+
     public void markRead() {
         this.read = true;
+    }
+
+    public void updateBody(String body) {
+        this.body = body;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
     }
 }

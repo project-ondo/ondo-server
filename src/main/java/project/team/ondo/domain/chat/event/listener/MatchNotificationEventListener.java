@@ -6,9 +6,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.event.ChatRoomMatchedEvent;
-import project.team.ondo.domain.notification.NotificationType;
+import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.entity.NotificationEntity;
 import project.team.ondo.domain.notification.repository.NotificationRepository;
+import project.team.ondo.domain.notification.service.NotificationPolicyService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
@@ -25,6 +26,7 @@ public class MatchNotificationEventListener {
     private final NotificationRepository notificationRepository;
     private final FcmPushService fcmPushService;
     private final UserRepository userRepository;
+    private final NotificationPolicyService notificationPolicyService;
 
     @Async
     @Transactional
@@ -45,6 +47,8 @@ public class MatchNotificationEventListener {
                         "chatRoomPublicId=" + event.chatRoomPublicId()
                 )
         );
+
+        if (!notificationPolicyService.shouldSendPush(event.receiverPublicId(), NotificationType.MATCH_CREATED)) return;
 
         var data = new HashMap<String, String>();
         data.put("type", "MATCH_CREATED");

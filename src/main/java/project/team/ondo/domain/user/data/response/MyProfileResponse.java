@@ -18,6 +18,8 @@ public record MyProfileResponse(
         String profileImageUrl,
         String bio,
         UserRole role,
-        UserStatus status
+        UserStatus status,
+        double ratingAverage,
+        long ratingCount
 ) {
 }

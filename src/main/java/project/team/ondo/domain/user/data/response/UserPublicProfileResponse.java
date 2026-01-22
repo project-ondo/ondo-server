@@ -14,6 +14,8 @@ public record UserPublicProfileResponse(
         List<String> interests,
         String profileImageUrl,
         String bio,
-        UserRole role
+        UserRole role,
+        double ratingAverage,
+        long ratingCount
 ) {
 }

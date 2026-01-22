@@ -31,7 +31,9 @@ public class GetMyProfileServiceImpl implements GetMyProfileService {
                 user.getProfileImageKey(),
                 user.getBio(),
                 user.getRole(),
-                user.getStatus()
+                user.getStatus(),
+                user.getRatingAvg(),
+                user.getRatingCount()
         );
     }
 }

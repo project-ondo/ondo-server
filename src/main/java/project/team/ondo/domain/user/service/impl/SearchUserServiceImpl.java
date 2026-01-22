@@ -34,7 +34,9 @@ public class SearchUserServiceImpl implements SearchUserService {
                         user.getGender(),
                         user.getMajor(),
                         new ArrayList<>(user.getInterests()),
-                        user.getProfileImageKey()
+                        user.getProfileImageKey(),
+                        user.getRatingAvg(),
+                        user.getRatingCount()
                 ))
                 .toList();
 

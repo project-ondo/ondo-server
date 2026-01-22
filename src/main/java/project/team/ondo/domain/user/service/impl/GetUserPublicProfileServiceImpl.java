@@ -32,7 +32,9 @@ public class GetUserPublicProfileServiceImpl implements GetUserPublicProfileServ
                 new ArrayList<>(user.getInterests()),
                 user.getProfileImageKey(),
                 user.getBio(),
-                user.getRole()
+                user.getRole(),
+                user.getRatingAvg(),
+                user.getRatingCount()
         );
     }
 }

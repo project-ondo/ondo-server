@@ -3,14 +3,13 @@ package project.team.ondo.domain.community.comment.event.listener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import project.team.ondo.domain.community.comment.event.PostCommentCreatedEvent;
 import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
-import project.team.ondo.domain.notification.NotificationType;
+import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.entity.NotificationEntity;
 import project.team.ondo.domain.notification.repository.NotificationRepository;
 import project.team.ondo.domain.user.entity.UserEntity;
@@ -33,7 +32,6 @@ public class PostCommentNotificationListener {
     private final PostRepository postRepository;
 
     @Async
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(PostCommentCreatedEvent event) {
         UserEntity actor = userRepository.findByPublicId(event.actorPublicId()).orElseThrow(UserNotFoundException::new);
