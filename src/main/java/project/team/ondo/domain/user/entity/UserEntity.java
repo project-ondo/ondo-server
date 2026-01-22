@@ -66,6 +66,12 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false)
     private UserStatus status;
 
+    @Column(nullable = false)
+    private long ratingCount;
+
+    @Column(nullable = false)
+    private long ratingSum;
+
     @PrePersist
     void prePersist() {
         if (publicId == null) publicId = UUID.randomUUID();
@@ -94,6 +100,8 @@ public class UserEntity extends BaseEntity {
                 .bio("")
                 .role(UserRole.ROLE_USER)
                 .status(UserStatus.ACTIVE)
+                .ratingCount(0L)
+                .ratingSum(0L)
                 .build();
     }
 
@@ -117,5 +125,14 @@ public class UserEntity extends BaseEntity {
 
     public void updateProfileImage(String profileImageKey) {
         this.profileImageKey = profileImageKey;
+    }
+
+    public void applyNewRating(int stars) {
+        this.ratingCount++;
+        this.ratingSum += stars;
+    }
+
+    public double getRatingAvg() {
+        return ratingCount == 0 ? 0.0 : (double) ratingSum / ratingCount;
     }
 }
