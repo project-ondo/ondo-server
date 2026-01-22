@@ -60,7 +60,7 @@ public class ChatWebSocketController {
     public void read(@Valid @Payload MarkReadWsRequest request, Principal principal) {
         UUID readerPublicId = UUID.fromString(principal.getName());
 
-        markRoomReadService.execute(request.chatRoomPublicId(), request.lastReadMessageId());
+        markRoomReadService.execute(readerPublicId, request.chatRoomPublicId(), request.lastReadMessageId());
 
         ChatReadEventPayload payload = new ChatReadEventPayload(
                 request.chatRoomPublicId(),

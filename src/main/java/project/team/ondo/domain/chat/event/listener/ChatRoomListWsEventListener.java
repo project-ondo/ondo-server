@@ -13,12 +13,17 @@ import project.team.ondo.domain.chat.event.ChatMessageSentEvent;
 import project.team.ondo.domain.chat.repository.ChatMessageRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
+import project.team.ondo.domain.chat.service.ChatPresenceService;
 import project.team.ondo.domain.chat.service.ChatWsPushService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -30,6 +35,7 @@ public class ChatRoomListWsEventListener {
 
     private final ChatMessageRepository chatMessageRepository;
     private final ChatWsPushService chatWsPushService;
+    private final ChatPresenceService chatPresenceService;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -44,31 +50,55 @@ public class ChatRoomListWsEventListener {
         Long userAId = chatRoom.getUserAId();
         Long userBId = chatRoom.getUserBId();
 
-        UserEntity userA = userRepository.findById(userAId).orElse(null);
-        UserEntity userB = userRepository.findById(userBId).orElse(null);
+        Long senderId = message.getSenderId();
+        Long receiverId = userAId.equals(senderId) ? userBId : userAId;
+
+        Map<Long, UserEntity> userMap = userRepository.findAllById(List.of(userAId, userBId)).stream()
+                .collect(Collectors.toMap(UserEntity::getId, Function.identity()));
+
+        UserEntity userA = userMap.get(userAId);
+        UserEntity userB = userMap.get(userBId);
         if (userA == null || userB == null) return;
 
-        ChatRoomMemberEntity memberA = chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), userAId).orElse(null);
-        ChatRoomMemberEntity memberB = chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), userBId).orElse(null);
-
-        Long lastReadA = memberA == null ? null : memberA.getLastReadMessageId();
-        Long lastReadB = memberB == null ? null : memberB.getLastReadMessageId();
-
-        long unreadA = chatMessageRepository.countUnreadMessages(chatRoom.getId(), userAId, lastReadA);
-        long unreadB = chatMessageRepository.countUnreadMessages(chatRoom.getId(), userBId, lastReadB);
+        UUID userAPublicId = userA.getPublicId();
+        UUID userBPublicId = userB.getPublicId();
 
         String preview = message.getContent() == null ? "" : message.getContent();
         if (preview.length() > 30) preview = preview.substring(0, 30);
 
         LocalDateTime lastAt = message.getCreatedAt();
 
+        long unreadSender = 0L;
+
+        UUID receiverPublicId = receiverId.equals(userAId) ? userAPublicId : userBPublicId;
+
+        long unreadReceiver;
+        if (chatPresenceService.isViewingRoom(receiverPublicId, roomPublicId)) {
+            unreadReceiver = 0L;
+        } else {
+            ChatRoomMemberEntity receiverMember = chatRoomMemberRepository
+                    .findByRoomIdAndUserId(chatRoom.getId(), receiverId)
+                    .orElse(null);
+
+            Long lastRead = receiverMember == null ? null : receiverMember.getLastReadMessageId();
+
+            unreadReceiver = chatMessageRepository.countUnreadMessages(
+                    chatRoom.getId(),
+                    receiverId,
+                    lastRead
+            );
+        }
+
+        long unreadA = userAId.equals(senderId) ? unreadSender : unreadReceiver;
+        long unreadB = userBId.equals(senderId) ? unreadSender : unreadReceiver;
+
         chatWsPushService.pushRoomListUpdateToUser(
-                userA.getPublicId(),
+                userAPublicId,
                 new ChatRoomListUpdatePayload(roomPublicId, unreadA, preview, lastAt)
         );
 
         chatWsPushService.pushRoomListUpdateToUser(
-                userB.getPublicId(),
+                userBPublicId,
                 new ChatRoomListUpdatePayload(roomPublicId, unreadB, preview, lastAt)
         );
     }

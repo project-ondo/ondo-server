@@ -12,7 +12,6 @@ import project.team.ondo.domain.chat.repository.ChatMessageRepository;
 import project.team.ondo.domain.chat.service.ChatWsPushService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -25,16 +24,16 @@ public class ChatRoomReadWsEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(ChatRoomReadMarkedEvent event) {
 
-        long unread = chatMessageRepository.countUnreadMessages(
-                event.chatRoomId(),
-                event.readerId(),
-                event.lastReadMessageId()
-        );
+        long unread = 0L;
 
-        List<ChatMessageEntity> last = chatMessageRepository.findLastMessages(List.of(event.chatRoomId()));
-        ChatMessageEntity lastMessage = last.isEmpty() ? null : last.getFirst();
+        ChatMessageEntity lastMessage = chatMessageRepository
+                .findTopByRoomIdOrderByIdDesc(event.chatRoomId())
+                .orElse(null);
 
-        String preview = lastMessage == null || lastMessage.getContent() == null ? "" : lastMessage.getContent();
+        String preview = (lastMessage == null || lastMessage.getContent() == null)
+                ? ""
+                : lastMessage.getContent();
+
         if (preview.length() > 30) preview = preview.substring(0, 30);
 
         LocalDateTime lastAt = lastMessage == null ? null : lastMessage.getCreatedAt();
