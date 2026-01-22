@@ -42,6 +42,11 @@ public enum ErrorCode {
     //NOTIFICATION
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다."),
 
+    //RATING
+    STARS_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "별점은 1부터 5 사이의 값이어야 합니다."),
+    MATCH_NOT_ENDED(HttpStatus.BAD_REQUEST, "매칭이 종료된 후에만 평가할 수 있습니다."),
+    ALREADY_RATED(HttpStatus.BAD_REQUEST, "이미 평가한 유저입니다."),
+
     //AWS
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 미디어 타입입니다.");
 
