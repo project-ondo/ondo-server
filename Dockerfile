@@ -1,4 +1,4 @@
-FROM openjdk:25-jdk AS build
+FROM eclipse-temurin:25-jdk AS build
 WORKDIR /app
 
 COPY gradlew /app/gradlew
@@ -11,7 +11,7 @@ COPY src /app/src
 
 RUN ./gradlew --no-daemon clean bootJar -x test
 
-FROM openjdk:25-jdk
+FROM eclipse-temurin:25-jre
 WORKDIR /app
 ENV SPRING_PROFILES_ACTIVE=prod
 ENV JAVA_OPTS=""
