@@ -14,6 +14,6 @@ public record SignUpRequest(
         Gender gender,
         @NotBlank @Size(max=20) String major,
         List<@NotBlank @Size(max=20) String> interests,
-        String profileImageUrl
+        String profileImageKey
 ) {
 }

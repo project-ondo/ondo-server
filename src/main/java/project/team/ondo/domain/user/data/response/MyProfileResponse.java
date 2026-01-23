@@ -15,7 +15,7 @@ public record MyProfileResponse(
         Gender gender,
         String major,
         List<String> interests,
-        String profileImageUrl,
+        String profileImageKey,
         String bio,
         UserRole role,
         UserStatus status,

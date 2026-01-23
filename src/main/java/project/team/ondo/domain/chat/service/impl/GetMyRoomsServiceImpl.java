@@ -38,7 +38,7 @@ public class GetMyRoomsServiceImpl implements GetMyRoomsService {
                         r.roomId(),
                         r.opponentPublicId(),
                         r.opponentDisplayName(),
-                        r.opponentProfileImageUrl(),
+                        r.opponentProfileImageKey(),
                         chatPresenceService.isOnline(r.opponentPublicId()),
                         r.unreadCount(),
                         r.lastMessagePreview(),
