@@ -9,7 +9,9 @@ import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.user.entity.UserEntity;
+import project.team.ondo.global.aws.data.request.BatchPresignDownloadRequest;
 import project.team.ondo.global.aws.data.request.PresignUploadRequest;
+import project.team.ondo.global.aws.data.response.BatchPresignDownloadResponse;
 import project.team.ondo.global.aws.data.response.PresignDownloadResponse;
 import project.team.ondo.global.aws.data.response.PresignUploadResponse;
 import project.team.ondo.global.aws.exception.UnsupportedMediaTypeException;
@@ -28,8 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -105,6 +106,52 @@ public class MediaPresignService {
         LocalDateTime expiresAt = LocalDateTime.now(KST).plusSeconds(getTtl);
 
         return new PresignDownloadResponse(presigned.url().toString(), expiresAt);
+    }
+
+    @Transactional(readOnly = true)
+    public BatchPresignDownloadResponse presignDownloadBatch(BatchPresignDownloadRequest request) {
+        UserEntity me = currentUserProvider.getCurrentUser();
+
+        Set<String> normalizedKeys = new LinkedHashSet<>();
+        for (String raw : request.keys()) {
+            if (raw == null) continue;
+            String key = raw.trim();
+            if (key.isBlank()) continue;
+            normalizedKeys.add(key);
+        }
+
+        if (normalizedKeys.isEmpty()) {
+            throw new IllegalArgumentException("KEY_REQUIRED");
+        }
+
+        long getTtl = s3Environment.presign().getExpirationSeconds();
+        LocalDateTime expiresAt = LocalDateTime.now(KST).plusSeconds(getTtl);
+
+        List<BatchPresignDownloadResponse.BatchPresignDownloadItem> items = new ArrayList<>(normalizedKeys.size());
+
+        for (String key : normalizedKeys) {
+            validateKeyReadPermission(me, key);
+
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(s3Environment.bucket())
+                    .key(key)
+                    .build();
+
+            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofSeconds(getTtl))
+                    .getObjectRequest(getObjectRequest)
+                    .build();
+
+            PresignedGetObjectRequest presigned = s3Presigner.presignGetObject(presignRequest);
+
+            items.add(new BatchPresignDownloadResponse.BatchPresignDownloadItem(
+                    key,
+                    presigned.url().toString(),
+                    expiresAt
+            ));
+        }
+
+        return new BatchPresignDownloadResponse(List.copyOf(items));
     }
 
     private String buildProfileKey(UUID userPublicId, String ext) {

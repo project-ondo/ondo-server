@@ -7,7 +7,7 @@ public record ChatRoomListItemResponse(
         UUID roomId,
         UUID opponentPublicId,
         String opponentDisplayName,
-        String opponentProfileImageUrl,
+        String opponentProfileImageKey,
         boolean opponentOnline,
         long unreadCount,
         String lastMessagePreview,
