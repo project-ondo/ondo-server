@@ -7,3 +7,61 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: none
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  security:
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+    jwt:
+      access-token:
+        secret: ${JWT_ACCESS_TOKEN_SECRET}
+        expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+      refresh-token:
+        secret: ${JWT_REFRESH_TOKEN_SECRET}
+        expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+
+  rabbitmq:
+    host: ${RABBIT_HOST}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USERNAME}
+    password: ${RABBIT_PASSWORD}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+
+messaging:
+  relay:
+    host: ${STOMP_RELAY_HOST}
+    port: ${STOMP_RELAY_PORT:61613}
+    username: ${STOMP_RELAY_USERNAME}
+    password: ${STOMP_RELAY_PASSWORD}
+
+aws:
+  s3:
+    bucket: ${AWS_S3_BUCKET}
+    region: ${AWS_REGION:ap-northeast-2}
+    presign:
+      put-expiration-seconds: ${AWS_PRESIGN_PUT_EXP:120}
+      get-expiration-seconds: ${AWS_PRESIGN_GET_EXP:600}
+
+firebase:
+  credentials:
+    path: ${FIREBASE_CREDENTIALS_PATH}
