@@ -3,21 +3,23 @@ package project.team.ondo.global.config;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
 import javax.annotation.PostConstruct;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 @Configuration
 public class FireBaseConfig {
 
+    @Value("${firebase.credentials.path}")
+    private String credentialsPath;
+
     @PostConstruct
     public void init() {
-
-        try {
-            InputStream serviceAccount = new ClassPathResource("resources/ondo-firebase-admin-sdk.json").getInputStream();
+        try (InputStream serviceAccount = new FileInputStream(credentialsPath)) {
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
