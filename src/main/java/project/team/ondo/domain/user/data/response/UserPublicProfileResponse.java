@@ -12,7 +12,7 @@ public record UserPublicProfileResponse(
         Gender gender,
         String major,
         List<String> interests,
-        String profileImageUrl,
+        String profileImageKey,
         String bio,
         UserRole role,
         double ratingAverage,

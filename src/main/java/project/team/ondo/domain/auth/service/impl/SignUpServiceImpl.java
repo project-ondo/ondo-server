@@ -46,7 +46,7 @@ public class SignUpServiceImpl implements SignUpService {
                 request.gender(),
                 request.major(),
                 request.interests() != null ? request.interests() : new ArrayList<>(),
-                request.profileImageUrl()
+                request.profileImageKey()
         );
 
         userRepository.save(user);
