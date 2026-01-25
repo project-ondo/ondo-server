@@ -2,7 +2,7 @@ name: CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 concurrency:
   group: deploy-main
@@ -16,13 +16,45 @@ jobs:
       - name: Checkout (optional)
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ secrets.EC2_PORT || 22 }}
-          script: |
-            set -e
-            /usr/local/bin/deploy_ondo.sh
+      - name: Prepare SSH key
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY_B64 }}" | base64 -d > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ secrets.EC2_PORT || 22 }} -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy (SSH)
+        id: deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -p ${{ secrets.EC2_PORT || 22 }} -i ~/.ssh/id_ed25519 \
+            -o ServerAliveInterval=30 -o ServerAliveCountMax=6 \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            'set -e; /usr/local/bin/deploy_ondo.sh'
+
+      - name: Discord notify (success)
+        if: success()
+        shell: bash
+        run: |
+          payload=$(cat <<'JSON'
+          {
+            "content": "✅ CD 성공\n- repo: '${{ github.repository }}'\n- branch: '${{ github.ref_name }}'\n- sha: '${{ github.sha }}'\n- actor: '${{ github.actor }}'\n- run: ${{ github.run_id }}"
+          }
+          JSON
+          )
+          curl -sS -H "Content-Type: application/json" -d "$payload" "${{ secrets.DISCORD_WEBHOOK_URL }}"
+
+      - name: Discord notify (failure)
+        if: failure()
+        shell: bash
+        run: |
+          payload=$(cat <<'JSON'
+          {
+            "content": "❌ CD 실패\n- repo: '${{ github.repository }}'\n- branch: '${{ github.ref_name }}'\n- sha: '${{ github.sha }}'\n- actor: '${{ github.actor }}'\n- run: ${{ github.run_id }}"
+          }
+          JSON
+          )
+          curl -sS -H "Content-Type: application/json" -d "$payload" "${{ secrets.DISCORD_WEBHOOK_URL }}"
