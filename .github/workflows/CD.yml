@@ -13,48 +13,90 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (optional)
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Prepare SSH key
         shell: bash
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_PORT: ${{ secrets.EC2_PORT }}
+          EC2_SSH_KEY_B64: ${{ secrets.EC2_SSH_KEY_B64 }}
         run: |
           set -euo pipefail
+
+          PORT="${EC2_PORT:-22}"
+
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY_B64 }}" | base64 -d > ~/.ssh/id_ed25519
+          printf '%s' "$EC2_SSH_KEY_B64" | base64 -d > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p ${{ secrets.EC2_PORT || 22 }} -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+          ssh-keyscan -p "$PORT" -H "$EC2_HOST" >> ~/.ssh/known_hosts
 
       - name: Deploy (SSH)
-        id: deploy
         shell: bash
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_PORT: ${{ secrets.EC2_PORT }}
         run: |
           set -euo pipefail
-          ssh -p ${{ secrets.EC2_PORT || 22 }} -i ~/.ssh/id_ed25519 \
+
+          PORT="${EC2_PORT:-22}"
+
+          ssh -p "$PORT" -i ~/.ssh/id_ed25519 \
+            -o StrictHostKeyChecking=yes \
             -o ServerAliveInterval=30 -o ServerAliveCountMax=6 \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            'set -e; /usr/local/bin/deploy_ondo.sh'
+            "${EC2_USER}@${EC2_HOST}" \
+            'set -euo pipefail; /usr/local/bin/deploy_ondo.sh'
 
-      - name: Discord notify (success)
-        if: success()
+      - name: Discord notify (CD result)
+        if: always()
         shell: bash
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          RUN_ID: ${{ github.run_id }}
+          JOB_STATUS: ${{ job.status }}
         run: |
-          payload=$(cat <<'JSON'
-          {
-            "content": "✅ CD 성공\n- repo: '${{ github.repository }}'\n- branch: '${{ github.ref_name }}'\n- sha: '${{ github.sha }}'\n- actor: '${{ github.actor }}'\n- run: ${{ github.run_id }}"
-          }
-          JSON
-          )
-          curl -sS -H "Content-Type: application/json" -d "$payload" "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          set -euo pipefail
 
-      - name: Discord notify (failure)
-        if: failure()
-        shell: bash
-        run: |
-          payload=$(cat <<'JSON'
-          {
-            "content": "❌ CD 실패\n- repo: '${{ github.repository }}'\n- branch: '${{ github.ref_name }}'\n- sha: '${{ github.sha }}'\n- actor: '${{ github.actor }}'\n- run: ${{ github.run_id }}"
-          }
-          JSON
+          RUN_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
+          SHORT_SHA="$(printf '%s' "$SHA" | cut -c1-7)"
+
+          SUCCESS_GIFS=(
+            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTB0am5rZzMxZ20zNjNlaGM4YjQ2czc1cThib256ODdnYzNkdnc0cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/In0Lpu4FVivjISX9HT/giphy.gif"
+            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTB0am5rZzMxZ20zNjNlaGM4YjQ2czc1cThib256ODdnYzNkdnc0cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/1OrIIOIcRTDaNidc5p/giphy.gif"
+            "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cGh5cDFoZHcyNGtnaWM5a2I2ajFrbHhxcGVtNzNhd2ppOHR3N2Q0YyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/YLPOIP1jPu1N87yemm/giphy.gif"
+            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTB0am5rZzMxZ20zNjNlaGM4YjQ2czc1cThib256ODdnYzNkdnc0cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/BK1EfIsdkKZMY/giphy.gif"
           )
-          curl -sS -H "Content-Type: application/json" -d "$payload" "${{ secrets.DISCORD_WEBHOOK_URL }}"
+
+          FAIL_GIFS=(
+            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTB0am5rZzMxZ20zNjNlaGM4YjQ2czc1cThib256ODdnYzNkdnc0cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/2zUn8hAwJwG4abiS0p/giphy.gif"
+            "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3dWxidzhleGpuZDB0bWVjaThucmRwc2dobnZwZWNiZWZtaTh5bm5paiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/sMK7zYV1hGGAajEznq/giphy.gif"
+            "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cjc5aXh3ZGJ1djNsdWhiZmNpem50c2J5dWl6bmZuN21oMWwxeHYxYSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/XyuqO8Zi0yCqWXhhJd/giphy.gif"
+          )
+
+          if [ "$JOB_STATUS" = "success" ]; then
+            TITLE="CD 성공 ✅"
+            COLOR="3066993"
+            GIF_URL="${SUCCESS_GIFS[$((RANDOM % ${#SUCCESS_GIFS[@]}))]}"
+            DESC=$'배포가 성공적으로 완료되었습니다.\n- repo: `'${REPO}$'`\n- branch: `'${BRANCH}$'`\n- run: '"${RUN_URL}"
+          else
+            TITLE="CD 실패 ❌"
+            COLOR="15158332"
+            GIF_URL="${FAIL_GIFS[$((RANDOM % ${#FAIL_GIFS[@]}))]}"
+            DESC=$'배포 중 오류가 발생했습니다.\n- repo: `'${REPO}$'`\n- branch: `'${BRANCH}$'`\n- run: '"${RUN_URL}"
+          fi
+
+          export TITLE DESC COLOR GIF_URL
+
+          PAYLOAD="$(python -c 'import os, json, datetime; payload={"embeds":[{"title":os.environ["TITLE"],"description":os.environ["DESC"],"color":int(os.environ["COLOR"]),"image":{"url":os.environ["GIF_URL"]},"timestamp":datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}]}; print(json.dumps(payload, ensure_ascii=False))')"
+
+          curl -sS -H "Content-Type: application/json" \
+            -X POST -d "$PAYLOAD" \
+            "$DISCORD_WEBHOOK_URL"
