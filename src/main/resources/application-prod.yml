@@ -54,10 +54,14 @@ messaging:
     username: ${STOMP_RELAY_USERNAME}
     password: ${STOMP_RELAY_PASSWORD}
 
-aws:
+oci:
   s3:
-    bucket: ${AWS_S3_BUCKET}
-    region: ${AWS_REGION:ap-northeast-2}
+    access-key:  ${OCI_ACCESS_KEY}
+    secret-key:  ${OCI_SECRET_KEY}
+    endpoint: ${OCI_ENDPOINT}
+    region: ${OCI_REGION}
+    bucket-name: ${OCI_BUCKET_NAME}
+
     presign:
       put-expiration-seconds: ${AWS_PRESIGN_PUT_EXP:120}
       get-expiration-seconds: ${AWS_PRESIGN_GET_EXP:600}
