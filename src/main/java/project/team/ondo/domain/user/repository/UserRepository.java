@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<@NonNull UserEntity,@NonNu
     Optional<UserEntity> findByLoginId(String loginId);
 
     Optional<UserEntity> findByPublicId(UUID publicId);
+
+    boolean existsByPublicId(UUID publicId);
 }
