@@ -9,6 +9,7 @@ import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.user.entity.UserEntity;
+import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.global.aws.data.request.BatchPresignDownloadRequest;
 import project.team.ondo.global.aws.data.request.PresignUploadRequest;
 import project.team.ondo.global.aws.data.response.BatchPresignDownloadResponse;
@@ -46,6 +47,7 @@ public class MediaPresignService {
 
     private final S3Presigner s3Presigner;
     private final S3Environment s3Environment;
+    private final UserRepository userRepository;
     private final CurrentUserProvider currentUserProvider;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
@@ -175,6 +177,20 @@ public class MediaPresignService {
         if (key == null || key.isBlank()) throw new IllegalArgumentException("KEY_REQUIRED");
 
         if (key.startsWith("profile/")) {
+            String[] parts = key.split("/");
+            if (parts.length < 3) throw new IllegalArgumentException("INVALID_KEY");
+
+            UUID userPublicId;
+            try {
+                userPublicId = UUID.fromString(parts[1]);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("INVALID_KEY");
+            }
+
+            if (!userRepository.existsByPublicId(userPublicId)) {
+                throw new IllegalArgumentException("USER_NOT_FOUND");
+            }
+
             return;
         }
 
