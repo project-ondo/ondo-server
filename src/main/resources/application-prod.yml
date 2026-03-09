@@ -60,7 +60,7 @@ oci:
     secret-key:  ${OCI_SECRET_KEY}
     endpoint: ${OCI_ENDPOINT}
     region: ${OCI_REGION}
-    bucket-name: ${OCI_BUCKET_NAME}
+    bucket: ${OCI_BUCKET_NAME}
 
     presign:
       put-expiration-seconds: ${AWS_PRESIGN_PUT_EXP:120}
