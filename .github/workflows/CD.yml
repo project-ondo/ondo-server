@@ -66,8 +66,8 @@ jobs:
           cd "${DEPLOY_PATH}"
           export IMAGE_NAME="${IMAGE_NAME}"
           export IMAGE_TAG="${IMAGE_TAG}"
-          docker compose pull
-          docker compose up -d
+          docker-compose pull
+          docker-compose up -d
 
       - name: Wait for app startup
         run: sleep 20
