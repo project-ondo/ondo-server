@@ -2,101 +2,167 @@ name: CD
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+  workflow_dispatch:
 
-concurrency:
-  group: deploy-main
-  cancel-in-progress: true
+env:
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/ondo-app
+  DEPLOY_PATH: /home/ubuntu/deploy/ondo-app
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Prepare SSH key
-        shell: bash
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_PORT: ${{ secrets.EC2_PORT }}
-          EC2_SSH_KEY_B64: ${{ secrets.EC2_SSH_KEY_B64 }}
+      - name: Set image tag
+        id: meta
+        run: echo "tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: [self-hosted, linux, ARM64]
+
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/ondo-app
+      IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+      DEPLOY_PATH: /home/ubuntu/deploy/ondo-app
+
+    steps:
+      - name: Login DockerHub
         run: |
-          set -euo pipefail
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-          PORT="${EC2_PORT:-22}"
-
-          mkdir -p ~/.ssh
-          printf '%s' "$EC2_SSH_KEY_B64" | base64 -d > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-          ssh-keyscan -p "$PORT" -H "$EC2_HOST" >> ~/.ssh/known_hosts
-
-      - name: Deploy (SSH)
-        shell: bash
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_PORT: ${{ secrets.EC2_PORT }}
+      - name: Deploy with Docker Compose
         run: |
-          set -euo pipefail
+          cd "${DEPLOY_PATH}"
+          export IMAGE_NAME="${IMAGE_NAME}"
+          export IMAGE_TAG="${IMAGE_TAG}"
+          docker compose pull
+          docker compose up -d
 
-          PORT="${EC2_PORT:-22}"
+      - name: Wait for app startup
+        run: sleep 20
 
-          ssh -p "$PORT" -i ~/.ssh/id_ed25519 \
-            -o StrictHostKeyChecking=yes \
-            -o ServerAliveInterval=30 -o ServerAliveCountMax=6 \
-            "${EC2_USER}@${EC2_HOST}" \
-            'set -euo pipefail; /usr/local/bin/deploy_ondo.sh'
-
-      - name: Discord notify (CD result)
-        if: always()
-        shell: bash
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          REPO: ${{ github.repository }}
-          BRANCH: ${{ github.ref_name }}
-          SHA: ${{ github.sha }}
-          ACTOR: ${{ github.actor }}
-          RUN_ID: ${{ github.run_id }}
-          JOB_STATUS: ${{ job.status }}
+      - name: Health check
         run: |
-          set -euo pipefail
+          curl --fail http://localhost:8080/actuator/health
 
-          RUN_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
-          SHORT_SHA="$(printf '%s' "$SHA" | cut -c1-7)"
+  notify-success:
+    needs: [build-and-push, deploy]
+    runs-on: ubuntu-latest
+    if: success()
 
-          SUCCESS_GIFS=(
+    steps:
+      - name: Send CD success to Discord
+        run: |
+          GIFS=(
             "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTB0am5rZzMxZ20zNjNlaGM4YjQ2czc1cThib256ODdnYzNkdnc0cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/In0Lpu4FVivjISX9HT/giphy.gif"
             "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTB0am5rZzMxZ20zNjNlaGM4YjQ2czc1cThib256ODdnYzNkdnc0cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/1OrIIOIcRTDaNidc5p/giphy.gif"
             "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cGh5cDFoZHcyNGtnaWM5a2I2ajFrbHhxcGVtNzNhd2ppOHR3N2Q0YyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/YLPOIP1jPu1N87yemm/giphy.gif"
             "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTB0am5rZzMxZ20zNjNlaGM4YjQ2czc1cThib256ODdnYzNkdnc0cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/BK1EfIsdkKZMY/giphy.gif"
           )
+          GIF_URL=${GIFS[$RANDOM % ${#GIFS[@]}]}
+          curl -H "Content-Type: application/json" -X POST -d @- ${{ secrets.DISCORD_WEBHOOK_URL }} <<JSON
+          {
+            "embeds": [{
+              "title": "🚀 CD 성공",
+              "description": "main 브랜치 최신 커밋이 운영 서버에 성공적으로 배포되었습니다.",
+              "color": 3066993,
+              "fields": [
+                {
+                  "name": "Branch",
+                  "value": "${{ github.ref_name }}",
+                  "inline": true
+                },
+                {
+                  "name": "Commit",
+                  "value": "${{ github.sha }}",
+                  "inline": false
+                },
+                {
+                  "name": "Image",
+                  "value": "${{ secrets.DOCKERHUB_USERNAME }}/ondo-app:${{ needs.build-and-push.outputs.image_tag }}",
+                  "inline": false
+                }
+              ],
+              "image": {
+                "url": "${GIF_URL}"
+              },
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+          JSON
 
-          FAIL_GIFS=(
+  notify-failure:
+    needs: [build-and-push, deploy]
+    runs-on: ubuntu-latest
+    if: failure()
+
+    steps:
+      - name: Send CD failure to Discord
+        run: |
+          GIFS=(
             "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTB0am5rZzMxZ20zNjNlaGM4YjQ2czc1cThib256ODdnYzNkdnc0cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/2zUn8hAwJwG4abiS0p/giphy.gif"
             "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3dWxidzhleGpuZDB0bWVjaThucmRwc2dobnZwZWNiZWZtaTh5bm5paiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/sMK7zYV1hGGAajEznq/giphy.gif"
             "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cjc5aXh3ZGJ1djNsdWhiZmNpem50c2J5dWl6bmZuN21oMWwxeHYxYSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/XyuqO8Zi0yCqWXhhJd/giphy.gif"
           )
-
-          if [ "$JOB_STATUS" = "success" ]; then
-            TITLE="CD 성공 ✅"
-            COLOR="3066993"
-            GIF_URL="${SUCCESS_GIFS[$((RANDOM % ${#SUCCESS_GIFS[@]}))]}"
-            DESC=$'배포가 성공적으로 완료되었습니다.\n- repo: `'${REPO}$'`\n- branch: `'${BRANCH}$'`\n- run: '"${RUN_URL}"
-          else
-            TITLE="CD 실패 ❌"
-            COLOR="15158332"
-            GIF_URL="${FAIL_GIFS[$((RANDOM % ${#FAIL_GIFS[@]}))]}"
-            DESC=$'배포 중 오류가 발생했습니다.\n- repo: `'${REPO}$'`\n- branch: `'${BRANCH}$'`\n- run: '"${RUN_URL}"
-          fi
-
-          export TITLE DESC COLOR GIF_URL
-
-          PAYLOAD="$(python -c 'import os, json, datetime; payload={"embeds":[{"title":os.environ["TITLE"],"description":os.environ["DESC"],"color":int(os.environ["COLOR"]),"image":{"url":os.environ["GIF_URL"]},"timestamp":datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}]}; print(json.dumps(payload, ensure_ascii=False))')"
-
-          curl -sS -H "Content-Type: application/json" \
-            -X POST -d "$PAYLOAD" \
-            "$DISCORD_WEBHOOK_URL"
+          GIF_URL=${GIFS[$RANDOM % ${#GIFS[@]}]}
+          curl -H "Content-Type: application/json" -X POST -d @- ${{ secrets.DISCORD_WEBHOOK_URL }} <<JSON
+          {
+            "embeds": [{
+              "title": "❌ CD 실패",
+              "description": "main 브랜치 배포 중 오류가 발생했습니다.",
+              "color": 15158332,
+              "fields": [
+                {
+                  "name": "Branch",
+                  "value": "${{ github.ref_name }}",
+                  "inline": true
+                },
+                {
+                  "name": "Commit",
+                  "value": "${{ github.sha }}",
+                  "inline": false
+                },
+                {
+                  "name": "Image",
+                  "value": "${{ secrets.DOCKERHUB_USERNAME }}/ondo-app:${{ needs.build-and-push.outputs.image_tag }}",
+                  "inline": false
+                }
+              ],
+              "image": {
+                "url": "${GIF_URL}"
+              },
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+          JSON
