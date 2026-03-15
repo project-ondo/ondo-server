@@ -28,8 +28,6 @@ public class SignUpServiceImpl implements SignUpService {
         EmailVerificationTokenEntity verificationToken = emailVerificationTokenRepository.findById(request.verificationToken())
                 .orElseThrow(InvalidEmailVerificationTokenException::new);
 
-        emailVerificationTokenRepository.deleteById(request.verificationToken());
-
         String email = verificationToken.getEmail();
 
         if (userRepository.existsByEmail(email)) throw new EmailAlreadyExistsException();
@@ -49,6 +47,7 @@ public class SignUpServiceImpl implements SignUpService {
                 request.profileImageKey()
         );
 
+        emailVerificationTokenRepository.deleteById(request.verificationToken());
         userRepository.save(user);
     }
 }
