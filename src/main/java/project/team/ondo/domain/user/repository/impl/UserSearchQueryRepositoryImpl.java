@@ -15,13 +15,13 @@ import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.domain.user.data.request.UserSearchCondition;
 import project.team.ondo.domain.user.entity.QUserEntity;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.domain.user.repository.UserSearchRepository;
+import project.team.ondo.domain.user.repository.UserSearchQueryRepository;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserSearchRepositoryImpl implements UserSearchRepository {
+public class UserSearchQueryRepositoryImpl implements UserSearchQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
     private final QUserEntity user = QUserEntity.userEntity;

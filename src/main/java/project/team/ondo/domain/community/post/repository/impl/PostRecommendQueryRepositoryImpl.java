@@ -15,7 +15,7 @@ import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.data.response.PostRecommendItemResponse;
 import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.entity.QPostEntity;
-import project.team.ondo.domain.community.post.repository.PostRecommendRepository;
+import project.team.ondo.domain.community.post.repository.PostRecommendQueryRepository;
 import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.domain.user.entity.QUserEntity;
 import project.team.ondo.domain.user.entity.UserEntity;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PostRecommendRepositoryImpl implements PostRecommendRepository {
+public class PostRecommendQueryRepositoryImpl implements PostRecommendQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 

@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.notification.repository.NotificationRepository;
 import project.team.ondo.domain.notification.service.CountUnreadNotificationService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.UUID;
 
@@ -15,12 +14,10 @@ import java.util.UUID;
 public class CountUnreadNotificationServiceImpl implements CountUnreadNotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional(readOnly = true)
     @Override
-    public long execute() {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public long execute(UserEntity me) {
         UUID myPublicId = me.getPublicId();
         return notificationRepository.countByReceiverPublicIdAndReadFalse(myPublicId);
     }

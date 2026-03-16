@@ -5,13 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.team.ondo.domain.chat.entity.QChatRoomEntity;
 import project.team.ondo.domain.chat.entity.QChatRoomMemberEntity;
-import project.team.ondo.domain.chat.repository.ChatRoomMuteRepository;
+import project.team.ondo.domain.chat.repository.ChatRoomMuteCommandRepository;
 
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ChatRoomMuteRepositoryImpl implements ChatRoomMuteRepository {
+public class ChatRoomMuteCommandRepositoryImpl implements ChatRoomMuteCommandRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 

@@ -17,7 +17,6 @@ import project.team.ondo.global.aws.data.response.PresignDownloadResponse;
 import project.team.ondo.global.aws.data.response.PresignUploadResponse;
 import project.team.ondo.global.aws.exception.UnsupportedMediaTypeException;
 import project.team.ondo.global.data.S3Environment;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -48,13 +47,11 @@ public class MediaPresignService {
     private final S3Presigner s3Presigner;
     private final S3Environment s3Environment;
     private final UserRepository userRepository;
-    private final CurrentUserProvider currentUserProvider;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
 
     @Transactional(readOnly = true)
-    public PresignUploadResponse presignUpload(PresignUploadRequest request) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public PresignUploadResponse presignUpload(UserEntity me, PresignUploadRequest request) {
 
         String contentType = request.contentType();
         if (!ALLOWED_CONTENT_TYPES.contains(contentType)) throw new UnsupportedMediaTypeException();
@@ -86,8 +83,7 @@ public class MediaPresignService {
     }
 
     @Transactional(readOnly = true)
-    public PresignDownloadResponse presignDownload(String key) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public PresignDownloadResponse presignDownload(UserEntity me, String key) {
 
         validateKeyReadPermission(me, key);
 
@@ -111,8 +107,7 @@ public class MediaPresignService {
     }
 
     @Transactional(readOnly = true)
-    public BatchPresignDownloadResponse presignDownloadBatch(BatchPresignDownloadRequest request) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public BatchPresignDownloadResponse presignDownloadBatch(UserEntity me, BatchPresignDownloadRequest request) {
 
         Set<String> normalizedKeys = new LinkedHashSet<>();
         for (String raw : request.keys()) {

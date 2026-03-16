@@ -9,7 +9,6 @@ import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.domain.user.service.GetUserPublicProfileService;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -24,17 +23,6 @@ public class GetUserPublicProfileServiceImpl implements GetUserPublicProfileServ
         UserEntity user = userRepository.findByPublicId(publicId)
                 .orElseThrow(UserNotFoundException::new);
 
-        return new UserPublicProfileResponse(
-                user.getPublicId(),
-                user.getDisplayName(),
-                user.getGender(),
-                user.getMajor(),
-                new ArrayList<>(user.getInterests()),
-                user.getProfileImageKey(),
-                user.getBio(),
-                user.getRole(),
-                user.getRatingAvg(),
-                user.getRatingCount()
-        );
+        return UserPublicProfileResponse.from(user);
     }
 }

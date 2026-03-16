@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service;
 import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.domain.user.entity.QUserEntity;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.domain.user.repository.UserRecommendRepository;
+import project.team.ondo.domain.user.repository.UserRecommendQueryRepository;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserRecommendRepositoryImpl implements UserRecommendRepository {
+public class UserRecommendQueryRepositoryImpl implements UserRecommendQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
     private final QUserEntity user = QUserEntity.userEntity;

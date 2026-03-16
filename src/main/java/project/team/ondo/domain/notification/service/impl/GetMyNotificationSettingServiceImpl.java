@@ -7,7 +7,7 @@ import project.team.ondo.domain.notification.data.response.MyNotificationSetting
 import project.team.ondo.domain.notification.entity.UserNotificationSettingEntity;
 import project.team.ondo.domain.notification.repository.UserNotificationSettingRepository;
 import project.team.ondo.domain.notification.service.GetMyNotificationSettingService;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
+import project.team.ondo.domain.user.entity.UserEntity;
 
 import java.util.UUID;
 
@@ -16,12 +16,11 @@ import java.util.UUID;
 public class GetMyNotificationSettingServiceImpl implements GetMyNotificationSettingService {
 
     private final UserNotificationSettingRepository userNotificationSettingRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     @Override
-    public MyNotificationSettingResponse execute() {
-        UUID myPublicId = currentUserProvider.getCurrentUser().getPublicId();
+    public MyNotificationSettingResponse execute(UserEntity me) {
+        UUID myPublicId = me.getPublicId();
         UserNotificationSettingEntity setting = userNotificationSettingRepository.findByUserPublicId(myPublicId)
                 .orElseGet(() -> userNotificationSettingRepository.save(UserNotificationSettingEntity.defaultOf(myPublicId)));
         return MyNotificationSettingResponse.from(setting);

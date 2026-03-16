@@ -37,16 +37,7 @@ public class RecommendUserCache {
         Page<@NonNull UserEntity> page = userRepository.recommend(me, pageable);
 
         List<UserRecommendItemResponse> mapped = page.getContent().stream()
-                .map(user -> new UserRecommendItemResponse(
-                        user.getPublicId(),
-                        user.getDisplayName(),
-                        user.getGender(),
-                        user.getMajor(),
-                        List.copyOf(user.getInterests()),
-                        user.getProfileImageKey(),
-                        user.getRatingAvg(),
-                        user.getRatingCount()
-                ))
+                .map(UserRecommendItemResponse::from)
                 .toList();
 
         return new UserRecommendCacheValue(mapped, page.getTotalElements());

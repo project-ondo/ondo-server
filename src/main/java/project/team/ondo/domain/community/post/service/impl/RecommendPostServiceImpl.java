@@ -10,19 +10,16 @@ import project.team.ondo.domain.community.post.data.response.PostRecommendItemRe
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.community.post.service.RecommendPostService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 @Service
 @RequiredArgsConstructor
 public class RecommendPostServiceImpl implements RecommendPostService {
 
     private final PostRepository postRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Override
     @Transactional(readOnly = true)
-    public Page<@NonNull PostRecommendItemResponse> execute(Pageable pageable){
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public Page<@NonNull PostRecommendItemResponse> execute(UserEntity me, Pageable pageable){
         return postRepository.recommend(me, pageable);
     }
 }

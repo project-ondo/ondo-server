@@ -11,7 +11,6 @@ import project.team.ondo.domain.community.postlike.entity.PostLikeEntity;
 import project.team.ondo.domain.community.postlike.repository.PostLikeRepository;
 import project.team.ondo.domain.community.postlike.service.UnlikePostService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 @Service
 @RequiredArgsConstructor
@@ -19,12 +18,10 @@ public class UnlikePostServiceImpl implements UnlikePostService {
 
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     @Override
-    public void execute(Long postId) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public void execute(UserEntity me, Long postId) {
 
         PostEntity post = postRepository.findByIdAndStatus(postId, PostStatus.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);

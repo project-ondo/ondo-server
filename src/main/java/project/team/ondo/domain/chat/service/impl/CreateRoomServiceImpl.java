@@ -16,7 +16,6 @@ import project.team.ondo.domain.chat.service.CreateRoomService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.UUID;
 
@@ -27,13 +26,11 @@ public class CreateRoomServiceImpl implements CreateRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final UserRepository userRepository;
-    private final CurrentUserProvider currentUserProvider;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
-    public UUID execute(UUID targetUserPublicId) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public UUID execute(UserEntity me, UUID targetUserPublicId) {
         UserEntity targetUser = userRepository.findByPublicId(targetUserPublicId)
                 .orElseThrow(UserNotFoundException::new);
 

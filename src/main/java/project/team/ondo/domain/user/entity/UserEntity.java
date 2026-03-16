@@ -86,7 +86,7 @@ public class UserEntity extends BaseEntity {
             Gender gender,
             String major,
             List<String> interests,
-            String profileImageUrl
+            String profileImageKey
     ) {
         return UserEntity.builder()
                 .loginId(loginId)
@@ -96,7 +96,7 @@ public class UserEntity extends BaseEntity {
                 .gender(gender)
                 .major(major)
                 .interests(interests != null ? interests : new ArrayList<>())
-                .profileImageKey(profileImageUrl)
+                .profileImageKey(profileImageKey)
                 .bio("")
                 .role(UserRole.ROLE_USER)
                 .status(UserStatus.ACTIVE)
@@ -130,6 +130,10 @@ public class UserEntity extends BaseEntity {
     public void applyNewRating(int stars) {
         this.ratingCount++;
         this.ratingSum += stars;
+    }
+
+    public List<String> getInterests() {
+        return List.copyOf(interests);
     }
 
     public double getRatingAvg() {

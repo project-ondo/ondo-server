@@ -13,7 +13,6 @@ import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.LeaveRoomService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,13 +24,11 @@ public class LeaveRoomServiceImpl implements LeaveRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
-    private final CurrentUserProvider currentUserProvider;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
-    public void execute(UUID chatRoomId) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public void execute(UserEntity me, UUID chatRoomId) {
         ChatRoomEntity chatRoom = chatRoomRepository.findByPublicId(chatRoomId)
                 .orElseThrow(ChatRoomNotFoundException::new);
 
