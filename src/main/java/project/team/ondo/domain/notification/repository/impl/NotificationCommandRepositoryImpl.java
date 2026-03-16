@@ -4,13 +4,13 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.team.ondo.domain.notification.entity.QNotificationEntity;
-import project.team.ondo.domain.notification.repository.NotificationQueryRepository;
+import project.team.ondo.domain.notification.repository.NotificationCommandRepository;
 
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationQueryRepositoryImpl implements NotificationQueryRepository {
+public class NotificationCommandRepositoryImpl implements NotificationCommandRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
     private final QNotificationEntity notification = QNotificationEntity.notificationEntity;

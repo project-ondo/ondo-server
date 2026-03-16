@@ -11,7 +11,7 @@ import project.team.ondo.domain.community.post.entity.PostEntity;
 import java.util.Optional;
 
 @Repository
-public interface PostRepository extends JpaRepository<@NonNull PostEntity, @NonNull Long>, PostRecommendRepository {
+public interface PostRepository extends JpaRepository<@NonNull PostEntity, @NonNull Long>, PostRecommendQueryRepository {
 
     Optional<PostEntity> findByIdAndStatus(Long id, PostStatus status);
 

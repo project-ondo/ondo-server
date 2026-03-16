@@ -6,6 +6,6 @@ import org.springframework.data.domain.Pageable;
 import project.team.ondo.domain.user.data.request.UserSearchCondition;
 import project.team.ondo.domain.user.entity.UserEntity;
 
-public interface UserSearchRepository {
+public interface UserSearchQueryRepository {
     Page<@NonNull UserEntity> searchUser(UserSearchCondition condition, Pageable pageable);
 }

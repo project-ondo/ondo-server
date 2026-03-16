@@ -5,6 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import project.team.ondo.domain.user.entity.UserEntity;
 
-public interface UserRecommendRepository {
+public interface UserRecommendQueryRepository {
     Page<@NonNull UserEntity> recommend(UserEntity me, Pageable pageable);
 }

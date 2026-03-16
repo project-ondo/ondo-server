@@ -8,6 +8,6 @@ import project.team.ondo.domain.community.post.data.response.PostRecommendItemRe
 import project.team.ondo.domain.user.entity.UserEntity;
 
 @Repository
-public interface PostRecommendRepository {
+public interface PostRecommendQueryRepository {
     Page<@NonNull PostRecommendItemResponse> recommend(UserEntity me, Pageable pageable);
 }
