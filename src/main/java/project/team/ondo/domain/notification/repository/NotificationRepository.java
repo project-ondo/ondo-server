@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<@NonNull NotificationEntity, @NonNull Long>, NotificationQueryRepository {
+public interface NotificationRepository extends JpaRepository<@NonNull NotificationEntity, @NonNull Long>, NotificationCommandRepository {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<NotificationEntity> findTopByReceiverPublicIdAndTypeAndTargetAndReadFalseOrderByCreatedAtDesc(

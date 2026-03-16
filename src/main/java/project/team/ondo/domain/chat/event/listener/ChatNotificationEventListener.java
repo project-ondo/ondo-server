@@ -11,7 +11,7 @@ import project.team.ondo.domain.chat.entity.ChatMessageEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
 import project.team.ondo.domain.chat.event.ChatMessageSentEvent;
 import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
-import project.team.ondo.domain.chat.repository.ChatRoomMuteRepository;
+import project.team.ondo.domain.chat.repository.ChatRoomMuteCommandRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.ChatPresenceService;
 import project.team.ondo.domain.notification.constant.NotificationType;
@@ -36,7 +36,7 @@ public class ChatNotificationEventListener {
     private final FcmPushService fcmPushService;
     private final ChatPresenceService chatPresenceService;
     private final NotificationRepository notificationRepository;
-    private final ChatRoomMuteRepository chatRoomMuteRepository;
+    private final ChatRoomMuteCommandRepository chatRoomMuteRepository;
     private final NotificationPolicyService notificationPolicyService;
 
     @Async
