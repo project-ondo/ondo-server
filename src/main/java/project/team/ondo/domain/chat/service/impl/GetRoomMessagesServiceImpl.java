@@ -18,7 +18,6 @@ import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.GetRoomMessagesService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.global.response.CursorResponse;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,12 +29,10 @@ public class GetRoomMessagesServiceImpl implements GetRoomMessagesService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional(readOnly = true)
     @Override
-    public CursorResponse<@NonNull ChatMessageResponse> execute(UUID roomPublicId, Long cursor, int size) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public CursorResponse<@NonNull ChatMessageResponse> execute(UserEntity me, UUID roomPublicId, Long cursor, int size) {
 
         ChatRoomEntity chatRoom = chatRoomRepository.findByPublicId(roomPublicId)
                 .orElseThrow(ChatRoomNotFoundException::new);
@@ -50,14 +47,7 @@ public class GetRoomMessagesServiceImpl implements GetRoomMessagesService {
                 : chatMessageRepository.findAllByRoomIdAndIdLessThanOrderByIdDesc(chatRoom.getId(), cursor, pageable);
 
         List<ChatMessageResponse> items = page.getContent().stream()
-                .map(message -> new ChatMessageResponse(
-                        message.getId(),
-                        roomPublicId,
-                        message.getSenderId(),
-                        message.getMessageType(),
-                        message.getContent(),
-                        message.getCreatedAt()
-                ))
+                .map(message -> ChatMessageResponse.from(message, roomPublicId))
                 .toList();
 
         Long nextCursor = items.isEmpty() ? null : items.getLast().messageId();

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.team.ondo.domain.auth.data.request.SIgnInRequest;
+import project.team.ondo.domain.auth.data.request.SignInRequest;
 import project.team.ondo.domain.auth.data.response.AuthTokenResponse;
 import project.team.ondo.domain.auth.exception.LoginFailedException;
 import project.team.ondo.domain.auth.service.SignInService;
@@ -23,7 +23,7 @@ public class SignInServiceImpl implements SignInService {
 
     @Transactional
     @Override
-    public AuthTokenResponse execute(SIgnInRequest request) {
+    public AuthTokenResponse execute(SignInRequest request) {
         UserEntity user = userRepository.findByLoginId(request.loginId())
                 .orElseThrow(LoginFailedException::new);
 

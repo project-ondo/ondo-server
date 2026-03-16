@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.repository.ChatRoomMuteCommandRepository;
 import project.team.ondo.domain.chat.service.UnmuteChatRoomService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.UUID;
 
@@ -15,12 +14,10 @@ import java.util.UUID;
 public class UnmuteChatRoomServiceImpl implements UnmuteChatRoomService {
 
     private final ChatRoomMuteCommandRepository chatRoomMuteRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     @Override
-    public void execute(UUID chatRoomPublicId) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public void execute(UserEntity me, UUID chatRoomPublicId) {
         chatRoomMuteRepository.unmute(chatRoomPublicId, me.getId());
     }
 }

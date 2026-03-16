@@ -7,7 +7,6 @@ import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.global.fcm.entity.UserFcmTokenEntity;
 import project.team.ondo.global.fcm.repository.UserFcmTokenRepository;
 import project.team.ondo.global.fcm.service.RegisterFcmTokenService;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.UUID;
 
@@ -16,12 +15,10 @@ import java.util.UUID;
 public class RegisterFcmTokenServiceImpl implements RegisterFcmTokenService {
 
     private final UserFcmTokenRepository userFcmTokenRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     @Override
-    public void execute(String token) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public void execute(UserEntity me, String token) {
         UUID myPublicId = me.getPublicId();
 
         userFcmTokenRepository.findByToken(token).ifPresentOrElse(existing -> {

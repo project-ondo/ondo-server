@@ -4,7 +4,8 @@ import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import project.team.ondo.domain.community.post.data.response.PostRecommendItemResponse;
+import project.team.ondo.domain.user.entity.UserEntity;
 
 public interface RecommendPostService {
-    Page<@NonNull PostRecommendItemResponse> execute(Pageable pageable);
+    Page<@NonNull PostRecommendItemResponse> execute(UserEntity me, Pageable pageable);
 }

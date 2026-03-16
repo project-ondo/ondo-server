@@ -1,5 +1,7 @@
 package project.team.ondo.global.fcm.service;
 
+import project.team.ondo.domain.user.entity.UserEntity;
+
 public interface RegisterFcmTokenService {
-    void execute(String token);
+    void execute(UserEntity me, String token);
 }

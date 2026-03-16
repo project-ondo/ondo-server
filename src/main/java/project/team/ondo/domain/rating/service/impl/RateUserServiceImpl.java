@@ -18,7 +18,6 @@ import project.team.ondo.domain.rating.service.RateUserService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,16 +30,13 @@ public class RateUserServiceImpl implements RateUserService {
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final UserRepository userRepository;
     private final UserRatingRepository userRatingRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     @Override
-    public void execute(UUID chatRoomPublicId, int stars, String comment) {
+    public void execute(UserEntity me, UUID chatRoomPublicId, int stars, String comment) {
         if (stars < 1 || stars > 5) {
             throw new StarsOutOfRangeException();
         }
-
-        UserEntity me = currentUserProvider.getCurrentUser();
 
         ChatRoomEntity room = chatRoomRepository.findByPublicId(chatRoomPublicId)
                 .orElseThrow(ChatRoomNotFoundException::new);

@@ -6,19 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.user.data.request.UpdateMyProfileImageRequest;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.service.UpdateMyProfileImageService;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 @Service
 @RequiredArgsConstructor
 public class UpdateMyProfileImageServiceImpl implements UpdateMyProfileImageService {
 
-    private final CurrentUserProvider currentUserProvider;
-
     @Transactional
     @Override
-    public void execute(UpdateMyProfileImageRequest request) {
-        UserEntity me = currentUserProvider.getCurrentUser();
-
+    public void execute(UserEntity me, UpdateMyProfileImageRequest request) {
         validateProfileKey(me, request.key());
 
         me.updateProfileImage(request.key());

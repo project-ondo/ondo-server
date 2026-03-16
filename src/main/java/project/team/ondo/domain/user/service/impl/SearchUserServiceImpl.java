@@ -8,12 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.user.data.request.UserSearchCondition;
-import project.team.ondo.domain.user.data.response.UserSearchItemResponse;
+import project.team.ondo.domain.user.data.response.UserRecommendItemResponse;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.domain.user.service.SearchUserService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,20 +23,11 @@ public class SearchUserServiceImpl implements SearchUserService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<@NonNull UserSearchItemResponse> execute(UserSearchCondition condition, Pageable pageable) {
+    public Page<@NonNull UserRecommendItemResponse> execute(UserSearchCondition condition, Pageable pageable) {
         Page<@NonNull UserEntity> result = userRepository.searchUser(condition, pageable);
 
-        List<UserSearchItemResponse> mapped = result.getContent().stream()
-                .map(user -> new UserSearchItemResponse(
-                        user.getPublicId(),
-                        user.getDisplayName(),
-                        user.getGender(),
-                        user.getMajor(),
-                        new ArrayList<>(user.getInterests()),
-                        user.getProfileImageKey(),
-                        user.getRatingAvg(),
-                        user.getRatingCount()
-                ))
+        List<UserRecommendItemResponse> mapped = result.getContent().stream()
+                .map(UserRecommendItemResponse::from)
                 .toList();
 
         return new PageImpl<>(mapped, pageable, result.getTotalElements());

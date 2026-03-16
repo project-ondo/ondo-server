@@ -9,7 +9,6 @@ import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.UnblockRoomService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.UUID;
 
@@ -19,12 +18,10 @@ public class UnblockRoomServiceImpl implements UnblockRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Override
     @Transactional
-    public void execute(UUID chatRoomId) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public void execute(UserEntity me, UUID chatRoomId) {
         ChatRoomEntity room = chatRoomRepository.findByPublicId(chatRoomId).orElseThrow();
 
         ChatRoomMemberEntity member = chatRoomMemberRepository.findByRoomIdAndUserId(room.getId(), me.getId())

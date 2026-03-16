@@ -9,22 +9,21 @@ import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.community.post.service.DeletePostService;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
+import project.team.ondo.domain.user.entity.UserEntity;
 
 @Service
 @RequiredArgsConstructor
 public class DeletePostServiceImpl implements DeletePostService {
 
     private final PostRepository postRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     @Override
-    public void execute(Long postId) {
+    public void execute(UserEntity me, Long postId) {
         PostEntity post = postRepository.findByIdAndStatus(postId, PostStatus.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);
 
-        if (!post.getAuthor().getPublicId().equals(currentUserProvider.getCurrentUser().getPublicId())) {
+        if (!post.getAuthor().getPublicId().equals(me.getPublicId())) {
             throw new AccessDeniedException("게시글 삭제 권한이 없습니다.");
         }
 

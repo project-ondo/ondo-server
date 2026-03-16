@@ -10,7 +10,6 @@ import project.team.ondo.domain.notification.data.response.NotificationItemRespo
 import project.team.ondo.domain.notification.repository.NotificationRepository;
 import project.team.ondo.domain.notification.service.GetMyNotificationService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.UUID;
 
@@ -19,12 +18,10 @@ import java.util.UUID;
 public class GetMyNotificationServiceImpl implements GetMyNotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional(readOnly = true)
     @Override
-    public Page<@NonNull NotificationItemResponse> execute(Pageable pageable) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public Page<@NonNull NotificationItemResponse> execute(UserEntity me, Pageable pageable) {
         UUID myPublicId = me.getPublicId();
 
         return notificationRepository

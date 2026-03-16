@@ -4,8 +4,8 @@ import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import project.team.ondo.domain.user.data.request.UserSearchCondition;
-import project.team.ondo.domain.user.data.response.UserSearchItemResponse;
+import project.team.ondo.domain.user.data.response.UserRecommendItemResponse;
 
 public interface SearchUserService {
-    Page<@NonNull UserSearchItemResponse> execute(UserSearchCondition condition, Pageable pageable);
+    Page<@NonNull UserRecommendItemResponse> execute(UserSearchCondition condition, Pageable pageable);
 }

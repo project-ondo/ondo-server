@@ -1,7 +1,8 @@
 package project.team.ondo.domain.community.post.service;
 
 import project.team.ondo.domain.community.post.data.request.CreatePostRequest;
+import project.team.ondo.domain.user.entity.UserEntity;
 
 public interface CreatePostService {
-    Long execute(CreatePostRequest request);
+    Long execute(UserEntity me, CreatePostRequest request);
 }
