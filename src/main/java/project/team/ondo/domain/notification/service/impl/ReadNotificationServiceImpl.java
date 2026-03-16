@@ -8,7 +8,6 @@ import project.team.ondo.domain.notification.exception.NotificationNotFoundExcep
 import project.team.ondo.domain.notification.repository.NotificationRepository;
 import project.team.ondo.domain.notification.service.ReadNotificationService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.UUID;
 
@@ -17,12 +16,10 @@ import java.util.UUID;
 public class ReadNotificationServiceImpl implements ReadNotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     @Override
-    public void execute(Long notificationId) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public void execute(UserEntity me, Long notificationId) {
         UUID myPublicId = me.getPublicId();
 
         NotificationEntity notification = notificationRepository

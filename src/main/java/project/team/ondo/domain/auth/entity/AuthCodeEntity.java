@@ -17,11 +17,12 @@ public class AuthCodeEntity {
     @Id
     private String email;
     private String code;
-    private Integer attemptCount;
+    @Builder.Default
+    private int attemptCount = 0;
     @TimeToLive(unit = TimeUnit.SECONDS)
     private Long ttl;
 
     public void increaseAttemptCount() {
-        this.attemptCount = (this.attemptCount == null ? 1 : this.attemptCount + 1);
+        this.attemptCount++;
     }
 }

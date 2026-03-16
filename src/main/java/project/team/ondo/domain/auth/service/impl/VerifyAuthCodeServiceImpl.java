@@ -27,18 +27,14 @@ public class VerifyAuthCodeServiceImpl implements VerifyAuthCodeService {
         AuthCodeEntity savedAuthCode = authCodeRepository.findById(email)
                 .orElseThrow(AuthCodeExpiresException::new);
 
-        int attempt = savedAuthCode.getAttemptCount() == null ? 0 : savedAuthCode.getAttemptCount();
-
-        if (attempt >= 5) {
+        if (savedAuthCode.getAttemptCount() >= 5) {
             throw new AttemptLimitExceededException();
         }
 
         if (!savedAuthCode.getCode().equals(code)) {
             savedAuthCode.increaseAttemptCount();
             authCodeRepository.save(savedAuthCode);
-
-            int updatedAttempt = savedAuthCode.getAttemptCount() == null ? 0 : savedAuthCode.getAttemptCount();
-            if (updatedAttempt >= 5) {
+            if (savedAuthCode.getAttemptCount() >= 5) {
                 throw new AttemptLimitExceededException();
             }
             throw new InvalidAuthCodeException();

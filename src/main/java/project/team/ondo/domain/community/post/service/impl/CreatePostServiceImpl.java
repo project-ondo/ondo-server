@@ -8,19 +8,16 @@ import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.community.post.service.CreatePostService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 @Service
 @RequiredArgsConstructor
 public class CreatePostServiceImpl implements CreatePostService {
 
     private final PostRepository postRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     @Override
-    public Long execute(CreatePostRequest request) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public Long execute(UserEntity me, CreatePostRequest request) {
         PostEntity post = PostEntity.create(
                 request.title(),
                 request.content(),

@@ -10,22 +10,21 @@ import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.community.post.service.UpdatePostService;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
+import project.team.ondo.domain.user.entity.UserEntity;
 
 @Service
 @RequiredArgsConstructor
 public class UpdatePostServiceImpl implements UpdatePostService {
 
     private final PostRepository postRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     @Override
-    public void execute(Long postId, UpdatePostRequest request) {
+    public void execute(UserEntity me, Long postId, UpdatePostRequest request) {
         PostEntity post = postRepository.findByIdAndStatus(postId, PostStatus.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);
 
-        if (!post.getAuthor().getPublicId().equals(currentUserProvider.getCurrentUser().getPublicId())) {
+        if (!post.getAuthor().getPublicId().equals(me.getPublicId())) {
             throw new AccessDeniedException("게시글 수정 권한이 없습니다.");
         }
 

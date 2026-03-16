@@ -132,6 +132,10 @@ public class UserEntity extends BaseEntity {
         this.ratingSum += stars;
     }
 
+    public List<String> getInterests() {
+        return List.copyOf(interests);
+    }
+
     public double getRatingAvg() {
         return ratingCount == 0 ? 0.0 : (double) ratingSum / ratingCount;
     }

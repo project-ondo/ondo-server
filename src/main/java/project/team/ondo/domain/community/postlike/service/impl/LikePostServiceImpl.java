@@ -13,7 +13,6 @@ import project.team.ondo.domain.community.postlike.event.PostLikedEvent;
 import project.team.ondo.domain.community.postlike.repository.PostLikeRepository;
 import project.team.ondo.domain.community.postlike.service.LikePostService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.UUID;
 
@@ -23,13 +22,11 @@ public class LikePostServiceImpl implements LikePostService {
 
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
-    private final CurrentUserProvider currentUserProvider;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
-    public void execute(Long postId) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public void execute(UserEntity me, Long postId) {
 
         PostEntity post = postRepository.findByIdAndStatus(postId, PostStatus.ACTIVE)
                 .orElseThrow(PostNotFoundException::new);

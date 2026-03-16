@@ -9,7 +9,6 @@ import project.team.ondo.domain.user.data.request.UpdateMyProfileRequest;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.domain.user.service.UpdateMyProfileService;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -21,14 +20,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UpdateMyProfileServiceImpl implements UpdateMyProfileService {
 
-    private final CurrentUserProvider currentUserProvider;
     private final UserRepository userRepository;
     private final RecommendUserCacheEvictService recommendUserCacheEvictService;
 
     @Transactional
     @Override
-    public void execute(UpdateMyProfileRequest request) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public void execute(UserEntity me, UpdateMyProfileRequest request) {
 
         if (!me.getDisplayName().equals(request.displayName()) && userRepository.existsByDisplayName(request.displayName())) {
             throw new DisplayNameDuplicatedException();

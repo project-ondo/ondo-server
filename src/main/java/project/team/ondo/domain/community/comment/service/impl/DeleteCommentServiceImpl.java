@@ -9,22 +9,21 @@ import project.team.ondo.domain.community.comment.entity.CommentEntity;
 import project.team.ondo.domain.community.comment.exception.CommentNotFoundException;
 import project.team.ondo.domain.community.comment.repository.CommentRepository;
 import project.team.ondo.domain.community.comment.service.DeleteCommentService;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
+import project.team.ondo.domain.user.entity.UserEntity;
 
 @Service
 @RequiredArgsConstructor
 public class DeleteCommentServiceImpl implements DeleteCommentService {
 
     private final CommentRepository commentRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     @Override
-    public void execute(Long commentId) {
+    public void execute(UserEntity me, Long commentId) {
         CommentEntity comment = commentRepository.findByIdAndStatus(commentId, CommentStatus.ACTIVE)
                 .orElseThrow(CommentNotFoundException::new);
 
-        if (!comment.getAuthor().getPublicId().equals(currentUserProvider.getCurrentUser().getPublicId())) {
+        if (!comment.getAuthor().getPublicId().equals(me.getPublicId())) {
             throw new AccessDeniedException("댓글 삭제 권한이 없습니다.");
         }
 

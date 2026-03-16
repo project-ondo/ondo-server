@@ -13,13 +13,16 @@ import project.team.ondo.domain.community.comment.data.response.CommentItemRespo
 import project.team.ondo.domain.community.comment.service.CreateCommentService;
 import project.team.ondo.domain.community.comment.service.DeleteCommentService;
 import project.team.ondo.domain.community.comment.service.GetCommentsService;
+import project.team.ondo.domain.user.entity.UserEntity;
+import project.team.ondo.global.controller.BaseApiController;
 import project.team.ondo.global.response.ApiResponse;
 import project.team.ondo.global.response.PageResponse;
+import project.team.ondo.global.security.annotation.CurrentUser;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/comments")
-public class CommentController {
+public class CommentController extends BaseApiController {
 
     private final CreateCommentService createCommentService;
     private final GetCommentsService getCommentsService;
@@ -27,13 +30,12 @@ public class CommentController {
 
     @PostMapping("/{postId}")
     public ResponseEntity<@NonNull ApiResponse<Void>> create(
+            @CurrentUser UserEntity me,
             @PathVariable Long postId,
             @Valid @RequestBody CreateCommentRequest request
     ) {
-        createCommentService.execute(postId, request);
-        return ResponseEntity.ok(
-                ApiResponse.success("댓글 작성에 성공했습니다.")
-        );
+        createCommentService.execute(me, postId, request);
+        return ok("댓글 작성에 성공했습니다.");
     }
 
     @GetMapping("/{postId}")
@@ -42,29 +44,16 @@ public class CommentController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
-        Pageable pageable = PageRequest.of(
-                page,
-                size,
-                Sort.by(Sort.Direction.ASC, "createdAt")
-        );
-
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        "댓글 조회에 성공했습니다.",
-                        PageResponse.from(
-                                getCommentsService.execute(postId, pageable)
-                        )
-                )
-        );
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt"));
+        return ok("댓글 조회에 성공했습니다.", PageResponse.from(getCommentsService.execute(postId, pageable)));
     }
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<@NonNull ApiResponse<Void>> delete(
+            @CurrentUser UserEntity me,
             @PathVariable Long commentId
     ) {
-        deleteCommentService.execute(commentId);
-        return ResponseEntity.ok(
-                ApiResponse.success("댓글 삭제에 성공했습니다.")
-        );
+        deleteCommentService.execute(me, commentId);
+        return ok("댓글 삭제에 성공했습니다.");
     }
 }

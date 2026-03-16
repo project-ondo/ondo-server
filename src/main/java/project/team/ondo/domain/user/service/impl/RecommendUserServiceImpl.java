@@ -12,19 +12,16 @@ import project.team.ondo.domain.user.data.UserRecommendCacheValue;
 import project.team.ondo.domain.user.data.response.UserRecommendItemResponse;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.service.RecommendUserService;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 @Service
 @RequiredArgsConstructor
 public class RecommendUserServiceImpl implements RecommendUserService {
 
-    private final CurrentUserProvider currentUserProvider;
     private final RecommendUserCache recommendUserCache;
 
     @Transactional(readOnly = true)
     @Override
-    public Page<@NonNull UserRecommendItemResponse> execute(Pageable pageable) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public Page<@NonNull UserRecommendItemResponse> execute(UserEntity me, Pageable pageable) {
 
         UserRecommendCacheValue cached = recommendUserCache.get(me.getPublicId(), pageable);
 

@@ -12,7 +12,6 @@ import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.ChatPresenceService;
 import project.team.ondo.domain.chat.service.GetMyRoomsService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.List;
 
@@ -21,14 +20,11 @@ import java.util.List;
 public class GetMyRoomsServiceImpl implements GetMyRoomsService {
 
     private final ChatRoomRepository chatRoomRepository;
-    private final CurrentUserProvider currentUserProvider;
     private final ChatPresenceService chatPresenceService;
 
     @Transactional(readOnly = true)
     @Override
-    public Page<@NonNull ChatRoomListItemResponse> execute(Pageable pageable) {
-
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public Page<@NonNull ChatRoomListItemResponse> execute(UserEntity me, Pageable pageable) {
 
         Page<@NonNull ChatRoomListItemResponse> page =
                 chatRoomRepository.findMyRooms(me.getId(), pageable);

@@ -15,7 +15,6 @@ import project.team.ondo.domain.chat.service.MarkRoomReadService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserUnauthorizedException;
 import project.team.ondo.domain.user.repository.UserRepository;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
 
 import java.util.UUID;
 
@@ -25,15 +24,13 @@ public class MarkRoomReadServiceImpl implements MarkRoomReadService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
-    private final CurrentUserProvider currentUserProvider;
     private final ApplicationEventPublisher eventPublisher;
     private final UserRepository userRepository;
 
-    // SecurityContext기반
+    // @CurrentUser 기반
     @Transactional
     @Override
-    public void execute(UUID chatRoomId, Long lastReadMessageId) {
-        UserEntity me = currentUserProvider.getCurrentUser();
+    public void execute(UserEntity me, UUID chatRoomId, Long lastReadMessageId) {
         doMark(me, chatRoomId, lastReadMessageId);
     }
 

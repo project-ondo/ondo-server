@@ -7,7 +7,7 @@ import project.team.ondo.domain.notification.data.request.UpdateMyNotificationSe
 import project.team.ondo.domain.notification.entity.UserNotificationSettingEntity;
 import project.team.ondo.domain.notification.repository.UserNotificationSettingRepository;
 import project.team.ondo.domain.notification.service.UpdateMyNotificationSettingService;
-import project.team.ondo.global.security.jwt.service.CurrentUserProvider;
+import project.team.ondo.domain.user.entity.UserEntity;
 
 import java.util.UUID;
 
@@ -16,11 +16,11 @@ import java.util.UUID;
 public class UpdateMyNotificationSettingServiceImpl implements UpdateMyNotificationSettingService {
 
     private final UserNotificationSettingRepository userNotificationSettingRepository;
-    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
-    public void execute(UpdateMyNotificationSettingRequest request) {
-        UUID myPublicId = currentUserProvider.getCurrentUser().getPublicId();
+    @Override
+    public void execute(UserEntity me, UpdateMyNotificationSettingRequest request) {
+        UUID myPublicId = me.getPublicId();
         UserNotificationSettingEntity setting = userNotificationSettingRepository.findByUserPublicId(myPublicId)
                 .orElseGet(() -> userNotificationSettingRepository.save(UserNotificationSettingEntity.defaultOf(myPublicId)));
 
