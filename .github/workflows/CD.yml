@@ -12,7 +12,7 @@ env:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, ARM64]
 
     outputs:
       image_tag: ${{ steps.meta.outputs.tag }}
@@ -24,9 +24,6 @@ jobs:
       - name: Set image tag
         id: meta
         run: echo "tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -42,10 +39,11 @@ jobs:
         with:
           context: .
           push: true
-          platforms: linux/arm64
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   deploy:
     needs: build-and-push
@@ -69,12 +67,18 @@ jobs:
           docker-compose pull
           docker-compose up -d
 
-      - name: Wait for app startup
-        run: sleep 20
-
       - name: Health check
         run: |
-          curl --fail http://localhost:8080/actuator/health
+          for i in {1..30}; do
+            if curl --fail --silent http://localhost:8080/actuator/health; then
+              echo "App is healthy"
+              exit 0
+            fi
+            echo "Attempt $i/30, retrying in 10s..."
+            sleep 10
+          done
+          echo "Health check failed after 5 minutes"
+          exit 1
 
   notify-success:
     needs: [build-and-push, deploy]
