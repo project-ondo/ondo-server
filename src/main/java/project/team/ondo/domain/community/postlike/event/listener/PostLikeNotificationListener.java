@@ -10,8 +10,8 @@ import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.community.postlike.event.PostLikedEvent;
 import project.team.ondo.domain.notification.constant.NotificationType;
-import project.team.ondo.domain.notification.entity.NotificationEntity;
-import project.team.ondo.domain.notification.service.NotificationAggregationService;
+import project.team.ondo.domain.notification.data.NotificationResult;
+import project.team.ondo.domain.notification.service.CreateNotificationService;
 import project.team.ondo.domain.notification.service.NotificationPolicyService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
@@ -27,7 +27,7 @@ import java.util.Map;
 public class PostLikeNotificationListener {
 
     private final FcmPushService fcmPushService;
-    private final NotificationAggregationService notificationAggregationService;
+    private final CreateNotificationService createNotificationService;
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
@@ -50,7 +50,7 @@ public class PostLikeNotificationListener {
         String aggregatedBodyPrefix = actorDisplayName + "님 외 {n}명이 " + postTitle + " 게시글을 좋아합니다.";
 
 
-        NotificationEntity saved = notificationAggregationService.saveOrAggregate(
+        NotificationResult saved = createNotificationService.createOrAggregate(
                 event.receiverPublicId(),
                 NotificationType.POST_LIKE,
                 target,
@@ -65,14 +65,14 @@ public class PostLikeNotificationListener {
         data.put("type", "POST_LIKE");
         data.put("postId", String.valueOf(event.postId()));
         data.put("actorPublicId", event.actorPublicId().toString());
-        data.put("notificationId", String.valueOf(saved.getId()));
-        data.put("groupCount", String.valueOf(saved.getGroupCount()));
+        data.put("notificationId", String.valueOf(saved.id()));
+        data.put("groupCount", String.valueOf(saved.groupCount()));
 
         fcmPushService.send(
                 new FcmPushCommand(
                         event.receiverPublicId(),
                         title,
-                        saved.getBody(),
+                        saved.body(),
                         Map.copyOf(data)
                 )
         );

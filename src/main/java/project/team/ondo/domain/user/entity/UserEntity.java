@@ -2,7 +2,7 @@ package project.team.ondo.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import project.team.ondo.domain.user.constant.Gender;
+import project.team.ondo.global.constant.Gender;
 import project.team.ondo.domain.user.constant.UserRole;
 import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.global.entity.BaseEntity;
