@@ -15,8 +15,7 @@ import project.team.ondo.domain.chat.repository.ChatRoomMuteCommandRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.ChatPresenceService;
 import project.team.ondo.domain.notification.constant.NotificationType;
-import project.team.ondo.domain.notification.entity.NotificationEntity;
-import project.team.ondo.domain.notification.repository.NotificationRepository;
+import project.team.ondo.domain.notification.service.CreateNotificationService;
 import project.team.ondo.domain.notification.service.NotificationPolicyService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
@@ -35,7 +34,7 @@ public class ChatNotificationEventListener {
     private final UserRepository userRepository;
     private final FcmPushService fcmPushService;
     private final ChatPresenceService chatPresenceService;
-    private final NotificationRepository notificationRepository;
+    private final CreateNotificationService createNotificationService;
     private final ChatRoomMuteCommandRepository chatRoomMuteRepository;
     private final NotificationPolicyService notificationPolicyService;
 
@@ -68,14 +67,12 @@ public class ChatNotificationEventListener {
             default -> "새 메시지가 도착했습니다.";
         };
 
-        notificationRepository.save(
-                NotificationEntity.create(
-                        receiver.getPublicId(),
-                        NotificationType.CHAT_MESSAGE,
-                        "새 메시지",
-                        body,
-                        "chatRoomPublicId=" + roomPublicId
-                )
+        createNotificationService.create(
+                receiver.getPublicId(),
+                NotificationType.CHAT_MESSAGE,
+                "새 메시지",
+                body,
+                "chatRoomPublicId=" + roomPublicId
         );
 
         if (!notificationPolicyService.shouldSendPush(receiver.getPublicId(), NotificationType.CHAT_MESSAGE)) return;
