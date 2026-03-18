@@ -7,8 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.event.ChatMatchEndedEvent;
 import project.team.ondo.domain.notification.constant.NotificationType;
-import project.team.ondo.domain.notification.entity.NotificationEntity;
-import project.team.ondo.domain.notification.repository.NotificationRepository;
+import project.team.ondo.domain.notification.service.CreateNotificationService;
 import project.team.ondo.domain.notification.service.NotificationPolicyService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.repository.UserRepository;
@@ -23,7 +22,7 @@ import java.util.UUID;
 public class ChatMatchEndedEventListener {
 
     private final UserRepository userRepository;
-    private final NotificationRepository notificationRepository;
+    private final CreateNotificationService createNotificationService;
     private final NotificationPolicyService notificationPolicyService;
     private final FcmPushService fcmPushService;
 
@@ -49,9 +48,7 @@ public class ChatMatchEndedEventListener {
 
         String target = "chatRoomPublicId=" + roomPublicId + "&opponentPublicId=" + opponentPublicId;
 
-        notificationRepository.save(
-                NotificationEntity.create(receiverPublicId, type, title, body, target)
-        );
+        createNotificationService.create(receiverPublicId, type, title, body, target);
 
         if (!notificationPolicyService.shouldSendPush(receiverPublicId, type)) return;
 

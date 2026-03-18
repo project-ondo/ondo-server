@@ -1,6 +1,6 @@
 package project.team.ondo.domain.user.data.response;
 
-import project.team.ondo.domain.user.constant.Gender;
+import project.team.ondo.global.constant.Gender;
 import project.team.ondo.domain.user.entity.UserEntity;
 
 import java.util.List;

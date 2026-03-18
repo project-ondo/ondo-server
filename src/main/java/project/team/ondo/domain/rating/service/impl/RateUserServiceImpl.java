@@ -3,12 +3,8 @@ package project.team.ondo.domain.rating.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.team.ondo.domain.chat.entity.ChatRoomEntity;
-import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
-import project.team.ondo.domain.chat.exception.ChatRoomMemberNotFoundException;
-import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
-import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
-import project.team.ondo.domain.chat.repository.ChatRoomRepository;
+import project.team.ondo.domain.chat.data.ChatRoomInfo;
+import project.team.ondo.domain.chat.service.ChatRoomMembershipService;
 import project.team.ondo.domain.rating.entity.UserRatingEntity;
 import project.team.ondo.domain.rating.exception.MatchNotEndedException;
 import project.team.ondo.domain.rating.exception.StarsOutOfRangeException;
@@ -19,15 +15,13 @@ import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class RateUserServiceImpl implements RateUserService {
 
-    private final ChatRoomRepository chatRoomRepository;
-    private final ChatRoomMemberRepository chatRoomMemberRepository;
+    private final ChatRoomMembershipService chatRoomMembershipService;
     private final UserRepository userRepository;
     private final UserRatingRepository userRatingRepository;
 
@@ -38,25 +32,20 @@ public class RateUserServiceImpl implements RateUserService {
             throw new StarsOutOfRangeException();
         }
 
-        ChatRoomEntity room = chatRoomRepository.findByPublicId(chatRoomPublicId)
-                .orElseThrow(ChatRoomNotFoundException::new);
+        ChatRoomInfo room = chatRoomMembershipService.validateAndGet(chatRoomPublicId, me.getId());
 
-        chatRoomMemberRepository.findByRoomIdAndUserId(room.getId(), me.getId())
-                .orElseThrow(ChatRoomMemberNotFoundException::new);
-
-        List<ChatRoomMemberEntity> members = chatRoomMemberRepository.findAllByRoomId(room.getId());
-        if (members.size() < 2 || members.stream().anyMatch(ChatRoomMemberEntity::isActive)) {
+        if (!room.matchEnded()) {
             throw new MatchNotEndedException();
         }
 
-        Long opponentId = room.getUserAId().equals(me.getId()) ? room.getUserBId() : room.getUserAId();
+        Long opponentId = room.userAId().equals(me.getId()) ? room.userBId() : room.userAId();
 
-        if (userRatingRepository.existsByRoomIdAndRaterIdAndRateeId(room.getId(), me.getId(), opponentId)) {
+        if (userRatingRepository.existsByRoomIdAndRaterIdAndRateeId(room.roomId(), me.getId(), opponentId)) {
             throw new UserAlreadyRatedException();
         }
 
         userRatingRepository.save(
-                UserRatingEntity.create(room.getId(), me.getId(), opponentId, stars, comment)
+                UserRatingEntity.create(room.roomId(), me.getId(), opponentId, stars, comment)
         );
 
         UserEntity opponent = userRepository.findById(opponentId).orElseThrow(UserNotFoundException::new);

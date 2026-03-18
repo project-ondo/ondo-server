@@ -10,8 +10,7 @@ import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.notification.constant.NotificationType;
-import project.team.ondo.domain.notification.entity.NotificationEntity;
-import project.team.ondo.domain.notification.repository.NotificationRepository;
+import project.team.ondo.domain.notification.service.CreateNotificationService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
@@ -25,7 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PostCommentNotificationListener {
 
-    private final NotificationRepository notificationRepository;
+    private final CreateNotificationService createNotificationService;
     private final FcmPushService fcmPushService;
 
     private final UserRepository userRepository;
@@ -43,14 +42,12 @@ public class PostCommentNotificationListener {
         String title = "새 댓글 알림";
         String body = actorDisplayName + "님이 '" + postTitle + "' 게시글에 댓글을 남겼습니다.";
 
-        notificationRepository.save(
-                NotificationEntity.create(
-                        event.receiverPublicId(),
-                        NotificationType.POST_COMMENT,
-                        title,
-                        body,
-                        "postId=" + event.postId()
-                )
+        createNotificationService.create(
+                event.receiverPublicId(),
+                NotificationType.POST_COMMENT,
+                title,
+                body,
+                "postId=" + event.postId()
         );
 
         Map<String, String> data = new HashMap<>();

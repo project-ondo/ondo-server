@@ -7,8 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.event.ChatRoomMatchedEvent;
 import project.team.ondo.domain.notification.constant.NotificationType;
-import project.team.ondo.domain.notification.entity.NotificationEntity;
-import project.team.ondo.domain.notification.repository.NotificationRepository;
+import project.team.ondo.domain.notification.service.CreateNotificationService;
 import project.team.ondo.domain.notification.service.NotificationPolicyService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
@@ -23,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MatchNotificationEventListener {
 
-    private final NotificationRepository notificationRepository;
+    private final CreateNotificationService createNotificationService;
     private final FcmPushService fcmPushService;
     private final UserRepository userRepository;
     private final NotificationPolicyService notificationPolicyService;
@@ -38,14 +37,12 @@ public class MatchNotificationEventListener {
         String title = "새로운 매칭이 성사되었습니다!";
         String body = "지금 바로" + opponentDisplayName + "님과 채팅방에서 대화를 시작해보세요.";
 
-        notificationRepository.save(
-                NotificationEntity.create(
-                        event.receiverPublicId(),
-                        NotificationType.MATCH_CREATED,
-                        title,
-                        body,
-                        "chatRoomPublicId=" + event.chatRoomPublicId()
-                )
+        createNotificationService.create(
+                event.receiverPublicId(),
+                NotificationType.MATCH_CREATED,
+                title,
+                body,
+                "chatRoomPublicId=" + event.chatRoomPublicId()
         );
 
         if (!notificationPolicyService.shouldSendPush(event.receiverPublicId(), NotificationType.MATCH_CREATED)) return;

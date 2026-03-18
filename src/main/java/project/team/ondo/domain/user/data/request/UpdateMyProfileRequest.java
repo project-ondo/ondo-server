@@ -2,7 +2,7 @@ package project.team.ondo.domain.user.data.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import project.team.ondo.domain.user.constant.Gender;
+import project.team.ondo.global.constant.Gender;
 
 import java.util.List;
 
