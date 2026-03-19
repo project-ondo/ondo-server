@@ -7,6 +7,7 @@ import project.team.ondo.domain.auth.exception.DisplayNameDuplicatedException;
 import project.team.ondo.domain.user.cache.RecommendUserCacheEvictService;
 import project.team.ondo.domain.user.data.request.UpdateMyProfileRequest;
 import project.team.ondo.domain.user.entity.UserEntity;
+import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.domain.user.service.UpdateMyProfileService;
 
@@ -26,16 +27,18 @@ public class UpdateMyProfileServiceImpl implements UpdateMyProfileService {
     @Transactional
     @Override
     public void execute(UserEntity me, UpdateMyProfileRequest request) {
+        UserEntity managed = userRepository.findByPublicId(me.getPublicId())
+                .orElseThrow(UserNotFoundException::new);
 
-        if (!me.getDisplayName().equals(request.displayName()) && userRepository.existsByDisplayName(request.displayName())) {
+        if (!managed.getDisplayName().equals(request.displayName()) && userRepository.existsByDisplayName(request.displayName())) {
             throw new DisplayNameDuplicatedException();
         }
 
         boolean recommendCriteriaChanged =
-                isMajorChanged(me.getMajor(), request.major())
-                        || isInterestsChanged(me.getInterests(), request.interests());
+                isMajorChanged(managed.getMajor(), request.major())
+                        || isInterestsChanged(managed.getInterests(), request.interests());
 
-        me.updateProfile(
+        managed.updateProfile(
                 request.displayName(),
                 request.gender(),
                 request.major(),
@@ -43,7 +46,7 @@ public class UpdateMyProfileServiceImpl implements UpdateMyProfileService {
                 request.bio()
         );
 
-        if (recommendCriteriaChanged) recommendUserCacheEvictService.evict(me.getPublicId());
+        if (recommendCriteriaChanged) recommendUserCacheEvictService.evict(managed.getPublicId());
     }
 
     private boolean isMajorChanged(String oldMajor, String newMajor) {
