@@ -10,16 +10,21 @@ import project.team.ondo.domain.community.post.data.response.PostRecommendItemRe
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.community.post.service.RecommendPostService;
 import project.team.ondo.domain.user.entity.UserEntity;
+import project.team.ondo.domain.user.exception.UserNotFoundException;
+import project.team.ondo.domain.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class RecommendPostServiceImpl implements RecommendPostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
     public Page<@NonNull PostRecommendItemResponse> execute(UserEntity me, Pageable pageable){
-        return postRepository.recommend(me, pageable);
+        UserEntity managed = userRepository.findByPublicId(me.getPublicId())
+                .orElseThrow(UserNotFoundException::new);
+        return postRepository.recommend(managed, pageable);
     }
 }
