@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.team.ondo.domain.community.post.data.request.CreatePostRequest;
+import project.team.ondo.domain.community.post.data.request.SearchPostRequest;
 import project.team.ondo.domain.community.post.data.request.UpdatePostRequest;
 import project.team.ondo.domain.community.post.data.response.PostDetailResponse;
 import project.team.ondo.domain.community.post.data.response.PostRecommendItemResponse;
@@ -32,6 +33,7 @@ public class PostController extends BaseApiController {
     private final DeletePostService deletePostService;
     private final LikePostService likePostService;
     private final UnlikePostService unlikePostService;
+    private final SearchPostService searchPostService;
 
     @GetMapping("/recommend")
     public ResponseEntity<@NonNull ApiResponse<PageResponse<PostRecommendItemResponse>>> recommendPosts(
@@ -41,6 +43,16 @@ public class PostController extends BaseApiController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         return ok("추천 게시물 조회에 성공했습니다.", PageResponse.from(recommendPostService.execute(me, pageable)));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<@NonNull ApiResponse<PageResponse<PostRecommendItemResponse>>> searchPosts(
+            @Valid @ModelAttribute SearchPostRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ok("게시물 검색에 성공했습니다.", PageResponse.from(searchPostService.execute(request, pageable)));
     }
 
     @PostMapping
