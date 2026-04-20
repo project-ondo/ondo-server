@@ -11,13 +11,15 @@ import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.ChatRoomMembershipService;
+import project.team.ondo.global.contract.RoomMembershipQueryPort;
+import project.team.ondo.global.contract.RoomMembershipResult;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ChatRoomMembershipServiceImpl implements ChatRoomMembershipService {
+public class ChatRoomMembershipServiceImpl implements ChatRoomMembershipService, RoomMembershipQueryPort {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
@@ -35,5 +37,13 @@ public class ChatRoomMembershipServiceImpl implements ChatRoomMembershipService 
         boolean matchEnded = members.size() >= 2 && members.stream().noneMatch(ChatRoomMemberEntity::isActive);
 
         return new ChatRoomInfo(room.getId(), room.getUserAId(), room.getUserBId(), matchEnded);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RoomMembershipResult query(UUID chatRoomPublicId, Long userId) {
+        ChatRoomInfo info = validateAndGet(chatRoomPublicId, userId);
+        Long opponentId = info.userAId().equals(userId) ? info.userBId() : info.userAId();
+        return new RoomMembershipResult(info.roomId(), opponentId, info.matchEnded());
     }
 }

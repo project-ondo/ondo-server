@@ -2,12 +2,14 @@ package project.team.ondo.domain.community.post.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.access.AccessDeniedException;
 import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.global.entity.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "posts")
@@ -70,6 +72,11 @@ public class PostEntity extends BaseEntity {
         this.title = title;
         this.content = content;
         this.tags = tags != null ? tags : new ArrayList<>();
+    }
+
+    public void requireAuthor(UUID callerPublicId) {
+        if (!this.author.getPublicId().equals(callerPublicId))
+            throw new AccessDeniedException("게시글 수정/삭제 권한이 없습니다.");
     }
 
     public void delete() {

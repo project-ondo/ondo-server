@@ -8,7 +8,13 @@ import project.team.ondo.domain.notification.entity.UserNotificationSettingEntit
 import java.util.Optional;
 import java.util.UUID;
 
+
 @Repository
 public interface UserNotificationSettingRepository extends JpaRepository<@NonNull UserNotificationSettingEntity, @NonNull Long> {
     Optional<UserNotificationSettingEntity> findByUserPublicId(UUID userPublicId);
+
+    default UserNotificationSettingEntity getOrCreateFor(UUID userPublicId) {
+        return findByUserPublicId(userPublicId)
+                .orElseGet(() -> save(UserNotificationSettingEntity.defaultOf(userPublicId)));
+    }
 }

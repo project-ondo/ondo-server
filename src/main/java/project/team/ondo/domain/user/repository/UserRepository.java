@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import project.team.ondo.domain.user.entity.UserEntity;
+import project.team.ondo.domain.user.exception.UserNotFoundException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -21,4 +22,8 @@ public interface UserRepository extends JpaRepository<@NonNull UserEntity,@NonNu
     Optional<UserEntity> findByPublicId(UUID publicId);
 
     boolean existsByPublicId(UUID publicId);
+
+    default UserEntity getByPublicId(UUID publicId) {
+        return findByPublicId(publicId).orElseThrow(UserNotFoundException::new);
+    }
 }
