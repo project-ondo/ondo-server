@@ -11,9 +11,7 @@ import project.team.ondo.domain.community.comment.constant.CommentStatus;
 import project.team.ondo.domain.community.comment.data.response.CommentItemResponse;
 import project.team.ondo.domain.community.comment.repository.CommentRepository;
 import project.team.ondo.domain.community.comment.service.GetCommentsService;
-import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.entity.PostEntity;
-import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 
 @Service
@@ -26,8 +24,7 @@ public class GetCommentsServiceImpl implements GetCommentsService {
     @Transactional(readOnly = true)
     @Override
     public Page<@NonNull CommentItemResponse> execute(Long postId, Pageable pageable) {
-        PostEntity post = postRepository.findByIdAndStatus(postId, PostStatus.ACTIVE)
-                .orElseThrow(PostNotFoundException::new);
+        PostEntity post = postRepository.getActiveById(postId);
 
         return commentRepository.findAllByPostAndStatus(post, CommentStatus.ACTIVE, pageable)
                 .map(CommentItemResponse::from);

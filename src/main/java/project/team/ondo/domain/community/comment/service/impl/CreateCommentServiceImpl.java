@@ -9,9 +9,7 @@ import project.team.ondo.domain.community.comment.entity.CommentEntity;
 import project.team.ondo.domain.community.comment.event.PostCommentCreatedEvent;
 import project.team.ondo.domain.community.comment.repository.CommentRepository;
 import project.team.ondo.domain.community.comment.service.CreateCommentService;
-import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.entity.PostEntity;
-import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.user.entity.UserEntity;
 
@@ -29,8 +27,7 @@ public class CreateCommentServiceImpl implements CreateCommentService {
     @Override
     public void execute(UserEntity me, Long postId, CreateCommentRequest request){
 
-        PostEntity post = postRepository.findByIdAndStatus(postId, PostStatus.ACTIVE)
-                .orElseThrow(PostNotFoundException::new);
+        PostEntity post = postRepository.getActiveById(postId);
 
         CommentEntity comment = CommentEntity.create(
                 request.content(),

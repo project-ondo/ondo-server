@@ -1,7 +1,6 @@
 package project.team.ondo.domain.community.comment.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.community.comment.constant.CommentStatus;
@@ -23,10 +22,7 @@ public class DeleteCommentServiceImpl implements DeleteCommentService {
         CommentEntity comment = commentRepository.findByIdAndStatus(commentId, CommentStatus.ACTIVE)
                 .orElseThrow(CommentNotFoundException::new);
 
-        if (!comment.getAuthor().getPublicId().equals(me.getPublicId())) {
-            throw new AccessDeniedException("댓글 삭제 권한이 없습니다.");
-        }
-
+        comment.requireAuthor(me.getPublicId());
         comment.delete();
         comment.getPost().decreaseCommentCount();
     }

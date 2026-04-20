@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.entity.PostEntity;
+import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 
 import java.util.Optional;
 
@@ -16,4 +17,8 @@ public interface PostRepository extends JpaRepository<@NonNull PostEntity, @NonN
     Optional<PostEntity> findByIdAndStatus(Long id, PostStatus status);
 
     Page<@NonNull PostEntity> findAllByStatus(PostStatus status, Pageable pageable);
+
+    default PostEntity getActiveById(Long id) {
+        return findByIdAndStatus(id, PostStatus.ACTIVE).orElseThrow(PostNotFoundException::new);
+    }
 }

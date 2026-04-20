@@ -12,7 +12,6 @@ import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.service.CreateNotificationService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.global.fcm.data.command.FcmPushCommand;
 import project.team.ondo.global.fcm.service.FcmPushService;
@@ -33,7 +32,7 @@ public class PostCommentNotificationListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(PostCommentCreatedEvent event) {
-        UserEntity actor = userRepository.findByPublicId(event.actorPublicId()).orElseThrow(UserNotFoundException::new);
+        UserEntity actor = userRepository.getByPublicId(event.actorPublicId());
         String actorDisplayName = actor.getDisplayName();
 
         PostEntity post = postRepository.findById(event.postId()).orElseThrow(PostNotFoundException::new);

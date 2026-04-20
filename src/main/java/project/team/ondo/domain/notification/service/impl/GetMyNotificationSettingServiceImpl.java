@@ -21,8 +21,7 @@ public class GetMyNotificationSettingServiceImpl implements GetMyNotificationSet
     @Override
     public MyNotificationSettingResponse execute(UserEntity me) {
         UUID myPublicId = me.getPublicId();
-        UserNotificationSettingEntity setting = userNotificationSettingRepository.findByUserPublicId(myPublicId)
-                .orElseGet(() -> userNotificationSettingRepository.save(UserNotificationSettingEntity.defaultOf(myPublicId)));
+        UserNotificationSettingEntity setting = userNotificationSettingRepository.getOrCreateFor(myPublicId);
         return MyNotificationSettingResponse.from(setting);
     }
 }

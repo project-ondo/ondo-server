@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.entity.PostEntity;
-import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.community.postlike.entity.PostLikeEntity;
 import project.team.ondo.domain.community.postlike.event.PostLikedEvent;
@@ -28,8 +26,7 @@ public class LikePostServiceImpl implements LikePostService {
     @Override
     public void execute(UserEntity me, Long postId) {
 
-        PostEntity post = postRepository.findByIdAndStatus(postId, PostStatus.ACTIVE)
-                .orElseThrow(PostNotFoundException::new);
+        PostEntity post = postRepository.getActiveById(postId);
 
         if (postLikeRepository.existsByUserAndPost(me, post)) return;
 

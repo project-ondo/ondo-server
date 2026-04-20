@@ -21,8 +21,7 @@ public class UpdateMyNotificationSettingServiceImpl implements UpdateMyNotificat
     @Override
     public void execute(UserEntity me, UpdateMyNotificationSettingRequest request) {
         UUID myPublicId = me.getPublicId();
-        UserNotificationSettingEntity setting = userNotificationSettingRepository.findByUserPublicId(myPublicId)
-                .orElseGet(() -> userNotificationSettingRepository.save(UserNotificationSettingEntity.defaultOf(myPublicId)));
+        UserNotificationSettingEntity setting = userNotificationSettingRepository.getOrCreateFor(myPublicId);
 
         setting.update(request.pushEnabled(), request.chatEnabled(), request.communityEnabled(),
                 request.dndEnabled(), request.dndStart(), request.dndEnd());

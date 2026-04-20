@@ -17,7 +17,6 @@ import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.SendMessageService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
 
 import java.util.UUID;
@@ -35,8 +34,7 @@ public class SendMessageServiceImpl implements SendMessageService {
     @Transactional
     @Override
     public ChatMessageEntity execute(UUID senderPublicId, UUID chatRoomId, MessageType messageType, String content) {
-        UserEntity me = userRepository.findByPublicId(senderPublicId)
-                .orElseThrow(UserNotFoundException::new);
+        UserEntity me = userRepository.getByPublicId(senderPublicId);
         ChatRoomEntity chatRoom = chatRoomRepository.findByPublicId(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
 
         ChatRoomMemberEntity myMember = chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), me.getId())

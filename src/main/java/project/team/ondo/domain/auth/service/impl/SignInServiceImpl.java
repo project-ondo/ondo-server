@@ -33,12 +33,6 @@ public class SignInServiceImpl implements SignInService {
 
         AuthToken accessToken = jwtIssueService.issueAccessToken(user.getPublicId(), user.getRole());
         AuthToken refreshToken = jwtIssueService.issueRefreshToken(user.getPublicId());
-
-        return new AuthTokenResponse(
-                accessToken.token(),
-                accessToken.expiration(),
-                refreshToken.token(),
-                refreshToken.expiration()
-        );
+        return AuthTokenAssembler.assemble(accessToken, refreshToken);
     }
 }

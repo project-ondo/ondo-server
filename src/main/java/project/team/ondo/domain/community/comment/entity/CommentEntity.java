@@ -2,10 +2,13 @@ package project.team.ondo.domain.community.comment.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.access.AccessDeniedException;
 import project.team.ondo.domain.community.comment.constant.CommentStatus;
 import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.global.entity.BaseEntity;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "comments")
@@ -46,6 +49,11 @@ public class CommentEntity extends BaseEntity {
                 .author(author)
                 .status(CommentStatus.ACTIVE)
                 .build();
+    }
+
+    public void requireAuthor(UUID callerPublicId) {
+        if (!this.author.getPublicId().equals(callerPublicId))
+            throw new AccessDeniedException("댓글 삭제 권한이 없습니다.");
     }
 
     public void delete() {

@@ -8,7 +8,6 @@ import project.team.ondo.domain.auth.data.response.AuthTokenResponse;
 import project.team.ondo.domain.auth.exception.InvalidTokenException;
 import project.team.ondo.domain.auth.service.RefreshService;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.global.data.AuthToken;
 import project.team.ondo.global.security.jwt.service.JwtIssueService;
@@ -35,19 +34,13 @@ public class RefreshServiceImpl implements RefreshService {
 
         UUID publicId = UUID.fromString(jwtParserService.getUserIdFromRefreshToken(refreshToken));
 
-        UserEntity user = userRepository.findByPublicId(publicId)
-                .orElseThrow(UserNotFoundException::new);
+        UserEntity user = userRepository.getByPublicId(publicId);
 
         jwtRefreshTokenManagementService.execute(refreshToken);
 
         AuthToken newAccessToken = jwtIssueService.issueAccessToken(publicId, user.getRole());
         AuthToken newRefreshToken = jwtIssueService.issueRefreshToken(publicId);
 
-        return new AuthTokenResponse(
-                newAccessToken.token(),
-                newAccessToken.expiration(),
-                newRefreshToken.token(),
-                newRefreshToken.expiration()
-        );
+        return AuthTokenAssembler.assemble(newAccessToken, newRefreshToken);
     }
 }
