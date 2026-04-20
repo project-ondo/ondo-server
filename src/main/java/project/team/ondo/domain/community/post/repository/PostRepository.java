@@ -12,7 +12,7 @@ import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import java.util.Optional;
 
 @Repository
-public interface PostRepository extends JpaRepository<@NonNull PostEntity, @NonNull Long>, PostRecommendQueryRepository {
+public interface PostRepository extends JpaRepository<@NonNull PostEntity, @NonNull Long>, PostRecommendQueryRepository, PostSearchQueryRepository {
 
     Optional<PostEntity> findByIdAndStatus(Long id, PostStatus status);
 
