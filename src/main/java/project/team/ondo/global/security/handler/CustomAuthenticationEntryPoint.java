@@ -3,6 +3,7 @@ package project.team.ondo.global.security.handler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -15,7 +16,10 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void commence(
@@ -30,7 +34,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         ApiResponse<Void> body = ApiResponse.error(CommonErrorCode.UNAUTHORIZED);
 
         response.getWriter().write(
-                new ObjectMapper().writeValueAsString(body)
+                objectMapper.writeValueAsString(body)
         );
     }
 }

@@ -3,6 +3,8 @@ package project.team.ondo.domain.chat.event.listener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import project.team.ondo.domain.chat.data.payload.ChatRoomListUpdatePayload;
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ChatRoomListWsEventListener {
 
+    private static final int PREVIEW_MAX_LENGTH = 30;
+
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final UserRepository userRepository;
@@ -38,6 +42,7 @@ public class ChatRoomListWsEventListener {
     private final ChatPresenceService chatPresenceService;
 
     @Async
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(ChatMessageSentEvent event) {
         ChatMessageEntity message = event.message();
@@ -64,7 +69,7 @@ public class ChatRoomListWsEventListener {
         UUID userBPublicId = userB.getPublicId();
 
         String preview = message.getContent() == null ? "" : message.getContent();
-        if (preview.length() > 30) preview = preview.substring(0, 30);
+        if (preview.length() > PREVIEW_MAX_LENGTH) preview = preview.substring(0, PREVIEW_MAX_LENGTH);
 
         LocalDateTime lastAt = message.getCreatedAt();
 

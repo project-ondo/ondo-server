@@ -15,6 +15,7 @@ import project.team.ondo.global.aws.data.request.PresignUploadRequest;
 import project.team.ondo.global.aws.data.response.BatchPresignDownloadResponse;
 import project.team.ondo.global.aws.data.response.PresignDownloadResponse;
 import project.team.ondo.global.aws.data.response.PresignUploadResponse;
+import project.team.ondo.global.aws.exception.InvalidMediaKeyException;
 import project.team.ondo.global.aws.exception.UnsupportedMediaTypeException;
 import project.team.ondo.global.data.S3Environment;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -118,7 +119,7 @@ public class MediaPresignService {
         }
 
         if (normalizedKeys.isEmpty()) {
-            throw new IllegalArgumentException("KEY_REQUIRED");
+            throw new InvalidMediaKeyException();
         }
 
         long getTtl = s3Environment.presign().getExpirationSeconds();
@@ -156,7 +157,7 @@ public class MediaPresignService {
     }
 
     private String buildChatKeyWithPermission(UserEntity me, UUID roomPublicId, String ext) {
-        if (roomPublicId == null) throw new IllegalArgumentException("ROOM_ID_REQUIRED");
+        if (roomPublicId == null) throw new InvalidMediaKeyException();
 
         ChatRoomEntity room = chatRoomRepository.findByPublicId(roomPublicId)
                 .orElseThrow(ChatRoomNotFoundException::new);
@@ -169,21 +170,21 @@ public class MediaPresignService {
     }
 
     private void validateKeyReadPermission(UserEntity me, String key) {
-        if (key == null || key.isBlank()) throw new IllegalArgumentException("KEY_REQUIRED");
+        if (key == null || key.isBlank()) throw new InvalidMediaKeyException();
 
         if (key.startsWith("profile/")) {
             String[] parts = key.split("/");
-            if (parts.length < 3) throw new IllegalArgumentException("INVALID_KEY");
+            if (parts.length < 3) throw new InvalidMediaKeyException();
 
             UUID userPublicId;
             try {
                 userPublicId = UUID.fromString(parts[1]);
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("INVALID_KEY");
+                throw new InvalidMediaKeyException();
             }
 
             if (!userRepository.existsByPublicId(userPublicId)) {
-                throw new IllegalArgumentException("USER_NOT_FOUND");
+                throw new InvalidMediaKeyException();
             }
 
             return;
@@ -191,13 +192,13 @@ public class MediaPresignService {
 
         if (key.startsWith("chat/")) {
             String[] parts = key.split("/");
-            if (parts.length < 4) throw new IllegalArgumentException("INVALID_KEY");
+            if (parts.length < 4) throw new InvalidMediaKeyException();
 
             UUID roomPublicId;
             try {
                 roomPublicId = UUID.fromString(parts[1]);
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("INVALID_KEY");
+                throw new InvalidMediaKeyException();
             }
 
             ChatRoomEntity room = chatRoomRepository.findByPublicId(roomPublicId)
@@ -209,7 +210,7 @@ public class MediaPresignService {
             return;
         }
 
-        throw new IllegalArgumentException("INVALID_KEY_PREFIX");
+        throw new InvalidMediaKeyException();
     }
 
     private String extensionOf(String contentType) {
@@ -217,7 +218,7 @@ public class MediaPresignService {
             case "image/jpeg" -> "jpg";
             case "image/png" -> "png";
             case "image/webp" -> "webp";
-            default -> throw new IllegalArgumentException("UNSUPPORTED_CONTENT_TYPE");
+            default -> throw new UnsupportedMediaTypeException();
         };
     }
 }

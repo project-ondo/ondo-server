@@ -8,6 +8,7 @@ import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.community.postlike.entity.PostLikeEntity;
 import project.team.ondo.domain.community.postlike.event.PostLikedEvent;
+import project.team.ondo.domain.community.postlike.exception.AlreadyLikedException;
 import project.team.ondo.domain.community.postlike.repository.PostLikeRepository;
 import project.team.ondo.domain.community.postlike.service.LikePostService;
 import project.team.ondo.domain.user.entity.UserEntity;
@@ -28,7 +29,7 @@ public class LikePostServiceImpl implements LikePostService {
 
         PostEntity post = postRepository.getActiveById(postId);
 
-        if (postLikeRepository.existsByUserAndPost(me, post)) return;
+        if (postLikeRepository.existsByUserAndPost(me, post)) throw new AlreadyLikedException();
 
         postLikeRepository.save(PostLikeEntity.create(me, post));
         post.incrementLikeCount();

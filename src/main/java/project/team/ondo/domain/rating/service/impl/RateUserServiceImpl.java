@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.rating.entity.UserRatingEntity;
 import project.team.ondo.domain.rating.exception.MatchNotEndedException;
-import project.team.ondo.domain.rating.exception.StarsOutOfRangeException;
 import project.team.ondo.domain.rating.exception.UserAlreadyRatedException;
 import project.team.ondo.domain.rating.repository.UserRatingRepository;
 import project.team.ondo.domain.rating.service.RateUserService;
@@ -28,10 +27,6 @@ public class RateUserServiceImpl implements RateUserService {
     @Transactional
     @Override
     public void execute(UserEntity me, UUID chatRoomPublicId, int stars, String comment) {
-        if (stars < 1 || stars > 5) {
-            throw new StarsOutOfRangeException();
-        }
-
         RoomMembershipResult room = roomMembershipQueryPort.query(chatRoomPublicId, me.getId());
 
         if (!room.matchEnded()) {
@@ -39,6 +34,8 @@ public class RateUserServiceImpl implements RateUserService {
         }
 
         Long opponentId = room.opponentId();
+
+        UserEntity opponent = userRepository.findById(opponentId).orElseThrow(UserNotFoundException::new);
 
         if (userRatingRepository.existsByRoomIdAndRaterIdAndRateeId(room.roomId(), me.getId(), opponentId)) {
             throw new UserAlreadyRatedException();
@@ -48,7 +45,6 @@ public class RateUserServiceImpl implements RateUserService {
                 UserRatingEntity.create(room.roomId(), me.getId(), opponentId, stars, comment)
         );
 
-        UserEntity opponent = userRepository.findById(opponentId).orElseThrow(UserNotFoundException::new);
         opponent.applyNewRating(stars);
     }
 }

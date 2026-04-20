@@ -18,6 +18,7 @@ import java.util.UUID;
 public class VerifyAuthCodeServiceImpl implements VerifyAuthCodeService {
 
     private static final long TOKEN_TTL_SECONDS = 1800L;
+    private static final int MAX_AUTH_ATTEMPTS = 5;
 
     private final AuthCodeRepository authCodeRepository;
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
@@ -27,14 +28,14 @@ public class VerifyAuthCodeServiceImpl implements VerifyAuthCodeService {
         AuthCodeEntity savedAuthCode = authCodeRepository.findById(email)
                 .orElseThrow(AuthCodeExpiresException::new);
 
-        if (savedAuthCode.getAttemptCount() >= 5) {
+        if (savedAuthCode.getAttemptCount() >= MAX_AUTH_ATTEMPTS) {
             throw new AttemptLimitExceededException();
         }
 
         if (!savedAuthCode.getCode().equals(code)) {
             savedAuthCode.increaseAttemptCount();
             authCodeRepository.save(savedAuthCode);
-            if (savedAuthCode.getAttemptCount() >= 5) {
+            if (savedAuthCode.getAttemptCount() >= MAX_AUTH_ATTEMPTS) {
                 throw new AttemptLimitExceededException();
             }
             throw new InvalidAuthCodeException();
