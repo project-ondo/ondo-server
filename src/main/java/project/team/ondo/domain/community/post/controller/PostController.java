@@ -47,7 +47,6 @@ public class PostController extends BaseApiController {
 
     @GetMapping("/search")
     public ResponseEntity<@NonNull ApiResponse<PageResponse<PostRecommendItemResponse>>> searchPosts(
-            @CurrentUser UserEntity me,
             @Valid @ModelAttribute SearchPostRequest request,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
