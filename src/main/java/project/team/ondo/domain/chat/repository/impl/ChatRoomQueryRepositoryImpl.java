@@ -26,6 +26,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 
+    private static final int PREVIEW_MAX_LENGTH = 30;
+
     private final JPAQueryFactory jpaQueryFactory;
 
     private final QChatRoomEntity chatRoom = QChatRoomEntity.chatRoomEntity;
@@ -99,7 +101,7 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
                     LocalDateTime lastAt = t.get(chatMessage.createdAt);
 
                     String preview = (lastContent == null) ? "" : lastContent;
-                    if (preview.length() > 30) preview = preview.substring(0, 30);
+                    if (preview.length() > PREVIEW_MAX_LENGTH) preview = preview.substring(0, PREVIEW_MAX_LENGTH);
 
                     return new ChatRoomListItemResponse(
                             roomPublicId,

@@ -3,6 +3,8 @@ package project.team.ondo.domain.community.postlike.event.listener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import project.team.ondo.domain.community.post.entity.PostEntity;
@@ -33,6 +35,7 @@ public class PostLikeNotificationListener {
     private final NotificationPolicyService notificationPolicyService;
 
     @Async
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(PostLikedEvent event) {
 

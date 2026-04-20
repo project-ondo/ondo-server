@@ -2,6 +2,7 @@ package project.team.ondo.domain.community.post.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.user.entity.UserEntity;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Entity
 @Table(name = "posts")
 @Getter
@@ -94,6 +96,8 @@ public class PostEntity extends BaseEntity {
     public void decreaseLikeCount() {
         if (this.likeCount > 0) {
             this.likeCount--;
+        } else {
+            log.warn("decreaseLikeCount called on post {} with likeCount=0", this.id);
         }
     }
 
@@ -104,6 +108,8 @@ public class PostEntity extends BaseEntity {
     public void decreaseCommentCount() {
         if (this.commentCount > 0) {
             this.commentCount--;
+        } else {
+            log.warn("decreaseCommentCount called on post {} with commentCount=0", this.id);
         }
     }
 }
