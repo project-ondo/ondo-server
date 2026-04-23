@@ -3,9 +3,7 @@ package project.team.ondo.domain.community.postlike.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.entity.PostEntity;
-import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.community.postlike.entity.PostLikeEntity;
 import project.team.ondo.domain.community.postlike.repository.PostLikeRepository;
@@ -23,8 +21,7 @@ public class UnlikePostServiceImpl implements UnlikePostService {
     @Override
     public void execute(UserEntity me, Long postId) {
 
-        PostEntity post = postRepository.findByIdAndStatus(postId, PostStatus.ACTIVE)
-                .orElseThrow(PostNotFoundException::new);
+        PostEntity post = postRepository.getActiveById(postId);
 
         PostLikeEntity postLike = postLikeRepository.findByUserAndPost(me, post)
                 .orElse(null);

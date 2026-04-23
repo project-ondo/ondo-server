@@ -16,7 +16,7 @@ public class ChatTypingThrottleService {
     private final StringRedisTemplate redisTemplate;
 
     private String key(UUID chatRoomPublicId, UUID userPublicId) {
-        return "ws:typing" + chatRoomPublicId + ":" + userPublicId;
+        return "ws:typing:" + chatRoomPublicId + ":" + userPublicId;
     }
 
     public boolean allow(UUID chatRoomPublicId, UUID userPublicId) {

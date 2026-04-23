@@ -10,7 +10,7 @@ public record UpdateMyProfileRequest(
         @NotBlank @Size(max=20) String displayName,
         Gender gender,
         @NotBlank @Size(max=20) String major,
-        List<@NotBlank @Size(max=20) String> interests,
+        @Size(max = 10) List<@NotBlank @Size(max=20) String> interests,
         @Size(max=500) String bio
 ) {
 }

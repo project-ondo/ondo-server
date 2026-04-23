@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.user.data.request.UpdateMyProfileImageRequest;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.domain.user.service.UpdateMyProfileImageService;
 
@@ -20,8 +19,7 @@ public class UpdateMyProfileImageServiceImpl implements UpdateMyProfileImageServ
     public void execute(UserEntity me, UpdateMyProfileImageRequest request) {
         validateProfileKey(me, request.key());
 
-        UserEntity managed = userRepository.findByPublicId(me.getPublicId())
-                .orElseThrow(UserNotFoundException::new);
+        UserEntity managed = userRepository.getByPublicId(me.getPublicId());
         managed.updateProfileImage(request.key());
     }
 

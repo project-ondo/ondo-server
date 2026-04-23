@@ -3,6 +3,7 @@ package project.team.ondo.domain.notification.controller;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import project.team.ondo.domain.notification.data.request.UpdateMyNotificationSettingRequest;
 import project.team.ondo.domain.notification.data.response.MyNotificationSettingResponse;
@@ -29,7 +30,7 @@ public class NotificationSettingController extends BaseApiController {
     @PatchMapping("/my")
     public ResponseEntity<@NonNull ApiResponse<Void>> updateMy(
             @CurrentUser UserEntity me,
-            @RequestBody UpdateMyNotificationSettingRequest request
+            @Valid @RequestBody UpdateMyNotificationSettingRequest request
     ) {
         updateMyNotificationSettingService.execute(me, request);
         return ok("알림 설정 변경에 성공했습니다.");

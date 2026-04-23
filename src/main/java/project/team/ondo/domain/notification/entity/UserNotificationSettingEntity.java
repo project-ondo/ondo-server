@@ -2,6 +2,7 @@ package project.team.ondo.domain.notification.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import project.team.ondo.global.entity.BaseEntity;
 
 import java.time.LocalTime;
 import java.util.UUID;
@@ -13,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class UserNotificationSettingEntity {
+public class UserNotificationSettingEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

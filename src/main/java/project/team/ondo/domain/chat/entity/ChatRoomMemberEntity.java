@@ -70,6 +70,8 @@ public class ChatRoomMemberEntity extends BaseEntity {
         this.blocked = false;
     }
 
+    public void incrementUnread() { this.unreadCount++; }
+
     public void resetUnread() { this.unreadCount = 0L; }
 
     public void updateLastReadMessageId(Long messageId) {

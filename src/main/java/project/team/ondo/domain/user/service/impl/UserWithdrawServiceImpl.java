@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.domain.user.service.UserWithdrawService;
 
@@ -17,8 +16,7 @@ public class UserWithdrawServiceImpl implements UserWithdrawService {
     @Transactional
     @Override
     public void execute(UserEntity me) {
-        UserEntity managed = userRepository.findByPublicId(me.getPublicId())
-                .orElseThrow(UserNotFoundException::new);
+        UserEntity managed = userRepository.getByPublicId(me.getPublicId());
         managed.withdraw();
     }
 }

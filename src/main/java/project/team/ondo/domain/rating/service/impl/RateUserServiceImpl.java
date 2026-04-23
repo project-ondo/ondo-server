@@ -3,17 +3,16 @@ package project.team.ondo.domain.rating.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.team.ondo.domain.chat.data.ChatRoomInfo;
-import project.team.ondo.domain.chat.service.ChatRoomMembershipService;
 import project.team.ondo.domain.rating.entity.UserRatingEntity;
 import project.team.ondo.domain.rating.exception.MatchNotEndedException;
-import project.team.ondo.domain.rating.exception.StarsOutOfRangeException;
 import project.team.ondo.domain.rating.exception.UserAlreadyRatedException;
 import project.team.ondo.domain.rating.repository.UserRatingRepository;
 import project.team.ondo.domain.rating.service.RateUserService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
+import project.team.ondo.global.contract.RoomMembershipQueryPort;
+import project.team.ondo.global.contract.RoomMembershipResult;
 
 import java.util.UUID;
 
@@ -21,24 +20,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RateUserServiceImpl implements RateUserService {
 
-    private final ChatRoomMembershipService chatRoomMembershipService;
+    private final RoomMembershipQueryPort roomMembershipQueryPort;
     private final UserRepository userRepository;
     private final UserRatingRepository userRatingRepository;
 
     @Transactional
     @Override
     public void execute(UserEntity me, UUID chatRoomPublicId, int stars, String comment) {
-        if (stars < 1 || stars > 5) {
-            throw new StarsOutOfRangeException();
-        }
-
-        ChatRoomInfo room = chatRoomMembershipService.validateAndGet(chatRoomPublicId, me.getId());
+        RoomMembershipResult room = roomMembershipQueryPort.query(chatRoomPublicId, me.getId());
 
         if (!room.matchEnded()) {
             throw new MatchNotEndedException();
         }
 
-        Long opponentId = room.userAId().equals(me.getId()) ? room.userBId() : room.userAId();
+        Long opponentId = room.opponentId();
+
+        UserEntity opponent = userRepository.findById(opponentId).orElseThrow(UserNotFoundException::new);
 
         if (userRatingRepository.existsByRoomIdAndRaterIdAndRateeId(room.roomId(), me.getId(), opponentId)) {
             throw new UserAlreadyRatedException();
@@ -48,7 +45,6 @@ public class RateUserServiceImpl implements RateUserService {
                 UserRatingEntity.create(room.roomId(), me.getId(), opponentId, stars, comment)
         );
 
-        UserEntity opponent = userRepository.findById(opponentId).orElseThrow(UserNotFoundException::new);
         opponent.applyNewRating(stars);
     }
 }

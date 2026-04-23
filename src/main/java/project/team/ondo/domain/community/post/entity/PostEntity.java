@@ -2,13 +2,17 @@ package project.team.ondo.domain.community.post.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.global.entity.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+@Slf4j
 @Entity
 @Table(name = "posts")
 @Getter
@@ -72,6 +76,11 @@ public class PostEntity extends BaseEntity {
         this.tags = tags != null ? tags : new ArrayList<>();
     }
 
+    public void requireAuthor(UUID callerPublicId) {
+        if (!this.author.getPublicId().equals(callerPublicId))
+            throw new AccessDeniedException("게시글 수정/삭제 권한이 없습니다.");
+    }
+
     public void delete() {
         this.status = PostStatus.DELETED;
     }
@@ -87,6 +96,8 @@ public class PostEntity extends BaseEntity {
     public void decreaseLikeCount() {
         if (this.likeCount > 0) {
             this.likeCount--;
+        } else {
+            log.warn("decreaseLikeCount called on post {} with likeCount=0", this.id);
         }
     }
 
@@ -97,6 +108,8 @@ public class PostEntity extends BaseEntity {
     public void decreaseCommentCount() {
         if (this.commentCount > 0) {
             this.commentCount--;
+        } else {
+            log.warn("decreaseCommentCount called on post {} with commentCount=0", this.id);
         }
     }
 }

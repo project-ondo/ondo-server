@@ -14,9 +14,11 @@ import project.team.ondo.domain.chat.data.request.TypingWsRequest;
 import project.team.ondo.domain.chat.data.response.ChatMessageResponse;
 import project.team.ondo.domain.chat.entity.ChatMessageEntity;
 import project.team.ondo.domain.chat.service.ChatPresenceService;
+import project.team.ondo.domain.chat.service.ChatRoomMembershipService;
 import project.team.ondo.domain.chat.service.ChatTypingThrottleService;
 import project.team.ondo.domain.chat.service.MarkRoomReadService;
 import project.team.ondo.domain.chat.service.SendMessageService;
+import project.team.ondo.domain.user.repository.UserRepository;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -31,6 +33,8 @@ public class ChatWebSocketController {
     private final ChatTypingThrottleService chatTypingThrottleService;
     private final MarkRoomReadService markRoomReadService;
     private final ChatPresenceService chatPresenceService;
+    private final ChatRoomMembershipService chatRoomMembershipService;
+    private final UserRepository userRepository;
 
     @MessageMapping("/chat.send")
     public void send(@Valid @Payload SendMessageRequest request, Principal principal) {
@@ -78,6 +82,9 @@ public class ChatWebSocketController {
     @MessageMapping("/chat.typing")
     public void typing(@Valid @Payload TypingWsRequest request, Principal principal) {
         UUID userPublicId = UUID.fromString(principal.getName());
+
+        long userId = userRepository.getByPublicId(userPublicId).getId();
+        chatRoomMembershipService.validateAndGet(request.chatRoomPublicId(), userId);
 
         if (!chatTypingThrottleService.allow(request.chatRoomPublicId(), userPublicId)) return;
 

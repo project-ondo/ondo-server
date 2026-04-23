@@ -5,6 +5,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,6 +48,17 @@ public class ChatPresenceService {
 
     public boolean isOnline(UUID userPublicId) {
         return Boolean.TRUE.equals(redisTemplate.hasKey(onlineKey(userPublicId)));
+    }
+
+    public Map<UUID, Boolean> batchIsOnline(List<UUID> userPublicIds) {
+        if (userPublicIds.isEmpty()) return Map.of();
+        List<String> keys = userPublicIds.stream().map(this::onlineKey).toList();
+        List<String> values = redisTemplate.opsForValue().multiGet(keys);
+        Map<UUID, Boolean> result = new HashMap<>();
+        for (int i = 0; i < userPublicIds.size(); i++) {
+            result.put(userPublicIds.get(i), values != null && values.get(i) != null);
+        }
+        return result;
     }
 
     public Optional<UUID> currentRoomId(UUID userPublicId) {

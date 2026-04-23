@@ -7,7 +7,6 @@ import project.team.ondo.domain.auth.exception.DisplayNameDuplicatedException;
 import project.team.ondo.domain.user.cache.RecommendUserCacheEvictService;
 import project.team.ondo.domain.user.data.request.UpdateMyProfileRequest;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.domain.user.service.UpdateMyProfileService;
 
@@ -27,8 +26,7 @@ public class UpdateMyProfileServiceImpl implements UpdateMyProfileService {
     @Transactional
     @Override
     public void execute(UserEntity me, UpdateMyProfileRequest request) {
-        UserEntity managed = userRepository.findByPublicId(me.getPublicId())
-                .orElseThrow(UserNotFoundException::new);
+        UserEntity managed = userRepository.getByPublicId(me.getPublicId());
 
         if (!managed.getDisplayName().equals(request.displayName()) && userRepository.existsByDisplayName(request.displayName())) {
             throw new DisplayNameDuplicatedException();
