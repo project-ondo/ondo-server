@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.team.ondo.domain.notification.data.response.NotificationItemResponse;
 import project.team.ondo.domain.notification.service.CountUnreadNotificationService;
+import project.team.ondo.domain.notification.service.DeleteReadNotificationsService;
 import project.team.ondo.domain.notification.service.GetMyNotificationService;
 import project.team.ondo.domain.notification.service.ReadAllNotificationService;
 import project.team.ondo.domain.notification.service.ReadNotificationService;
@@ -23,6 +24,7 @@ import project.team.ondo.global.security.annotation.CurrentUser;
 public class NotificationController extends BaseApiController {
 
     private final CountUnreadNotificationService countUnreadNotificationService;
+    private final DeleteReadNotificationsService deleteReadNotificationsService;
     private final GetMyNotificationService getMyNotificationService;
     private final ReadNotificationService readNotificationService;
     private final ReadAllNotificationService readAllNotificationService;
@@ -54,5 +56,10 @@ public class NotificationController extends BaseApiController {
     @PostMapping("/read/all")
     public ResponseEntity<@NonNull ApiResponse<Long>> readAll(@CurrentUser UserEntity me) {
         return ok("알림 전체 읽음 처리에 성공했습니다.", readAllNotificationService.execute(me));
+    }
+
+    @DeleteMapping("/read")
+    public ResponseEntity<@NonNull ApiResponse<Long>> deleteReadAll(@CurrentUser UserEntity me) {
+        return ok("읽은 알림 전체 삭제에 성공했습니다.", deleteReadNotificationsService.execute(me));
     }
 }
