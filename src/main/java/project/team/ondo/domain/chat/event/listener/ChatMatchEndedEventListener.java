@@ -1,10 +1,12 @@
 package project.team.ondo.domain.chat.event.listener;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import project.team.ondo.domain.chat.event.ChatMatchEndedEvent;
 import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.service.CreateNotificationService;
@@ -27,8 +29,8 @@ public class ChatMatchEndedEventListener {
     private final FcmPushService fcmPushService;
 
     @Async
-    @Transactional
-    @EventListener
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(ChatMatchEndedEvent event) {
 
         UserEntity userA = userRepository.findById(event.userAId()).orElse(null);

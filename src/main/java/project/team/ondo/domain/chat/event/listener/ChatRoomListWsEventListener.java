@@ -11,6 +11,7 @@ import project.team.ondo.domain.chat.data.payload.ChatRoomListUpdatePayload;
 import project.team.ondo.domain.chat.entity.ChatMessageEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
+import project.team.ondo.domain.chat.constant.ChatConstants;
 import project.team.ondo.domain.chat.event.ChatMessageSentEvent;
 import project.team.ondo.domain.chat.repository.ChatMessageRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
@@ -30,8 +31,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class ChatRoomListWsEventListener {
-
-    private static final int PREVIEW_MAX_LENGTH = 30;
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
@@ -69,7 +68,7 @@ public class ChatRoomListWsEventListener {
         UUID userBPublicId = userB.getPublicId();
 
         String preview = message.getContent() == null ? "" : message.getContent();
-        if (preview.length() > PREVIEW_MAX_LENGTH) preview = preview.substring(0, PREVIEW_MAX_LENGTH);
+        if (preview.length() > ChatConstants.PREVIEW_MAX_LENGTH) preview = preview.substring(0, ChatConstants.PREVIEW_MAX_LENGTH);
 
         LocalDateTime lastAt = message.getCreatedAt();
 

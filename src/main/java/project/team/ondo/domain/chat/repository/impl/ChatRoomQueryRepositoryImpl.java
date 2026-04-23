@@ -16,6 +16,7 @@ import project.team.ondo.domain.chat.entity.QChatMessageEntity;
 import project.team.ondo.domain.chat.entity.QChatRoomEntity;
 import project.team.ondo.domain.chat.entity.QChatRoomMemberEntity;
 import project.team.ondo.domain.chat.repository.ChatRoomQueryRepository;
+import project.team.ondo.domain.chat.constant.ChatConstants;
 import project.team.ondo.domain.user.entity.QUserEntity;
 
 import java.time.LocalDateTime;
@@ -25,8 +26,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
-
-    private static final int PREVIEW_MAX_LENGTH = 30;
 
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -101,7 +100,7 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
                     LocalDateTime lastAt = t.get(chatMessage.createdAt);
 
                     String preview = (lastContent == null) ? "" : lastContent;
-                    if (preview.length() > PREVIEW_MAX_LENGTH) preview = preview.substring(0, PREVIEW_MAX_LENGTH);
+                    if (preview.length() > ChatConstants.PREVIEW_MAX_LENGTH) preview = preview.substring(0, ChatConstants.PREVIEW_MAX_LENGTH);
 
                     return new ChatRoomListItemResponse(
                             roomPublicId,
