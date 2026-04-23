@@ -1,6 +1,9 @@
 package project.team.ondo.domain.chat.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import org.springframework.validation.annotation.Validated;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +25,7 @@ import project.team.ondo.global.security.annotation.CurrentUser;
 
 import java.util.UUID;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat")
@@ -50,7 +54,7 @@ public class ChatController extends BaseApiController {
     public ResponseEntity<@NonNull ApiResponse<PageResponse<ChatRoomListItemResponse>>> getRoomsList(
             @CurrentUser UserEntity me,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @Positive @Max(100) @RequestParam(defaultValue = "20") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<@NonNull ChatRoomListItemResponse> result = getMyRoomsService.execute(me, pageable);
@@ -62,7 +66,7 @@ public class ChatController extends BaseApiController {
             @CurrentUser UserEntity me,
             @PathVariable UUID chatRoomPublicId,
             @RequestParam(required = false) Long cursor,
-            @RequestParam(defaultValue = "30") int size
+            @Positive @Max(100) @RequestParam(defaultValue = "30") int size
     ) {
         return ok("채팅 메시지 목록 조회에 성공했습니다.", getRoomMessagesService.execute(me, chatRoomPublicId, cursor, size));
     }

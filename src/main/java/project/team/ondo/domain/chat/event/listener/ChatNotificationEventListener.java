@@ -84,10 +84,7 @@ public class ChatNotificationEventListener {
                         body,
                         Map.of(
                                 "type", "CHAT_MESSAGE",
-                                "roomPublicId", roomPublicId.toString(),
-                                "roomId", String.valueOf(message.getRoomId()),
-                                "messageId", message.getId().toString(),
-                                "senderId", message.getSenderId().toString()
+                                "roomPublicId", roomPublicId.toString()
                         )
                 )
         );

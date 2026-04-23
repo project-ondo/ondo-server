@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
+import project.team.ondo.domain.chat.exception.ChatRoomMemberNotFoundException;
+import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.UnblockRoomService;
@@ -22,10 +24,10 @@ public class UnblockRoomServiceImpl implements UnblockRoomService {
     @Override
     @Transactional
     public void execute(UserEntity me, UUID chatRoomId) {
-        ChatRoomEntity room = chatRoomRepository.findByPublicId(chatRoomId).orElseThrow();
+        ChatRoomEntity room = chatRoomRepository.findByPublicId(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
 
         ChatRoomMemberEntity member = chatRoomMemberRepository.findByRoomIdAndUserId(room.getId(), me.getId())
-                .orElseThrow();
+                .orElseThrow(ChatRoomMemberNotFoundException::new);
 
         member.unblock();
     }

@@ -50,7 +50,7 @@ public class SendMessageServiceImpl implements SendMessageService {
         Long opponentId = chatRoom.getUserAId().equals(me.getId()) ? chatRoom.getUserBId() : chatRoom.getUserAId();
 
         ChatRoomMemberEntity opponentMember = chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), opponentId)
-                .orElseThrow();
+                .orElseThrow(ChatRoomMemberNotFoundException::new);
 
         if (opponentMember.isBlocked()) {
             throw new UserChatBlockedException();
@@ -59,6 +59,8 @@ public class SendMessageServiceImpl implements SendMessageService {
         if (!opponentMember.isActive()) {
             opponentMember.join();
         }
+
+        opponentMember.incrementUnread();
 
         ChatMessageEntity message = chatMessageRepository.save(ChatMessageEntity.create(chatRoom.getId(), me.getId(), messageType, content));
 
