@@ -30,4 +30,6 @@ public interface NotificationRepository extends JpaRepository<@NonNull Notificat
     Optional<NotificationEntity> findByIdAndReceiverPublicId(Long id, UUID receiverPublicId);
 
     long deleteByReceiverPublicId(UUID receiverPublicId);
+
+    long deleteByReceiverPublicIdAndReadTrue(UUID receiverPublicId);
 }
