@@ -2,24 +2,22 @@ package project.team.ondo.domain.notification.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.entity.NotificationEntity;
-import project.team.ondo.domain.notification.repository.NotificationRepository;
+import project.team.ondo.global.lock.DistributedLockService;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationAggregationService {
 
-    private static final Duration WINDOW = Duration.ofMinutes(5);
+    private static final Duration LOCK_TTL = Duration.ofSeconds(5);
 
-    private final NotificationRepository notificationRepository;
+    private final NotificationAggregationPersistenceService persistenceService;
+    private final DistributedLockService lockService;
 
-    @Transactional
     public NotificationEntity saveOrAggregate(
             UUID receiverPublicId,
             NotificationType type,
@@ -28,42 +26,13 @@ public class NotificationAggregationService {
             String singleBody,
             String aggregatedBodyPrefix
     ) {
-        var existingOpt = notificationRepository
-                .findTopByReceiverPublicIdAndTypeAndTargetAndReadFalseOrderByCreatedAtDesc(
-                        receiverPublicId,
-                        type,
-                        target
-                );
+        String lockKey = buildLockKey(receiverPublicId, type, target);
+        return lockService.executeWithLock(lockKey, LOCK_TTL,
+                () -> persistenceService.saveOrAggregate(
+                        receiverPublicId, type, target, title, singleBody, aggregatedBodyPrefix));
+    }
 
-        if (existingOpt.isPresent()) {
-            NotificationEntity existing = existingOpt.get();
-            LocalDateTime createdAt = existing.getCreatedAt();
-
-            if (createdAt != null && Duration.between(createdAt, LocalDateTime.now()).compareTo(WINDOW) <= 0) {
-
-                existing.increaseGroupCount();
-
-                long n = existing.getGroupCount();
-                String body = (n <= 1)
-                        ? singleBody
-                        : aggregatedBodyPrefix.replace("{n}", String.valueOf(n - 1));
-
-                existing.updateTitle(title);
-                existing.updateBody(body);
-                return existing;
-            }
-        }
-
-        NotificationEntity notification = NotificationEntity.builder()
-                .receiverPublicId(receiverPublicId)
-                .type(type)
-                .title(title)
-                .body(singleBody)
-                .target(target)
-                .groupCount(1L)
-                .read(false)
-                .build();
-
-        return notificationRepository.save(notification);
+    private String buildLockKey(UUID receiverPublicId, NotificationType type, String target) {
+        return "notification:agg:" + receiverPublicId + ":" + type + ":" + (target != null ? target : "");
     }
 }
