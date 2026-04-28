@@ -24,6 +24,7 @@ public class UserRatingStats {
         return new UserRatingStats(0L, 0L);
     }
 
+    // Intentional in-place mutation: JPA dirty-checking detects changes on managed @Embeddable fields.
     public void apply(int stars) {
         this.ratingCount++;
         this.ratingSum += stars;
