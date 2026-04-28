@@ -13,10 +13,9 @@ import project.team.ondo.domain.community.post.exception.PostNotFoundException;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.service.CreateNotificationService;
+import project.team.ondo.domain.notification.service.NotificationPushFacade;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.repository.UserRepository;
-import project.team.ondo.global.fcm.data.command.FcmPushCommand;
-import project.team.ondo.global.fcm.service.FcmPushService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +25,7 @@ import java.util.Map;
 public class PostCommentNotificationListener {
 
     private final CreateNotificationService createNotificationService;
-    private final FcmPushService fcmPushService;
+    private final NotificationPushFacade notificationPushFacade;
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
@@ -59,13 +58,12 @@ public class PostCommentNotificationListener {
         data.put("actorPublicId", event.actorPublicId().toString());
         if (postTitle != null && !postTitle.isBlank()) data.put("postTitle", postTitle);
 
-        fcmPushService.send(
-                new FcmPushCommand(
-                        event.receiverPublicId(),
-                        title,
-                        body,
-                        Map.copyOf(data)
-                )
+        notificationPushFacade.sendIfAllowed(
+                event.receiverPublicId(),
+                NotificationType.POST_COMMENT,
+                title,
+                body,
+                Map.copyOf(data)
         );
     }
 }

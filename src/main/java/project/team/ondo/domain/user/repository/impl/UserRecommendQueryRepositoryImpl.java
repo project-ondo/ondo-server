@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.domain.user.entity.QUserEntity;
 import project.team.ondo.domain.user.entity.UserEntity;
@@ -19,15 +19,15 @@ import project.team.ondo.domain.user.repository.UserRecommendQueryRepository;
 
 import java.util.List;
 
-@Service
+import static project.team.ondo.domain.user.constant.RecommendationWeights.INTEREST_WEIGHT;
+import static project.team.ondo.domain.user.constant.RecommendationWeights.MAJOR_WEIGHT;
+
+@Repository
 @RequiredArgsConstructor
 public class UserRecommendQueryRepositoryImpl implements UserRecommendQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
     private final QUserEntity user = QUserEntity.userEntity;
-
-    private static final long INTEREST_WEIGHT = 10L;
-    private static final long MAJOR_WEIGHT = 5L;
 
     @Override
     public Page<@NonNull UserEntity> recommend(UserEntity me, Pageable pageable) {
