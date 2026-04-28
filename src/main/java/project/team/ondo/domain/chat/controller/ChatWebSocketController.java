@@ -13,6 +13,7 @@ import project.team.ondo.domain.chat.data.request.SendMessageRequest;
 import project.team.ondo.domain.chat.data.request.TypingWsRequest;
 import project.team.ondo.domain.chat.data.response.ChatMessageResponse;
 import project.team.ondo.domain.chat.entity.ChatMessageEntity;
+import project.team.ondo.domain.chat.service.ChatOutboxDispatchService;
 import project.team.ondo.domain.chat.service.ChatPresenceService;
 import project.team.ondo.domain.chat.service.ChatRoomMembershipService;
 import project.team.ondo.domain.chat.service.ChatTypingThrottleService;
@@ -34,6 +35,7 @@ public class ChatWebSocketController {
     private final MarkRoomReadService markRoomReadService;
     private final ChatPresenceService chatPresenceService;
     private final ChatRoomMembershipService chatRoomMembershipService;
+    private final ChatOutboxDispatchService chatOutboxDispatchService;
     private final UserRepository userRepository;
 
     @MessageMapping("/chat.send")
@@ -58,6 +60,7 @@ public class ChatWebSocketController {
         );
 
         simpMessagingTemplate.convertAndSend("/topic/chat.rooms." + request.chatRoomPublicId(), payload);
+        chatOutboxDispatchService.markDispatched(savedMessage.getId());
     }
 
     @MessageMapping("/chat.read")
