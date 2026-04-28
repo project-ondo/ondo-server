@@ -6,12 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.constant.MessageType;
 import project.team.ondo.domain.chat.entity.ChatMessageEntity;
+import project.team.ondo.domain.chat.entity.ChatMessageOutboxEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
 import project.team.ondo.domain.chat.event.ChatMessageSentEvent;
 import project.team.ondo.domain.chat.exception.ChatRoomMemberNotFoundException;
 import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.exception.UserChatBlockedException;
+import project.team.ondo.domain.chat.repository.ChatMessageOutboxRepository;
 import project.team.ondo.domain.chat.repository.ChatMessageRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
@@ -28,6 +30,7 @@ public class SendMessageServiceImpl implements SendMessageService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageOutboxRepository chatMessageOutboxRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -63,6 +66,8 @@ public class SendMessageServiceImpl implements SendMessageService {
         opponentMember.incrementUnread();
 
         ChatMessageEntity message = chatMessageRepository.save(ChatMessageEntity.create(chatRoom.getId(), me.getId(), messageType, content));
+
+        chatMessageOutboxRepository.save(ChatMessageOutboxEntity.create(message.getId(), chatRoom.getPublicId()));
 
         eventPublisher.publishEvent(
                 new ChatMessageSentEvent(message)
