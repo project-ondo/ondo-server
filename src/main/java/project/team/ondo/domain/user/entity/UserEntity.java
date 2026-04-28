@@ -68,6 +68,7 @@ public class UserEntity extends BaseEntity {
 
     @Builder.Default
     @Embedded
+    @Getter(AccessLevel.NONE)
     private UserRatingStats ratingStats = UserRatingStats.zero();
 
     @PrePersist

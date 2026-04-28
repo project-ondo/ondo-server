@@ -8,14 +8,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Embeddable
-@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class UserRatingStats {
 
+    @Getter
     @Column(nullable = false)
     private long ratingCount;
 
+    @Getter
     @Column(nullable = false)
     private long ratingSum;
 
