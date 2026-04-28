@@ -13,14 +13,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import project.team.ondo.domain.user.constant.UserStatus;
-
-import static project.team.ondo.domain.user.constant.RecommendationWeights.INTEREST_WEIGHT;
-import static project.team.ondo.domain.user.constant.RecommendationWeights.MAJOR_WEIGHT;
 import project.team.ondo.domain.user.entity.QUserEntity;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.repository.UserRecommendQueryRepository;
 
 import java.util.List;
+
+import static project.team.ondo.domain.user.constant.RecommendationWeights.INTEREST_WEIGHT;
+import static project.team.ondo.domain.user.constant.RecommendationWeights.MAJOR_WEIGHT;
 
 @Repository
 @RequiredArgsConstructor
