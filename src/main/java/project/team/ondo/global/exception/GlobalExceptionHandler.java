@@ -30,31 +30,31 @@ public class GlobalExceptionHandler {
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .collect(Collectors.joining(", "));
         return ResponseEntity.badRequest()
-                .body(new ErrorResponse("VALIDATION_ERROR", message));
+                .body(new ErrorResponse(false, "VALIDATION_ERROR", message));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<@NonNull ErrorResponse> handleMalformedJson(HttpMessageNotReadableException exception) {
         return ResponseEntity.badRequest()
-                .body(new ErrorResponse("INVALID_REQUEST", "올바르지 않은 요청 형식입니다."));
+                .body(new ErrorResponse(false, "INVALID_REQUEST", "올바르지 않은 요청 형식입니다."));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<@NonNull ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException exception) {
         return ResponseEntity.badRequest()
-                .body(new ErrorResponse("INVALID_PARAMETER", "잘못된 파라미터 타입입니다: " + exception.getName()));
+                .body(new ErrorResponse(false, "INVALID_PARAMETER", "잘못된 파라미터 타입입니다: " + exception.getName()));
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<@NonNull ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException exception) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-                .body(new ErrorResponse("METHOD_NOT_ALLOWED", "지원하지 않는 HTTP 메서드입니다."));
+                .body(new ErrorResponse(false, "METHOD_NOT_ALLOWED", "지원하지 않는 HTTP 메서드입니다."));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<@NonNull ErrorResponse> handleGenericException(Exception exception) {
         log.error("Unhandled exception", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다."));
+                .body(new ErrorResponse(false, "INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다."));
     }
 }

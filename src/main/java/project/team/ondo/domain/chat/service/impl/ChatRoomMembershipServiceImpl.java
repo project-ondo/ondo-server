@@ -42,8 +42,22 @@ public class ChatRoomMembershipServiceImpl implements ChatRoomMembershipService,
     @Override
     @Transactional(readOnly = true)
     public RoomMembershipResult query(UUID chatRoomPublicId, Long userId) {
-        ChatRoomInfo info = validateAndGet(chatRoomPublicId, userId);
-        Long opponentId = info.userAId().equals(userId) ? info.userBId() : info.userAId();
-        return new RoomMembershipResult(info.roomId(), opponentId, info.matchEnded());
+        ChatRoomEntity room = chatRoomRepository.findByPublicId(chatRoomPublicId)
+                .orElseThrow(ChatRoomNotFoundException::new);
+
+        List<ChatRoomMemberEntity> members = chatRoomMemberRepository.findAllByRoomId(room.getId());
+
+        ChatRoomMemberEntity myMembership = members.stream()
+                .filter(m -> m.getUserId().equals(userId))
+                .findFirst()
+                .orElseThrow(ChatRoomMemberNotFoundException::new);
+
+        Long opponentId = members.stream()
+                .filter(m -> !m.getUserId().equals(userId))
+                .findFirst()
+                .map(ChatRoomMemberEntity::getUserId)
+                .orElseThrow(ChatRoomMemberNotFoundException::new);
+
+        return new RoomMembershipResult(room.getId(), opponentId, !myMembership.isActive());
     }
 }
