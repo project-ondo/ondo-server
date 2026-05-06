@@ -3,9 +3,11 @@ package project.team.ondo.global.security.jwt.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.exception.UserUnauthorizedException;
+import project.team.ondo.domain.user.exception.WithdrawnAccountException;
 import project.team.ondo.domain.user.repository.UserRepository;
 
 import java.util.UUID;
@@ -37,7 +39,13 @@ public class CurrentUserProvider {
             throw new UserUnauthorizedException();
         }
 
-        return userRepository.findByPublicId(publicId)
+        UserEntity user = userRepository.findByPublicId(publicId)
                 .orElseThrow(UserNotFoundException::new);
+
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new WithdrawnAccountException();
+        }
+
+        return user;
     }
 }

@@ -8,6 +8,7 @@ import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.global.entity.BaseEntity;
 import project.team.ondo.global.jpa.UuidBinaryConverter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -66,6 +67,9 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false)
     private UserStatus status;
 
+    @Column
+    private LocalDateTime deletedAt;
+
     @Builder.Default
     @Embedded
     @Getter(AccessLevel.NONE)
@@ -118,6 +122,12 @@ public class UserEntity extends BaseEntity {
 
     public void withdraw() {
         this.status = UserStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void reactivate() {
+        this.status = UserStatus.ACTIVE;
+        this.deletedAt = null;
     }
 
     public void updateProfileImage(String profileImageKey) {
