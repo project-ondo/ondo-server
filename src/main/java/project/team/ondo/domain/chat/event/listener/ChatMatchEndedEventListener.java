@@ -10,11 +10,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import project.team.ondo.domain.chat.event.ChatMatchEndedEvent;
 import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.service.CreateNotificationService;
-import project.team.ondo.domain.notification.service.NotificationPolicyService;
+import project.team.ondo.domain.notification.service.NotificationPushFacade;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.repository.UserRepository;
-import project.team.ondo.global.fcm.data.command.FcmPushCommand;
-import project.team.ondo.global.fcm.service.FcmPushService;
 
 import java.util.Map;
 import java.util.UUID;
@@ -25,8 +23,7 @@ public class ChatMatchEndedEventListener {
 
     private final UserRepository userRepository;
     private final CreateNotificationService createNotificationService;
-    private final NotificationPolicyService notificationPolicyService;
-    private final FcmPushService fcmPushService;
+    private final NotificationPushFacade notificationPushFacade;
 
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -52,10 +49,9 @@ public class ChatMatchEndedEventListener {
 
         createNotificationService.create(receiverPublicId, type, title, body, target);
 
-        if (!notificationPolicyService.shouldSendPush(receiverPublicId, type)) return;
-
-        fcmPushService.send(new FcmPushCommand(
+        notificationPushFacade.sendIfAllowed(
                 receiverPublicId,
+                type,
                 title,
                 body,
                 Map.of(
@@ -63,6 +59,6 @@ public class ChatMatchEndedEventListener {
                         "chatRoomPublicId", roomPublicId.toString(),
                         "opponentPublicId", opponentPublicId.toString()
                 )
-        ));
+        );
     }
 }

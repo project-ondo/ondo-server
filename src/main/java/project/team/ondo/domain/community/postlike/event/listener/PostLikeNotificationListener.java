@@ -14,25 +14,21 @@ import project.team.ondo.domain.community.postlike.event.PostLikedEvent;
 import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.data.NotificationResult;
 import project.team.ondo.domain.notification.service.CreateNotificationService;
-import project.team.ondo.domain.notification.service.NotificationPolicyService;
+import project.team.ondo.domain.notification.service.NotificationPushFacade;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.repository.UserRepository;
-import project.team.ondo.global.fcm.data.command.FcmPushCommand;
-import project.team.ondo.global.fcm.service.FcmPushService;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class PostLikeNotificationListener {
 
-    private final FcmPushService fcmPushService;
     private final CreateNotificationService createNotificationService;
+    private final NotificationPushFacade notificationPushFacade;
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final NotificationPolicyService notificationPolicyService;
 
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -61,21 +57,17 @@ public class PostLikeNotificationListener {
                 aggregatedBodyPrefix
         );
 
-        if (!notificationPolicyService.shouldSendPush(event.receiverPublicId(), NotificationType.POST_LIKE)) return;
-
-        Map<String, String> data = new HashMap<>();
-        data.put("type", "POST_LIKE");
-        data.put("postId", String.valueOf(event.postId()));
-        data.put("actorPublicId", event.actorPublicId().toString());
-        data.put("notificationId", String.valueOf(saved.id()));
-        data.put("groupCount", String.valueOf(saved.groupCount()));
-
-        fcmPushService.send(
-                new FcmPushCommand(
-                        event.receiverPublicId(),
-                        title,
-                        saved.body(),
-                        Map.copyOf(data)
+        notificationPushFacade.sendIfAllowed(
+                event.receiverPublicId(),
+                NotificationType.POST_LIKE,
+                title,
+                saved.body(),
+                Map.of(
+                        "type", "POST_LIKE",
+                        "postId", String.valueOf(event.postId()),
+                        "actorPublicId", event.actorPublicId().toString(),
+                        "notificationId", String.valueOf(saved.id()),
+                        "groupCount", String.valueOf(saved.groupCount())
                 )
         );
     }

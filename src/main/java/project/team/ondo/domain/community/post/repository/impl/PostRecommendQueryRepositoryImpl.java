@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.data.response.PostRecommendItemResponse;
 import project.team.ondo.domain.community.post.entity.PostEntity;
@@ -26,14 +26,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Service
+import static project.team.ondo.domain.user.constant.RecommendationWeights.INTEREST_WEIGHT;
+import static project.team.ondo.domain.user.constant.RecommendationWeights.MAJOR_WEIGHT;
+
+@Repository
 @RequiredArgsConstructor
 public class PostRecommendQueryRepositoryImpl implements PostRecommendQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    private static final long INTEREST_WEIGHT = 10L;
-    private static final long MAJOR_WEIGHT = 5L;
     private static final long LIKE_WEIGHT = 1L;
     private static final long COMMENT_WEIGHT = 2L;
 

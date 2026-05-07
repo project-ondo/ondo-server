@@ -18,6 +18,9 @@ public enum ErrorCode {
     //USER
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "유저 인증에 실패했습니다."),
+    WITHDRAWN_ACCOUNT(HttpStatus.UNAUTHORIZED, "탈퇴한 계정입니다."),
+    REACTIVATION_PERIOD_EXPIRED(HttpStatus.BAD_REQUEST, "재활성화 가능 기간(30일)이 만료되었습니다."),
+    ACCOUNT_NOT_WITHDRAWN(HttpStatus.BAD_REQUEST, "탈퇴 상태가 아닌 계정입니다."),
 
     //MAIL
     INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 인증 코드입니다."),
