@@ -16,10 +16,12 @@ import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.ChatPresenceService;
 import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.service.CreateNotificationService;
-import project.team.ondo.domain.notification.service.NotificationPushFacade;
+import project.team.ondo.domain.notification.service.NotificationPolicyService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
+import project.team.ondo.global.fcm.data.command.FcmPushCommand;
+import project.team.ondo.global.fcm.service.FcmPushService;
 
 import java.util.Map;
 import java.util.UUID;
@@ -30,10 +32,11 @@ public class ChatNotificationEventListener {
 
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
+    private final FcmPushService fcmPushService;
     private final ChatPresenceService chatPresenceService;
     private final CreateNotificationService createNotificationService;
     private final ChatRoomMuteCommandRepository chatRoomMuteRepository;
-    private final NotificationPushFacade notificationPushFacade;
+    private final NotificationPolicyService notificationPolicyService;
 
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -72,14 +75,17 @@ public class ChatNotificationEventListener {
                 "chatRoomPublicId=" + roomPublicId
         );
 
-        notificationPushFacade.sendIfAllowed(
-                receiver.getPublicId(),
-                NotificationType.CHAT_MESSAGE,
-                "새 메시지",
-                body,
-                Map.of(
-                        "type", "CHAT_MESSAGE",
-                        "roomPublicId", roomPublicId.toString()
+        if (!notificationPolicyService.shouldSendPush(receiver.getPublicId(), NotificationType.CHAT_MESSAGE)) return;
+
+        fcmPushService.send(
+                new FcmPushCommand(
+                        receiver.getPublicId(),
+                        "새 메시지",
+                        body,
+                        Map.of(
+                                "type", "CHAT_MESSAGE",
+                                "roomPublicId", roomPublicId.toString()
+                        )
                 )
         );
     }
