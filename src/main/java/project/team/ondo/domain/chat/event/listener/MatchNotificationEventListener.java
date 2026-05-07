@@ -10,11 +10,14 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import project.team.ondo.domain.chat.event.ChatRoomMatchedEvent;
 import project.team.ondo.domain.notification.constant.NotificationType;
 import project.team.ondo.domain.notification.service.CreateNotificationService;
-import project.team.ondo.domain.notification.service.NotificationPushFacade;
+import project.team.ondo.domain.notification.service.NotificationPolicyService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.exception.UserNotFoundException;
 import project.team.ondo.domain.user.repository.UserRepository;
+import project.team.ondo.global.fcm.data.command.FcmPushCommand;
+import project.team.ondo.global.fcm.service.FcmPushService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -22,8 +25,9 @@ import java.util.Map;
 public class MatchNotificationEventListener {
 
     private final CreateNotificationService createNotificationService;
+    private final FcmPushService fcmPushService;
     private final UserRepository userRepository;
-    private final NotificationPushFacade notificationPushFacade;
+    private final NotificationPolicyService notificationPolicyService;
 
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -43,16 +47,20 @@ public class MatchNotificationEventListener {
                 "chatRoomPublicId=" + event.chatRoomPublicId()
         );
 
-        notificationPushFacade.sendIfAllowed(
-                event.receiverPublicId(),
-                NotificationType.MATCH_CREATED,
-                title,
-                body,
-                Map.of(
-                        "type", "MATCH_CREATED",
-                        "roomPublicId", event.chatRoomPublicId().toString(),
-                        "opponentPublicId", event.senderPublicId().toString(),
-                        "opponentDisplayName", opponentDisplayName
+        if (!notificationPolicyService.shouldSendPush(event.receiverPublicId(), NotificationType.MATCH_CREATED)) return;
+
+        var data = new HashMap<String, String>();
+        data.put("type", "MATCH_CREATED");
+        data.put("roomPublicId", event.chatRoomPublicId().toString());
+        data.put("opponentPublicId", event.senderPublicId().toString());
+        data.put("opponentDisplayName", opponentDisplayName);
+
+        fcmPushService.send(
+                new FcmPushCommand(
+                        event.receiverPublicId(),
+                        title,
+                        body,
+                        Map.copyOf(data)
                 )
         );
     }

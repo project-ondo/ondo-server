@@ -66,10 +66,11 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false)
     private UserStatus status;
 
-    @Builder.Default
-    @Embedded
-    @Getter(AccessLevel.NONE)
-    private UserRatingStats ratingStats = UserRatingStats.zero();
+    @Column(nullable = false)
+    private long ratingCount;
+
+    @Column(nullable = false)
+    private long ratingSum;
 
     @PrePersist
     void prePersist() {
@@ -99,6 +100,8 @@ public class UserEntity extends BaseEntity {
                 .bio("")
                 .role(UserRole.ROLE_USER)
                 .status(UserStatus.ACTIVE)
+                .ratingCount(0L)
+                .ratingSum(0L)
                 .build();
     }
 
@@ -124,12 +127,9 @@ public class UserEntity extends BaseEntity {
         this.profileImageKey = profileImageKey;
     }
 
-    public long getRatingCount() {
-        return ratingStats.getRatingCount();
-    }
-
     public void applyNewRating(int stars) {
-        this.ratingStats.apply(stars);
+        this.ratingCount++;
+        this.ratingSum += stars;
     }
 
     public List<String> getInterests() {
@@ -137,6 +137,6 @@ public class UserEntity extends BaseEntity {
     }
 
     public double getRatingAvg() {
-        return ratingStats.avg();
+        return ratingCount == 0 ? 0.0 : (double) ratingSum / ratingCount;
     }
 }
