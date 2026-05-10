@@ -45,6 +45,14 @@ public class ChatRoomMembershipServiceImpl implements ChatRoomMembershipService,
         ChatRoomEntity room = chatRoomRepository.findByPublicId(chatRoomPublicId)
                 .orElseThrow(ChatRoomNotFoundException::new);
 
+        if (room.isEnded()) {
+            if (!room.getUserAId().equals(userId) && !room.getUserBId().equals(userId)) {
+                throw new ChatRoomMemberNotFoundException();
+            }
+            Long opponentId = room.getUserAId().equals(userId) ? room.getUserBId() : room.getUserAId();
+            return new RoomMembershipResult(room.getId(), opponentId, true);
+        }
+
         List<ChatRoomMemberEntity> members = chatRoomMemberRepository.findAllByRoomId(room.getId());
 
         ChatRoomMemberEntity myMembership = members.stream()

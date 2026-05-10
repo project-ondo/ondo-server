@@ -44,6 +44,10 @@ public class CreateRoomServiceImpl implements CreateRoomService {
                     .orElseThrow(ChatRoomNotFoundException::new);
         }
 
+        if (chatRoom.isEnded()) {
+            chatRoom.reopen();
+        }
+
         final long roomId = chatRoom.getId();
         final long meId = me.getId();
         final long targetUserId = targetUser.getId();

@@ -16,4 +16,8 @@ public interface ChatMessageRepository extends JpaRepository<@NonNull ChatMessag
     Page<@NonNull ChatMessageEntity> findAllByRoomIdAndIdLessThanOrderByIdDesc(Long roomId, Long cursor, Pageable pageable);
 
     Optional<ChatMessageEntity> findTopByRoomIdOrderByIdDesc(Long roomId);
+
+    boolean existsByRoomId(Long roomId);
+
+    void deleteAllByRoomId(Long roomId);
 }
