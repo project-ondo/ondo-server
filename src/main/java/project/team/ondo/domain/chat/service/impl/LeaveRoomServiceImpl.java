@@ -5,17 +5,16 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
-import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
-import project.team.ondo.domain.chat.event.ChatMatchEndedEvent;
+import project.team.ondo.domain.chat.event.ChatMemberLeftEvent;
 import project.team.ondo.domain.chat.exception.ChatRoomMemberNotFoundException;
 import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
+import project.team.ondo.domain.chat.repository.ChatMessageOutboxRepository;
+import project.team.ondo.domain.chat.repository.ChatMessageRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.LeaveRoomService;
 import project.team.ondo.domain.user.entity.UserEntity;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,6 +23,8 @@ public class LeaveRoomServiceImpl implements LeaveRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageOutboxRepository chatMessageOutboxRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -32,31 +33,27 @@ public class LeaveRoomServiceImpl implements LeaveRoomService {
         ChatRoomEntity chatRoom = chatRoomRepository.findByPublicId(chatRoomId)
                 .orElseThrow(ChatRoomNotFoundException::new);
 
-        ChatRoomMemberEntity chatRoomMember = chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), me.getId())
+        chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), me.getId())
                 .orElseThrow(ChatRoomMemberNotFoundException::new);
 
-        if (!chatRoomMember.isActive()) return;
+        if (chatRoom.isEnded()) return;
 
-        chatRoomMember.leave();
+        long opponentUserId = chatRoom.getUserAId().equals(me.getId())
+                ? chatRoom.getUserBId()
+                : chatRoom.getUserAId();
 
-        List<ChatRoomMemberEntity> members = chatRoomMemberRepository.findAllByRoomId(chatRoom.getId());
+        boolean hadMessages = chatMessageRepository.existsByRoomId(chatRoom.getId());
 
-        boolean allLeft = members.stream()
-                .allMatch(member -> !member.isActive());
+        chatMessageOutboxRepository.deleteAllByRoomPublicId(chatRoom.getPublicId());
+        chatMessageRepository.deleteAllByRoomId(chatRoom.getId());
+        chatRoomMemberRepository.deleteAllByRoomId(chatRoom.getId());
+        chatRoom.end();
 
-        if (!allLeft) return;
-
-        Long userAId = chatRoom.getUserAId();
-        Long userBId = chatRoom.getUserBId();
-
-        eventPublisher.publishEvent(
-                new ChatMatchEndedEvent(
-                        chatRoom.getId(),
-                        chatRoom.getPublicId(),
-                        userAId,
-                        userBId,
-                        LocalDateTime.now()
-                )
-        );
+        eventPublisher.publishEvent(new ChatMemberLeftEvent(
+                chatRoom.getPublicId(),
+                me.getId(),
+                opponentUserId,
+                hadMessages
+        ));
     }
 }

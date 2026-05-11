@@ -8,6 +8,7 @@ import project.team.ondo.domain.chat.entity.ChatMessageOutboxEntity;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ChatMessageOutboxRepository extends JpaRepository<ChatMessageOutboxEntity, Long> {
@@ -17,4 +18,6 @@ public interface ChatMessageOutboxRepository extends JpaRepository<ChatMessageOu
     List<ChatMessageOutboxEntity> findByStatusAndCreatedAtBefore(OutboxStatus status, LocalDateTime threshold);
 
     void deleteByStatusAndProcessedAtBefore(OutboxStatus status, LocalDateTime threshold);
+
+    void deleteAllByRoomPublicId(UUID roomPublicId);
 }

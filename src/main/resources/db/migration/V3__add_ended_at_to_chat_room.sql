@@ -1,0 +1,1 @@
+ALTER TABLE chat_room ADD COLUMN ended_at DATETIME(6) NULL;
