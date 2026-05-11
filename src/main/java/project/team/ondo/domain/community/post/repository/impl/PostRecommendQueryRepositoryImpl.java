@@ -16,7 +16,6 @@ import project.team.ondo.domain.community.post.data.response.PostRecommendItemRe
 import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.entity.QPostEntity;
 import project.team.ondo.domain.community.post.repository.PostRecommendQueryRepository;
-import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.domain.user.entity.QUserEntity;
 import project.team.ondo.domain.user.entity.UserEntity;
 
@@ -59,7 +58,12 @@ public class PostRecommendQueryRepositoryImpl implements PostRecommendQueryRepos
         NumberExpression<Long> interestScore =
                 interests.isEmpty()
                         ? Expressions.numberTemplate(Long.class, "0")
-                        : tag.count().multiply(INTEREST_WEIGHT);
+                        : new CaseBuilder()
+                                .when(tag.in(interests))
+                                .then(1L)
+                                .otherwise(0L)
+                                .sum()
+                                .multiply(INTEREST_WEIGHT);
 
         NumberExpression<Long> majorScore =
                 new CaseBuilder()
@@ -80,8 +84,7 @@ public class PostRecommendQueryRepositoryImpl implements PostRecommendQueryRepos
                 .join(post.author, user)
                 .leftJoin(post.tags, tag)
                 .where(
-                        post.status.eq(PostStatus.ACTIVE),
-                        post.author.status.eq(UserStatus.ACTIVE)
+                        post.status.eq(PostStatus.ACTIVE)
                 )
                 .groupBy(post.id)
                 .orderBy(
@@ -105,7 +108,7 @@ public class PostRecommendQueryRepositoryImpl implements PostRecommendQueryRepos
                 .fetch();
 
         Map<Long, PostEntity> postMap = posts.stream()
-                .collect(Collectors.toMap(PostEntity::getId, p -> p));
+                .collect(Collectors.toMap(PostEntity::getId, p -> p, (a, b) -> a));
 
         List<PostRecommendItemResponse> content = postIds.stream()
                 .map(postMap::get)
