@@ -9,6 +9,7 @@ import project.team.ondo.domain.chat.entity.QChatRoomEntity;
 import project.team.ondo.domain.chat.entity.QChatRoomMemberEntity;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberCommandRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -113,6 +114,23 @@ public class ChatRoomMemberCommandRepositoryImpl implements ChatRoomMemberComman
                                         .where(chatRoom.publicId.eq(chatRoomPublicId))
                         )
                 )
+                .execute();
+    }
+
+    @Override
+    public void deactivateBothSidesByUserId(long userId) {
+        List<Long> roomIds = jpaQueryFactory
+                .select(chatRoomMember.roomId)
+                .from(chatRoomMember)
+                .where(chatRoomMember.userId.eq(userId))
+                .fetch();
+
+        if (roomIds.isEmpty()) return;
+
+        jpaQueryFactory
+                .update(chatRoomMember)
+                .set(chatRoomMember.active, false)
+                .where(chatRoomMember.roomId.in(roomIds))
                 .execute();
     }
 }

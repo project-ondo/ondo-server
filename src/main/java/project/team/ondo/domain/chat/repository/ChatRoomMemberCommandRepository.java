@@ -9,4 +9,5 @@ public interface ChatRoomMemberCommandRepository {
     boolean isMuted(UUID chatRoomPublicId, long userId);
     void mute(UUID chatRoomPublicId, long userId);
     void unmute(UUID chatRoomPublicId, long userId);
+    void deactivateBothSidesByUserId(long userId);
 }
