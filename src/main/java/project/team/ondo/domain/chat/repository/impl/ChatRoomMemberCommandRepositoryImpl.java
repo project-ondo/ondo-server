@@ -4,7 +4,6 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import project.team.ondo.domain.chat.entity.QChatRoomEntity;
 import project.team.ondo.domain.chat.entity.QChatRoomMemberEntity;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberCommandRepository;
@@ -12,7 +11,6 @@ import project.team.ondo.domain.chat.repository.ChatRoomMemberCommandRepository;
 import java.util.List;
 import java.util.UUID;
 
-@Service
 @RequiredArgsConstructor
 public class ChatRoomMemberCommandRepositoryImpl implements ChatRoomMemberCommandRepository {
 
