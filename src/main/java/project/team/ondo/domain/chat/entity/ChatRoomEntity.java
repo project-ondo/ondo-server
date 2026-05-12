@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import project.team.ondo.global.entity.BaseEntity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -31,6 +32,21 @@ public class ChatRoomEntity extends BaseEntity {
 
     @Column(name = "user_b_id", nullable = false)
     private Long userBId;
+
+    @Column(name = "ended_at")
+    private LocalDateTime endedAt;
+
+    public boolean isEnded() {
+        return endedAt != null;
+    }
+
+    public void end() {
+        this.endedAt = LocalDateTime.now();
+    }
+
+    public void reopen() {
+        this.endedAt = null;
+    }
 
     @PrePersist
     void prePersist() {

@@ -23,7 +23,6 @@ public class AuthController extends BaseApiController {
     private final SignInService signInService;
     private final RefreshService refreshService;
     private final LogoutService logoutService;
-    private final ReactivateService reactivateService;
 
     @PostMapping("/email/send")
     public ResponseEntity<@NonNull ApiResponse<Void>> sendAuthCode(@Valid @RequestBody SendEmailRequest request) {
@@ -57,10 +56,5 @@ public class AuthController extends BaseApiController {
     public ResponseEntity<@NonNull ApiResponse<Void>> logout(@Valid @RequestBody LogoutRequest request) {
         logoutService.execute(request);
         return ok("로그아웃이 성공적으로 완료되었습니다.");
-    }
-
-    @PostMapping("/reactivate")
-    public ResponseEntity<@NonNull ApiResponse<AuthTokenResponse>> reactivate(@Valid @RequestBody ReactivateRequest request) {
-        return ok("계정이 재활성화되었습니다.", reactivateService.execute(request));
     }
 }

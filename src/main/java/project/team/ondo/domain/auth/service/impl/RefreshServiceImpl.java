@@ -7,9 +7,7 @@ import project.team.ondo.domain.auth.data.request.RefreshRequest;
 import project.team.ondo.domain.auth.data.response.AuthTokenResponse;
 import project.team.ondo.domain.auth.exception.InvalidTokenException;
 import project.team.ondo.domain.auth.service.RefreshService;
-import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.domain.user.exception.WithdrawnAccountException;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.global.data.AuthToken;
 import project.team.ondo.global.security.jwt.service.JwtIssueService;
@@ -37,10 +35,6 @@ public class RefreshServiceImpl implements RefreshService {
         UUID publicId = UUID.fromString(jwtParserService.getUserIdFromRefreshToken(refreshToken));
 
         UserEntity user = userRepository.getByPublicId(publicId);
-
-        if (user.getStatus() == UserStatus.DELETED) {
-            throw new WithdrawnAccountException();
-        }
 
         jwtRefreshTokenManagementService.execute(refreshToken);
 
