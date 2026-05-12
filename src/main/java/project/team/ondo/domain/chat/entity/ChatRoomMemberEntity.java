@@ -2,6 +2,7 @@ package project.team.ondo.domain.chat.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 import project.team.ondo.global.entity.BaseEntity;
 
 @Entity
@@ -11,6 +12,7 @@ import project.team.ondo.global.entity.BaseEntity;
                 @UniqueConstraint(name = "uk_chat_room_member", columnNames = {"room_id", "user_id"})
         }
 )
+@DynamicUpdate
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor

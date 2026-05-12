@@ -10,9 +10,12 @@ import project.team.ondo.domain.chat.entity.ChatMessageOutboxEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
 import project.team.ondo.domain.chat.event.ChatMessageSentEvent;
+import project.team.ondo.domain.chat.exception.ChatOpponentWithdrawnException;
+import project.team.ondo.domain.chat.exception.ChatRoomMemberInactiveException;
 import project.team.ondo.domain.chat.exception.ChatRoomMemberNotFoundException;
 import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.exception.UserChatBlockedException;
+import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.domain.chat.repository.ChatMessageOutboxRepository;
 import project.team.ondo.domain.chat.repository.ChatMessageRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
@@ -44,13 +47,18 @@ public class SendMessageServiceImpl implements SendMessageService {
                 .orElseThrow(ChatRoomMemberNotFoundException::new);
 
         if (!myMember.isActive()) {
-            throw new IllegalStateException("USER_LEFT_CHAT_ROOM");
+            throw new ChatRoomMemberInactiveException();
         }
         if (myMember.isBlocked()) {
             throw new UserChatBlockedException();
         }
 
         Long opponentId = chatRoom.getUserAId().equals(me.getId()) ? chatRoom.getUserBId() : chatRoom.getUserAId();
+
+        UserEntity opponent = userRepository.findById(opponentId).orElseThrow(ChatRoomMemberNotFoundException::new);
+        if (opponent.getStatus() == UserStatus.DELETED) {
+            throw new ChatOpponentWithdrawnException();
+        }
 
         ChatRoomMemberEntity opponentMember = chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), opponentId)
                 .orElseThrow(ChatRoomMemberNotFoundException::new);
@@ -63,7 +71,7 @@ public class SendMessageServiceImpl implements SendMessageService {
             opponentMember.join();
         }
 
-        opponentMember.incrementUnread();
+        chatRoomMemberRepository.increaseUnreadCount(chatRoom.getId(), opponentId, 1L);
 
         ChatMessageEntity message = chatMessageRepository.save(ChatMessageEntity.create(chatRoom.getId(), me.getId(), messageType, content));
 

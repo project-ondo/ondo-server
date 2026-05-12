@@ -2,6 +2,9 @@ package project.team.ondo.domain.chat.repository;
 
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
 
@@ -13,5 +16,11 @@ public interface ChatRoomMemberRepository extends JpaRepository<@NonNull ChatRoo
     Optional<ChatRoomMemberEntity> findByRoomIdAndUserId(Long roomId, Long userId);
     List<ChatRoomMemberEntity> findAllByRoomId(Long roomId);
 
-    void deleteAllByRoomId(Long roomId);
+    @Modifying
+    @Query("DELETE FROM ChatRoomMemberEntity m WHERE m.roomId = :roomId")
+    void deleteAllByRoomId(@Param("roomId") Long roomId);
+
+    @Modifying
+    @Query("DELETE FROM ChatRoomMemberEntity m WHERE m.roomId IN :roomIds")
+    void deleteAllByRoomIdIn(@Param("roomIds") List<Long> roomIds);
 }
