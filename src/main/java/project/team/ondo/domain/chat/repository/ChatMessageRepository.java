@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import project.team.ondo.domain.chat.entity.ChatMessageEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -25,4 +26,8 @@ public interface ChatMessageRepository extends JpaRepository<@NonNull ChatMessag
     @Modifying
     @Query("DELETE FROM ChatMessageEntity m WHERE m.roomId = :roomId")
     void deleteAllByRoomId(@Param("roomId") Long roomId);
+
+    @Modifying
+    @Query("DELETE FROM ChatMessageEntity m WHERE m.roomId IN :roomIds")
+    void deleteAllByRoomIdIn(@Param("roomIds") List<Long> roomIds);
 }

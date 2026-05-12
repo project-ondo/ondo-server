@@ -25,4 +25,8 @@ public interface ChatMessageOutboxRepository extends JpaRepository<ChatMessageOu
     @Modifying
     @Query("DELETE FROM ChatMessageOutboxEntity o WHERE o.roomPublicId = :roomPublicId")
     void deleteAllByRoomPublicId(@Param("roomPublicId") UUID roomPublicId);
+
+    @Modifying
+    @Query("DELETE FROM ChatMessageOutboxEntity o WHERE o.roomPublicId IN :roomPublicIds")
+    void deleteAllByRoomPublicIdIn(@Param("roomPublicIds") List<UUID> roomPublicIds);
 }
