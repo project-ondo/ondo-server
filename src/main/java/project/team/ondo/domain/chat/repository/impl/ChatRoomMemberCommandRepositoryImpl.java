@@ -73,7 +73,7 @@ public class ChatRoomMemberCommandRepositoryImpl implements ChatRoomMemberComman
         Boolean muted = jpaQueryFactory
                 .select(chatRoomMember.muted)
                 .from(chatRoomMember)
-                .join(chatRoom).on(chatRoom.publicId.eq(chatRoomPublicId))
+                .join(chatRoom).on(chatRoomMember.roomId.eq(chatRoom.id))
                 .where(
                         chatRoom.publicId.eq(chatRoomPublicId),
                         chatRoomMember.userId.eq(userId),
