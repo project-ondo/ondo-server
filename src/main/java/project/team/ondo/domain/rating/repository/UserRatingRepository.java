@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import project.team.ondo.domain.rating.entity.UserRatingEntity;
 
 @Repository
-public interface UserRatingRepository extends JpaRepository<@NonNull UserRatingEntity, @NonNull Long> {
+public interface UserRatingRepository extends JpaRepository<@NonNull UserRatingEntity, @NonNull Long>, UserRatingQueryRepository {
     boolean existsByRoomIdAndRaterIdAndRateeId(Long roomId, Long raterId, Long rateeId);
 }

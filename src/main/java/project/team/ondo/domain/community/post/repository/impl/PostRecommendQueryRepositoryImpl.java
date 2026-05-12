@@ -57,11 +57,11 @@ public class PostRecommendQueryRepositoryImpl implements PostRecommendQueryRepos
         NumberExpression<Long> interestScore =
                 interests.isEmpty()
                         ? Expressions.numberTemplate(Long.class, "0")
-                        : new CaseBuilder()
-                                .when(tag.in(interests))
-                                .then(1L)
-                                .otherwise(0L)
-                                .sum()
+                        : Expressions.numberTemplate(Long.class, "sum({0})",
+                                new CaseBuilder()
+                                        .when(tag.in(interests))
+                                        .then(1L)
+                                        .otherwise(0L))
                                 .multiply(INTEREST_WEIGHT);
 
         NumberExpression<Long> majorScore =
