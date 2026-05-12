@@ -25,15 +25,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static project.team.ondo.domain.user.constant.RecommendationWeights.INTEREST_WEIGHT;
-import static project.team.ondo.domain.user.constant.RecommendationWeights.MAJOR_WEIGHT;
-
 @Repository
 @RequiredArgsConstructor
 public class PostRecommendQueryRepositoryImpl implements PostRecommendQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
+    private static final long INTEREST_WEIGHT = 10L;
+    private static final long MAJOR_WEIGHT = 5L;
     private static final long LIKE_WEIGHT = 1L;
     private static final long COMMENT_WEIGHT = 2L;
 

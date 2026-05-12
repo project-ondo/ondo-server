@@ -8,9 +8,7 @@ import project.team.ondo.domain.auth.data.request.SignInRequest;
 import project.team.ondo.domain.auth.data.response.AuthTokenResponse;
 import project.team.ondo.domain.auth.exception.LoginFailedException;
 import project.team.ondo.domain.auth.service.SignInService;
-import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.domain.user.entity.UserEntity;
-import project.team.ondo.domain.user.exception.WithdrawnAccountException;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.global.data.AuthToken;
 import project.team.ondo.global.security.jwt.service.JwtIssueService;
@@ -31,10 +29,6 @@ public class SignInServiceImpl implements SignInService {
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new LoginFailedException();
-        }
-
-        if (user.getStatus() == UserStatus.DELETED) {
-            throw new WithdrawnAccountException();
         }
 
         AuthToken accessToken = jwtIssueService.issueAccessToken(user.getPublicId(), user.getRole());
