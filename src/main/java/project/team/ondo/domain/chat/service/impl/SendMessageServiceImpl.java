@@ -63,7 +63,7 @@ public class SendMessageServiceImpl implements SendMessageService {
             opponentMember.join();
         }
 
-        opponentMember.incrementUnread();
+        chatRoomMemberRepository.increaseUnreadCount(chatRoom.getId(), opponentId, 1L);
 
         ChatMessageEntity message = chatMessageRepository.save(ChatMessageEntity.create(chatRoom.getId(), me.getId(), messageType, content));
 
