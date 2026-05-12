@@ -5,8 +5,11 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import project.team.ondo.domain.chat.entity.QChatRoomEntity;
 import project.team.ondo.domain.chat.entity.QChatRoomMemberEntity;
 import project.team.ondo.domain.chat.repository.ChatRoomMemberCommandRepository;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +17,7 @@ public class ChatRoomMemberCommandRepositoryImpl implements ChatRoomMemberComman
 
     private final JPAQueryFactory jpaQueryFactory;
     private final QChatRoomMemberEntity chatRoomMember = QChatRoomMemberEntity.chatRoomMemberEntity;
+    private final QChatRoomEntity chatRoom = QChatRoomEntity.chatRoomEntity;
 
     @Override
     public int increaseUnreadCount(long roomId, long userId, long delta) {
@@ -26,7 +30,6 @@ public class ChatRoomMemberCommandRepositoryImpl implements ChatRoomMemberComman
                         chatRoomMember.active.isTrue()
                 )
                 .execute();
-
         return (int) updated;
     }
 
@@ -41,17 +44,14 @@ public class ChatRoomMemberCommandRepositoryImpl implements ChatRoomMemberComman
                         chatRoomMember.active.isTrue()
                 )
                 .execute();
-
         return (int) updated;
     }
 
     @Override
     public int updateLastReadMessageIdMax(long roomId, long userId, long next) {
         NumberExpression<Long> nextExpr = Expressions.asNumber(next);
-
         NumberExpression<Long> coalesceExpr =
                 Expressions.numberTemplate(Long.class, "COALESCE({0}, {1})", chatRoomMember.lastReadMessageId, 0L);
-
         NumberExpression<Long> greatestExpr =
                 Expressions.numberTemplate(Long.class, "GREATEST({0}, {1})", coalesceExpr, nextExpr);
 
@@ -64,7 +64,55 @@ public class ChatRoomMemberCommandRepositoryImpl implements ChatRoomMemberComman
                         chatRoomMember.active.isTrue()
                 )
                 .execute();
-
         return (int) updated;
+    }
+
+    @Override
+    public boolean isMuted(UUID chatRoomPublicId, long userId) {
+        Boolean muted = jpaQueryFactory
+                .select(chatRoomMember.muted)
+                .from(chatRoomMember)
+                .join(chatRoom).on(chatRoom.publicId.eq(chatRoomPublicId))
+                .where(
+                        chatRoom.publicId.eq(chatRoomPublicId),
+                        chatRoomMember.userId.eq(userId),
+                        chatRoomMember.active.isTrue()
+                )
+                .fetchOne();
+        return Boolean.TRUE.equals(muted);
+    }
+
+    @Override
+    public void mute(UUID chatRoomPublicId, long userId) {
+        jpaQueryFactory
+                .update(chatRoomMember)
+                .set(chatRoomMember.muted, true)
+                .where(
+                        chatRoomMember.userId.eq(userId),
+                        chatRoomMember.active.isTrue(),
+                        chatRoomMember.roomId.eq(
+                                jpaQueryFactory.select(chatRoom.id)
+                                        .from(chatRoom)
+                                        .where(chatRoom.publicId.eq(chatRoomPublicId))
+                        )
+                )
+                .execute();
+    }
+
+    @Override
+    public void unmute(UUID chatRoomPublicId, long userId) {
+        jpaQueryFactory
+                .update(chatRoomMember)
+                .set(chatRoomMember.muted, false)
+                .where(
+                        chatRoomMember.userId.eq(userId),
+                        chatRoomMember.active.isTrue(),
+                        chatRoomMember.roomId.eq(
+                                jpaQueryFactory.select(chatRoom.id)
+                                        .from(chatRoom)
+                                        .where(chatRoom.publicId.eq(chatRoomPublicId))
+                        )
+                )
+                .execute();
     }
 }
