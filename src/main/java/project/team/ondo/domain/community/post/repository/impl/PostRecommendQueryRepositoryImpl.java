@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.data.response.PostRecommendItemResponse;
 import project.team.ondo.domain.community.post.entity.PostEntity;
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Service
+@Repository
 @RequiredArgsConstructor
 public class PostRecommendQueryRepositoryImpl implements PostRecommendQueryRepository {
 
