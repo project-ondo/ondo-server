@@ -10,6 +10,7 @@ import project.team.ondo.domain.chat.entity.ChatMessageOutboxEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomEntity;
 import project.team.ondo.domain.chat.entity.ChatRoomMemberEntity;
 import project.team.ondo.domain.chat.event.ChatMessageSentEvent;
+import project.team.ondo.domain.chat.exception.ChatRoomMemberInactiveException;
 import project.team.ondo.domain.chat.exception.ChatRoomMemberNotFoundException;
 import project.team.ondo.domain.chat.exception.ChatRoomNotFoundException;
 import project.team.ondo.domain.chat.exception.UserChatBlockedException;
@@ -44,7 +45,7 @@ public class SendMessageServiceImpl implements SendMessageService {
                 .orElseThrow(ChatRoomMemberNotFoundException::new);
 
         if (!myMember.isActive()) {
-            throw new IllegalStateException("USER_LEFT_CHAT_ROOM");
+            throw new ChatRoomMemberInactiveException();
         }
         if (myMember.isBlocked()) {
             throw new UserChatBlockedException();
