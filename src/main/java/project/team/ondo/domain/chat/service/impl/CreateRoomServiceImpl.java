@@ -2,6 +2,7 @@ package project.team.ondo.domain.chat.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +41,13 @@ public class CreateRoomServiceImpl implements CreateRoomService {
             chatRoom = chatRoomRepository.findByUserAIdAndUserBId(a, b)
                     .orElseGet(() -> chatRoomRepository.save(ChatRoomEntity.create(a, b)));
         } catch (DataIntegrityViolationException e) {
-            chatRoom = chatRoomRepository.findByUserAIdAndUserBId(a, b)
-                    .orElseThrow(ChatRoomNotFoundException::new);
+            if (e.getCause() instanceof ConstraintViolationException constraintEx
+                    && "uk_chat_room_pair".equals(constraintEx.getConstraintName())) {
+                chatRoom = chatRoomRepository.findByUserAIdAndUserBId(a, b)
+                        .orElseThrow(ChatRoomNotFoundException::new);
+            } else {
+                throw e;
+            }
         }
 
         if (chatRoom.isEnded()) {

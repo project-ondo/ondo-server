@@ -1,6 +1,9 @@
 package project.team.ondo.domain.chat.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import project.team.ondo.domain.chat.constant.OutboxStatus;
 import project.team.ondo.domain.chat.entity.ChatMessageOutboxEntity;
@@ -19,5 +22,11 @@ public interface ChatMessageOutboxRepository extends JpaRepository<ChatMessageOu
 
     void deleteByStatusAndProcessedAtBefore(OutboxStatus status, LocalDateTime threshold);
 
-    void deleteAllByRoomPublicId(UUID roomPublicId);
+    @Modifying
+    @Query("DELETE FROM ChatMessageOutboxEntity o WHERE o.roomPublicId = :roomPublicId")
+    void deleteAllByRoomPublicId(@Param("roomPublicId") UUID roomPublicId);
+
+    @Modifying
+    @Query("DELETE FROM ChatMessageOutboxEntity o WHERE o.roomPublicId IN :roomPublicIds")
+    void deleteAllByRoomPublicIdIn(@Param("roomPublicIds") List<UUID> roomPublicIds);
 }

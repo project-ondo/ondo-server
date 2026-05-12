@@ -8,6 +8,7 @@ import project.team.ondo.domain.user.constant.UserStatus;
 import project.team.ondo.global.entity.BaseEntity;
 import project.team.ondo.global.jpa.UuidBinaryConverter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 20, unique = true)
+    @Column(nullable = false, length = 20)
     private String displayName;
 
     @Enumerated(EnumType.STRING)
@@ -66,11 +67,13 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false)
     private UserStatus status;
 
-    @Column(nullable = false)
-    private long ratingCount;
+    @Column
+    private LocalDateTime deletedAt;
 
-    @Column(nullable = false)
-    private long ratingSum;
+    @Builder.Default
+    @Embedded
+    @Getter(AccessLevel.NONE)
+    private UserRatingStats ratingStats = UserRatingStats.zero();
 
     @PrePersist
     void prePersist() {
@@ -100,8 +103,6 @@ public class UserEntity extends BaseEntity {
                 .bio("")
                 .role(UserRole.ROLE_USER)
                 .status(UserStatus.ACTIVE)
-                .ratingCount(0L)
-                .ratingSum(0L)
                 .build();
     }
 
@@ -121,15 +122,33 @@ public class UserEntity extends BaseEntity {
 
     public void withdraw() {
         this.status = UserStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void anonymize() {
+        this.displayName = "탈퇴한 사용자";
+        this.email = "withdrawn_" + this.id + "@deleted.local";
+        this.loginId = "del_" + this.publicId.toString().substring(0, 15);
+        this.password = "{noop}DELETED_" + UUID.randomUUID();
+        this.profileImageKey = null;
+        this.bio = "";
+    }
+
+    public void reactivate() {
+        this.status = UserStatus.ACTIVE;
+        this.deletedAt = null;
     }
 
     public void updateProfileImage(String profileImageKey) {
         this.profileImageKey = profileImageKey;
     }
 
+    public long getRatingCount() {
+        return ratingStats.getRatingCount();
+    }
+
     public void applyNewRating(int stars) {
-        this.ratingCount++;
-        this.ratingSum += stars;
+        this.ratingStats.apply(stars);
     }
 
     public List<String> getInterests() {
@@ -137,6 +156,6 @@ public class UserEntity extends BaseEntity {
     }
 
     public double getRatingAvg() {
-        return ratingCount == 0 ? 0.0 : (double) ratingSum / ratingCount;
+        return ratingStats.avg();
     }
 }
