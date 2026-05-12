@@ -85,6 +85,12 @@ jobs:
           echo "Health check failed after 5 minutes"
           exit 1
 
+      - name: Dump container logs on failure
+        if: failure()
+        run: |
+          cd "${DEPLOY_PATH}"
+          docker-compose logs --tail=200
+
   notify-success:
     needs: [build-and-push, deploy]
     runs-on: ubuntu-latest
