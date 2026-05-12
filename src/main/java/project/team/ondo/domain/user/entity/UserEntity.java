@@ -125,6 +125,15 @@ public class UserEntity extends BaseEntity {
         this.deletedAt = LocalDateTime.now();
     }
 
+    public void anonymize() {
+        this.displayName = "탈퇴한 사용자";
+        this.email = "withdrawn_" + this.id + "@deleted.local";
+        this.loginId = "del_" + this.publicId.toString().substring(0, 15);
+        this.password = "{noop}DELETED_" + UUID.randomUUID();
+        this.profileImageKey = null;
+        this.bio = "";
+    }
+
     public void reactivate() {
         this.status = UserStatus.ACTIVE;
         this.deletedAt = null;
