@@ -13,6 +13,7 @@ public class V4__remove_display_name_unique extends BaseJavaMigration {
     public void migrate(Context context) throws Exception {
         Connection connection = context.getConnection();
 
+        String indexName = null;
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(
                 "SELECT INDEX_NAME FROM information_schema.STATISTICS " +
@@ -21,10 +22,14 @@ public class V4__remove_display_name_unique extends BaseJavaMigration {
                 "AND COLUMN_NAME = 'display_name' " +
                 "AND NON_UNIQUE = 0 LIMIT 1")) {
             if (rs.next()) {
-                String indexName = rs.getString("INDEX_NAME");
-                try (Statement drop = connection.createStatement()) {
-                    drop.execute("ALTER TABLE users DROP INDEX `" + indexName + "`");
-                }
+                indexName = rs.getString("INDEX_NAME");
+            }
+        }
+
+        if (indexName != null) {
+            String escapedIndexName = indexName.replace("`", "``");
+            try (Statement drop = connection.createStatement()) {
+                drop.execute("ALTER TABLE users DROP INDEX `" + escapedIndexName + "`");
             }
         }
     }
