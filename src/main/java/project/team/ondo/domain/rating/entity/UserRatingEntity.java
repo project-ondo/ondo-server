@@ -3,6 +3,9 @@ package project.team.ondo.domain.rating.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import project.team.ondo.global.entity.BaseEntity;
+import project.team.ondo.global.jpa.StringListJsonConverter;
+
+import java.util.List;
 
 @Entity
 @Table(
@@ -43,13 +46,18 @@ public class UserRatingEntity extends BaseEntity {
     @Column(length = 500)
     private String comment;
 
-    public static UserRatingEntity create(Long roomId, Long raterId, Long rateeId, int stars, String comment) {
+    @Convert(converter = StringListJsonConverter.class)
+    @Column(name = "tags", nullable = false, columnDefinition = "JSON")
+    private List<String> tags;
+
+    public static UserRatingEntity create(Long roomId, Long raterId, Long rateeId, int stars, String comment, List<String> tags) {
         return UserRatingEntity.builder()
                 .roomId(roomId)
                 .raterId(raterId)
                 .rateeId(rateeId)
                 .stars(stars)
                 .comment(comment)
+                .tags(tags)
                 .build();
     }
 }
