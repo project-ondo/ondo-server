@@ -38,6 +38,7 @@ public enum ErrorCode {
     //POST
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     ALREADY_LIKED(HttpStatus.CONFLICT, "이미 좋아요한 게시글입니다."),
+    ALREADY_BOOKMARKED(HttpStatus.CONFLICT, "이미 북마크한 게시글입니다."),
 
     //COMMENT
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
