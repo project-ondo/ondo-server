@@ -1,12 +1,12 @@
 package project.team.ondo.domain.rating.data.request;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+
+import java.util.List;
 
 public record RateUserRequest(
         @NotNull @Min(1) @Max(5) Integer stars,
-        @Size(max = 500) String comment
+        @Size(max = 500) String comment,
+        @NotEmpty @Size(max = 3) List<@NotBlank @Size(max = 20) String> tags
 ) {
 }

@@ -28,7 +28,7 @@ public class GetMyRatingsServiceImpl implements GetMyRatingsService {
         Long nextCursor = hasNext ? page.get(page.size() - 1).getId() : null;
 
         List<UserRatingResponse> items = page.stream()
-                .map(e -> new UserRatingResponse(e.getId(), e.getStars(), e.getComment(), e.getCreatedAt()))
+                .map(UserRatingResponse::from)
                 .toList();
 
         return CursorResponse.of(items, nextCursor, hasNext);

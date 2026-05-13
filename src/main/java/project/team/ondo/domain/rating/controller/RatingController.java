@@ -38,7 +38,7 @@ public class RatingController extends BaseApiController {
             @Parameter(description = "채팅방 publicId (UUID)") @PathVariable UUID chatRoomPublicId,
             @Valid @RequestBody RateUserRequest request
     ) {
-        rateUserService.execute(me, chatRoomPublicId, request.stars(), request.comment());
+        rateUserService.execute(me, chatRoomPublicId, request.stars(), request.comment(), request.tags());
         return ok("별점 등록에 성공했습니다.");
     }
 
