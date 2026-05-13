@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,7 +21,9 @@ public interface BookmarkRepository extends JpaRepository<@NonNull BookmarkEntit
 
     Optional<BookmarkEntity> findByUserAndPost(UserEntity user, PostEntity post);
 
-    void deleteAllByPost(PostEntity post);
+    @Modifying
+    @Query("DELETE FROM BookmarkEntity b WHERE b.post = :post")
+    void deleteAllByPost(@Param("post") PostEntity post);
 
     @Query(
             value = "SELECT b FROM BookmarkEntity b JOIN FETCH b.post p JOIN FETCH p.author WHERE b.user = :user",
