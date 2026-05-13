@@ -26,7 +26,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/auth/**",
             "/ws/**",
             "/ws",
-            "/actuator/**"
+            "/actuator/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/v3/api-docs"
     );
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
