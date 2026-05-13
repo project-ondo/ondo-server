@@ -1,17 +1,18 @@
-package project.team.ondo.domain.community.post.service.impl;
+package project.team.ondo.domain.community.bookmark.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.team.ondo.domain.community.bookmark.entity.BookmarkEntity;
 import project.team.ondo.domain.community.bookmark.repository.BookmarkRepository;
+import project.team.ondo.domain.community.bookmark.service.RemoveBookmarkService;
 import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.repository.PostRepository;
-import project.team.ondo.domain.community.post.service.DeletePostService;
 import project.team.ondo.domain.user.entity.UserEntity;
 
 @Service
 @RequiredArgsConstructor
-public class DeletePostServiceImpl implements DeletePostService {
+public class RemoveBookmarkServiceImpl implements RemoveBookmarkService {
 
     private final PostRepository postRepository;
     private final BookmarkRepository bookmarkRepository;
@@ -21,8 +22,11 @@ public class DeletePostServiceImpl implements DeletePostService {
     public void execute(UserEntity me, Long postId) {
         PostEntity post = postRepository.getActiveById(postId);
 
-        post.requireAuthor(me.getPublicId());
-        bookmarkRepository.deleteAllByPost(post);
-        post.delete();
+        BookmarkEntity bookmark = bookmarkRepository.findByUserAndPost(me, post)
+                .orElse(null);
+
+        if (bookmark == null) return;
+
+        bookmarkRepository.delete(bookmark);
     }
 }
