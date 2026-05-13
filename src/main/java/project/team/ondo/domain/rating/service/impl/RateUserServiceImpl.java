@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.rating.entity.UserRatingEntity;
+import project.team.ondo.domain.rating.exception.DuplicateTagException;
 import project.team.ondo.domain.rating.exception.MatchNotEndedException;
 import project.team.ondo.domain.rating.exception.UserAlreadyRatedException;
 import project.team.ondo.domain.rating.repository.UserRatingRepository;
@@ -14,6 +15,8 @@ import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.global.contract.RoomMembershipQueryPort;
 import project.team.ondo.global.contract.RoomMembershipResult;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,7 +29,11 @@ public class RateUserServiceImpl implements RateUserService {
 
     @Transactional
     @Override
-    public void execute(UserEntity me, UUID chatRoomPublicId, int stars, String comment) {
+    public void execute(UserEntity me, UUID chatRoomPublicId, int stars, String comment, List<String> tags) {
+        if (tags.size() != new HashSet<>(tags).size()) {
+            throw new DuplicateTagException();
+        }
+
         RoomMembershipResult room = roomMembershipQueryPort.query(chatRoomPublicId, me.getId());
 
         if (!room.matchEnded()) {
@@ -42,7 +49,7 @@ public class RateUserServiceImpl implements RateUserService {
         }
 
         userRatingRepository.save(
-                UserRatingEntity.create(room.roomId(), me.getId(), opponentId, stars, comment)
+                UserRatingEntity.create(room.roomId(), me.getId(), opponentId, stars, comment, tags)
         );
 
         opponent.applyNewRating(stars);

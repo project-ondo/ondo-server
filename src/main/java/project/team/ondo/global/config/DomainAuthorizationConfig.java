@@ -12,6 +12,12 @@ public class DomainAuthorizationConfig {
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/ws/**", "/ws").permitAll()
+                .requestMatchers(
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                        "/v3/api-docs"
+                ).permitAll()
                 .anyRequest().authenticated()
         );
     }

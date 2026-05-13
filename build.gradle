@@ -79,6 +79,7 @@ dependencies {
 
     implementation('io.grpc:grpc-netty:1.70.0')
     implementation(platform('io.netty:netty-bom:4.2.9.Final'))
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
 }
 dependencyManagement {
     imports {

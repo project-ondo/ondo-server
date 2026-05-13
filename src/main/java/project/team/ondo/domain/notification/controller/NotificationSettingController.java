@@ -1,5 +1,7 @@
 package project.team.ondo.domain.notification.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import project.team.ondo.global.controller.BaseApiController;
 import project.team.ondo.global.response.ApiResponse;
 import project.team.ondo.global.security.annotation.CurrentUser;
 
+@Tag(name = "Notification")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/notification-settings")
@@ -22,11 +25,13 @@ public class NotificationSettingController extends BaseApiController {
     private final GetMyNotificationSettingService getMyNotificationSettingService;
     private final UpdateMyNotificationSettingService updateMyNotificationSettingService;
 
+    @Operation(summary = "내 알림 설정 조회")
     @GetMapping("/my")
     public ResponseEntity<@NonNull ApiResponse<MyNotificationSettingResponse>> getMySetting(@CurrentUser UserEntity me) {
         return ok("내 알림 설정 조회에 성공했습니다.", getMyNotificationSettingService.execute(me));
     }
 
+    @Operation(summary = "내 알림 설정 변경")
     @PatchMapping("/my")
     public ResponseEntity<@NonNull ApiResponse<Void>> updateMy(
             @CurrentUser UserEntity me,

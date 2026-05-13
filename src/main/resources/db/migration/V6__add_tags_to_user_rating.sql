@@ -1,0 +1,2 @@
+ALTER TABLE user_rating
+    ADD COLUMN tags JSON NOT NULL DEFAULT (JSON_ARRAY());
