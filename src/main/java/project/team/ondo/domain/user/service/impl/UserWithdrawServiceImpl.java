@@ -14,7 +14,7 @@ import project.team.ondo.global.fcm.service.DeactivateAllFcmTokenService;
 public class UserWithdrawServiceImpl implements UserWithdrawService {
 
     private final UserRepository userRepository;
-    private final ChatRoomMemberRepository chatRoomMemberCommandRepository;
+    private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final DeactivateAllFcmTokenService deactivateAllFcmTokenService;
 
     @Transactional
@@ -22,7 +22,7 @@ public class UserWithdrawServiceImpl implements UserWithdrawService {
     public void execute(UserEntity me) {
         UserEntity managed = userRepository.getByPublicId(me.getPublicId());
         managed.withdraw();
-        chatRoomMemberCommandRepository.deactivateBothSidesByUserId(managed.getId());
+        chatRoomMemberRepository.deactivateBothSidesByUserId(managed.getId());
         deactivateAllFcmTokenService.execute(managed);
     }
 }
