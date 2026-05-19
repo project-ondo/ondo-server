@@ -1,6 +1,7 @@
 package project.team.ondo.domain.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -14,6 +15,7 @@ import project.team.ondo.domain.auth.service.*;
 import project.team.ondo.global.controller.BaseApiController;
 import project.team.ondo.global.response.ApiResponse;
 
+@SecurityRequirements
 @Tag(name = "Auth", description = "인증 (회원가입, 로그인, 토큰)")
 @RestController
 @RequestMapping("/auth")
