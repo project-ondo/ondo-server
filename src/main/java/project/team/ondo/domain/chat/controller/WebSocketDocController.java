@@ -89,34 +89,34 @@ public class WebSocketDocController {
             summary = "[SUBSCRIBE] 채팅 메시지 수신",
             description = "**STOMP Destination:** `SUBSCRIBE /topic/chat.rooms.{roomPublicId}`\n\n채팅방의 새 메시지를 실시간으로 수신합니다."
     )
-    @GetMapping("/topic/chat/rooms/{roomPublicId}")
+    @GetMapping("/topic/chat.rooms.{roomPublicId}")
     public ChatMessageResponse subscribeMessages(@PathVariable UUID roomPublicId) { return null; }
 
     @Operation(
             summary = "[SUBSCRIBE] 읽음 상태 수신",
             description = "**STOMP Destination:** `SUBSCRIBE /topic/chat.rooms.{roomPublicId}.read`\n\n다른 참여자가 메시지를 읽었을 때 읽음 이벤트를 수신합니다."
     )
-    @GetMapping("/topic/chat/rooms/{roomPublicId}/read")
+    @GetMapping("/topic/chat.rooms.{roomPublicId}.read")
     public ChatReadEventPayload subscribeRead(@PathVariable UUID roomPublicId) { return null; }
 
     @Operation(
             summary = "[SUBSCRIBE] 타이핑 상태 수신",
             description = "**STOMP Destination:** `SUBSCRIBE /topic/chat.rooms.{roomPublicId}.typing`\n\n다른 참여자의 타이핑 여부를 실시간으로 수신합니다."
     )
-    @GetMapping("/topic/chat/rooms/{roomPublicId}/typing")
+    @GetMapping("/topic/chat.rooms.{roomPublicId}.typing")
     public ChatTypingEventPayload subscribeTyping(@PathVariable UUID roomPublicId) { return null; }
 
     @Operation(
             summary = "[SUBSCRIBE] 사용자 presence 수신",
             description = "**STOMP Destination:** `SUBSCRIBE /topic/chat.rooms.{roomPublicId}.presence`\n\n채팅방 내 다른 참여자의 온라인/오프라인 상태 변화를 수신합니다."
     )
-    @GetMapping("/topic/chat/rooms/{roomPublicId}/presence")
+    @GetMapping("/topic/chat.rooms.{roomPublicId}.presence")
     public ChatPresencePayload subscribePresence(@PathVariable UUID roomPublicId) { return null; }
 
     @Operation(
             summary = "[SUBSCRIBE] 채팅방 목록 업데이트 수신",
             description = "**STOMP Destination:** `SUBSCRIBE /user/queue/chat.rooms.update`\n\n본인의 채팅방 목록에서 안읽은 메시지 수, 마지막 메시지 미리보기 등이 변경될 때 수신합니다."
     )
-    @GetMapping("/user/queue/chat/rooms/update")
+    @GetMapping("/user/queue/chat.rooms.update")
     public ChatRoomListUpdatePayload subscribeRoomUpdate() { return null; }
 }
