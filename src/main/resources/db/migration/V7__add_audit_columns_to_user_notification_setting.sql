@@ -1,0 +1,2 @@
+ALTER TABLE user_notification_setting
+    ADD COLUMN created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6);
