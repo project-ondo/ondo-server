@@ -115,8 +115,8 @@ public class WebSocketDocController {
 
     @Operation(
             summary = "[SUBSCRIBE] 채팅방 목록 업데이트 수신",
-            description = "**STOMP Destination:** `SUBSCRIBE /user/{userId}/queue/chat.rooms.update`\n\n본인의 채팅방 목록에서 안읽은 메시지 수, 마지막 메시지 미리보기 등이 변경될 때 수신합니다."
+            description = "**STOMP Destination:** `SUBSCRIBE /user/queue/chat.rooms.update`\n\n본인의 채팅방 목록에서 안읽은 메시지 수, 마지막 메시지 미리보기 등이 변경될 때 수신합니다."
     )
-    @GetMapping("/user/{userId}/queue/chat/rooms/update")
-    public ChatRoomListUpdatePayload subscribeRoomUpdate(@PathVariable UUID userId) { return null; }
+    @GetMapping("/user/queue/chat/rooms/update")
+    public ChatRoomListUpdatePayload subscribeRoomUpdate() { return null; }
 }
