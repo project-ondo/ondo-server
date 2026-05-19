@@ -89,7 +89,7 @@ public class WebSocketDocController {
             summary = "[SUBSCRIBE] 채팅 메시지 수신",
             description = "**STOMP Destination:** `SUBSCRIBE /topic/chat.rooms.{roomPublicId}`\n\n채팅방의 새 메시지를 실시간으로 수신합니다."
     )
-    @GetMapping("/topic/chat/rooms/{roomPublicId}/messages")
+    @GetMapping("/topic/chat/rooms/{roomPublicId}")
     public ChatMessageResponse subscribeMessages(@PathVariable UUID roomPublicId) { return null; }
 
     @Operation(
@@ -115,7 +115,7 @@ public class WebSocketDocController {
 
     @Operation(
             summary = "[SUBSCRIBE] 채팅방 목록 업데이트 수신",
-            description = "**STOMP Destination:** `SUBSCRIBE /user/{userId}/queue/chat.rooms.update`\n\n본인의 채팅방 목록에서 안읽은 메시지 수, 마지막 메시지 미리보기 등이 변경될 때 수신합니다."
+            description = "**STOMP Destination:** `SUBSCRIBE /user/queue/chat.rooms.update`\n\n본인의 채팅방 목록에서 안읽은 메시지 수, 마지막 메시지 미리보기 등이 변경될 때 수신합니다."
     )
     @GetMapping("/user/queue/chat/rooms/update")
     public ChatRoomListUpdatePayload subscribeRoomUpdate() { return null; }
