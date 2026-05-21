@@ -110,7 +110,7 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
                             false,
                             unread == null ? 0L : unread,
                             preview,
-                            false,
+                            Boolean.TRUE.equals(muted),
                             lastAt
                     );
                 })
