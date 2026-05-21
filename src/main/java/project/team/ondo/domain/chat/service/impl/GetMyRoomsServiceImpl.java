@@ -46,7 +46,7 @@ public class GetMyRoomsServiceImpl implements GetMyRoomsService {
                         Boolean.TRUE.equals(onlineMap.get(r.opponentPublicId())),
                         r.unreadCount(),
                         r.lastMessagePreview(),
-                        false,
+                        r.muted(),
                         r.lastMessageAt()
                 ))
                 .toList();
