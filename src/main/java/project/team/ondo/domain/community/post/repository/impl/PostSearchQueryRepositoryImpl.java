@@ -4,6 +4,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -46,9 +47,11 @@ public class PostSearchQueryRepositoryImpl implements PostSearchQueryRepository 
                 .or(post.content.containsIgnoreCase(request.keyword()))
                 .or(tagPath.containsIgnoreCase(request.keyword()));
 
-        BooleanExpression tagFilter = request.tag() != null && !request.tag().isBlank()
-                ? post.tags.contains(request.tag())
-                : null;
+        List<String> filterTags = request.normalizedTags();
+
+        BooleanExpression tagFilter = filterTags.isEmpty()
+                ? null
+                : post.tags.any().lower().in(filterTags);
 
         OrderSpecifier<?>[] orderBy = request.isLatest()
                 ? new OrderSpecifier[]{post.createdAt.desc()}
