@@ -26,5 +26,6 @@ public class SaveBookmarkServiceImpl implements SaveBookmarkService {
         if (bookmarkRepository.existsByUserAndPost(me, post)) throw new AlreadyBookmarkedException();
 
         bookmarkRepository.save(BookmarkEntity.create(me, post));
+        post.incrementBookmarkCount();
     }
 }

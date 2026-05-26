@@ -52,6 +52,9 @@ public class PostEntity extends BaseEntity {
     @Column(nullable = false)
     private long commentCount;
 
+    @Column(nullable = false)
+    private long bookmarkCount;
+
     public static PostEntity create(
             String title,
             String content,
@@ -67,6 +70,7 @@ public class PostEntity extends BaseEntity {
                 .viewCount(0L)
                 .likeCount(0L)
                 .commentCount(0L)
+                .bookmarkCount(0L)
                 .build();
     }
 
@@ -110,6 +114,18 @@ public class PostEntity extends BaseEntity {
             this.commentCount--;
         } else {
             log.warn("decreaseCommentCount called on post {} with commentCount=0", this.id);
+        }
+    }
+
+    public void incrementBookmarkCount() {
+        this.bookmarkCount++;
+    }
+
+    public void decreaseBookmarkCount() {
+        if (this.bookmarkCount > 0) {
+            this.bookmarkCount--;
+        } else {
+            log.warn("decreaseBookmarkCount called on post {} with bookmarkCount=0", this.id);
         }
     }
 }

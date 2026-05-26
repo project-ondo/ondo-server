@@ -11,6 +11,7 @@ public record PostRecommendItemResponse(
         long viewCount,
         long likeCount,
         long commentCount,
+        long bookmarkCount,
         LocalDateTime createdAt
 ) {
 }

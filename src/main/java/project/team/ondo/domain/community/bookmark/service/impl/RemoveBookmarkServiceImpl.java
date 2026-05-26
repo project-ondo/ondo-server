@@ -28,5 +28,6 @@ public class RemoveBookmarkServiceImpl implements RemoveBookmarkService {
         if (bookmark == null) return;
 
         bookmarkRepository.delete(bookmark);
+        post.decreaseBookmarkCount();
     }
 }

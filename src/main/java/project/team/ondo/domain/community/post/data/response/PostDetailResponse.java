@@ -15,6 +15,7 @@ public record PostDetailResponse(
         Long viewCount,
         Long likeCount,
         Long commentCount,
+        Long bookmarkCount,
         LocalDateTime createdAt
 ) {
     public static PostDetailResponse from(PostEntity post) {
@@ -27,6 +28,7 @@ public record PostDetailResponse(
                 post.getViewCount(),
                 post.getLikeCount(),
                 post.getCommentCount(),
+                post.getBookmarkCount(),
                 post.getCreatedAt()
         );
     }
