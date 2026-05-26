@@ -1,5 +1,6 @@
 package project.team.ondo.domain.community.post.data.response;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record PostRecommendItemResponse(
@@ -9,6 +10,8 @@ public record PostRecommendItemResponse(
         List<String> tags,
         long viewCount,
         long likeCount,
-        long commentCount
+        long commentCount,
+        long bookmarkCount,
+        LocalDateTime createdAt
 ) {
 }

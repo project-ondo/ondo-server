@@ -8,6 +8,7 @@ import project.team.ondo.domain.community.comment.entity.CommentEntity;
 import project.team.ondo.domain.community.comment.exception.CommentNotFoundException;
 import project.team.ondo.domain.community.comment.repository.CommentRepository;
 import project.team.ondo.domain.community.comment.service.DeleteCommentService;
+import project.team.ondo.domain.community.post.repository.PostCommandRepository;
 import project.team.ondo.domain.user.entity.UserEntity;
 
 @Service
@@ -15,6 +16,7 @@ import project.team.ondo.domain.user.entity.UserEntity;
 public class DeleteCommentServiceImpl implements DeleteCommentService {
 
     private final CommentRepository commentRepository;
+    private final PostCommandRepository postCommandRepository;
 
     @Transactional
     @Override
@@ -23,7 +25,10 @@ public class DeleteCommentServiceImpl implements DeleteCommentService {
                 .orElseThrow(CommentNotFoundException::new);
 
         comment.requireAuthor(me.getPublicId());
-        comment.delete();
-        comment.getPost().decreaseCommentCount();
+
+        int updated = commentRepository.softDeleteIfActive(
+                commentId, CommentStatus.DELETED, CommentStatus.ACTIVE);
+
+        if (updated > 0) postCommandRepository.decreaseCommentCount(comment.getPost().getId());
     }
 }

@@ -119,7 +119,9 @@ public class PostRecommendQueryRepositoryImpl implements PostRecommendQueryRepos
                         new ArrayList<>(p.getTags()),
                         p.getViewCount(),
                         p.getLikeCount(),
-                        p.getCommentCount()
+                        p.getCommentCount(),
+                        p.getBookmarkCount(),
+                        p.getCreatedAt()
                 ))
                 .toList();
 

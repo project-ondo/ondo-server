@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.community.post.entity.PostEntity;
+import project.team.ondo.domain.community.post.repository.PostCommandRepository;
 import project.team.ondo.domain.community.post.repository.PostRepository;
-import project.team.ondo.domain.community.postlike.entity.PostLikeEntity;
 import project.team.ondo.domain.community.postlike.repository.PostLikeRepository;
 import project.team.ondo.domain.community.postlike.service.UnlikePostService;
 import project.team.ondo.domain.user.entity.UserEntity;
@@ -15,6 +15,7 @@ import project.team.ondo.domain.user.entity.UserEntity;
 public class UnlikePostServiceImpl implements UnlikePostService {
 
     private final PostRepository postRepository;
+    private final PostCommandRepository postCommandRepository;
     private final PostLikeRepository postLikeRepository;
 
     @Transactional
@@ -23,12 +24,8 @@ public class UnlikePostServiceImpl implements UnlikePostService {
 
         PostEntity post = postRepository.getActiveById(postId);
 
-        PostLikeEntity postLike = postLikeRepository.findByUserAndPost(me, post)
-                .orElse(null);
+        int removed = postLikeRepository.deleteByUserAndPost(me, post);
 
-        if (postLike == null) return;
-
-        postLikeRepository.delete(postLike);
-        post.decreaseLikeCount();
+        if (removed > 0) postCommandRepository.decreaseLikeCount(postId);
     }
 }

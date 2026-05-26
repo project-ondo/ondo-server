@@ -2,7 +2,6 @@ package project.team.ondo.domain.community.post.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.user.entity.UserEntity;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j
 @Entity
 @Table(name = "posts")
 @Getter
@@ -52,6 +50,9 @@ public class PostEntity extends BaseEntity {
     @Column(nullable = false)
     private long commentCount;
 
+    @Column(nullable = false)
+    private long bookmarkCount;
+
     public static PostEntity create(
             String title,
             String content,
@@ -67,6 +68,7 @@ public class PostEntity extends BaseEntity {
                 .viewCount(0L)
                 .likeCount(0L)
                 .commentCount(0L)
+                .bookmarkCount(0L)
                 .build();
     }
 
@@ -83,33 +85,5 @@ public class PostEntity extends BaseEntity {
 
     public void delete() {
         this.status = PostStatus.DELETED;
-    }
-
-    public void incrementViewCount() {
-        this.viewCount++;
-    }
-
-    public void incrementLikeCount() {
-        this.likeCount++;
-    }
-
-    public void decreaseLikeCount() {
-        if (this.likeCount > 0) {
-            this.likeCount--;
-        } else {
-            log.warn("decreaseLikeCount called on post {} with likeCount=0", this.id);
-        }
-    }
-
-    public void increaseCommentCount() {
-        this.commentCount++;
-    }
-
-    public void decreaseCommentCount() {
-        if (this.commentCount > 0) {
-            this.commentCount--;
-        } else {
-            log.warn("decreaseCommentCount called on post {} with commentCount=0", this.id);
-        }
     }
 }
