@@ -19,10 +19,10 @@ public class GetPostDetailServiceImpl implements GetPostDetailService {
     @Transactional
     @Override
     public PostDetailResponse execute(Long postId) {
-        PostEntity post = postRepository.getActiveById(postId);
-
         postCommandRepository.incrementViewCount(postId);
 
-        return PostDetailResponse.from(post, post.getViewCount() + 1);
+        PostEntity post = postRepository.getActiveById(postId);
+
+        return PostDetailResponse.from(post);
     }
 }
