@@ -43,9 +43,17 @@ public class PostSearchQueryRepositoryImpl implements PostSearchQueryRepository 
     ) {
         StringPath tagPath = Expressions.stringPath("tag");
 
+        StringPath keywordTag = Expressions.stringPath("keywordTag");
+
+        BooleanExpression tagKeywordCondition = JPAExpressions.selectOne()
+                .from(post.tags, keywordTag)
+                .where(keywordTag.containsIgnoreCase(request.keyword()))
+                .exists();
+
         BooleanExpression keywordCondition = post.title.containsIgnoreCase(request.keyword())
-                .or(post.content.containsIgnoreCase(request.keyword()))
-                .or(tagPath.containsIgnoreCase(request.keyword()));
+                .or(Expressions.stringTemplate("cast({0} as string)", post.content)
+                        .containsIgnoreCase(request.keyword()))
+                .or(tagKeywordCondition);
 
         List<String> filterTags = request.normalizedTags();
 
@@ -64,10 +72,8 @@ public class PostSearchQueryRepositoryImpl implements PostSearchQueryRepository 
 
         List<Long> postIds = jpaQueryFactory
                 .select(post.id)
-                .distinct()
                 .from(post)
                 .join(post.author, user)
-                .leftJoin(post.tags, tagPath)
                 .where(
                         post.status.eq(PostStatus.ACTIVE),
                         user.status.eq(UserStatus.ACTIVE),
@@ -109,10 +115,9 @@ public class PostSearchQueryRepositoryImpl implements PostSearchQueryRepository 
                 .toList();
 
         Long total = jpaQueryFactory
-                .select(post.id.countDistinct())
+                .select(post.id.count())
                 .from(post)
                 .join(post.author, user)
-                .leftJoin(post.tags, tagPath)
                 .where(
                         post.status.eq(PostStatus.ACTIVE),
                         user.status.eq(UserStatus.ACTIVE),
