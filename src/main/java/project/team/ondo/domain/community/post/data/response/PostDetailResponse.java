@@ -2,6 +2,7 @@ package project.team.ondo.domain.community.post.data.response;
 
 import project.team.ondo.domain.community.post.entity.PostEntity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,8 @@ public record PostDetailResponse(
         List<String> tags,
         Long viewCount,
         Long likeCount,
-        Long commentCount
+        Long commentCount,
+        LocalDateTime createdAt
 ) {
     public static PostDetailResponse from(PostEntity post) {
         return new PostDetailResponse(
@@ -24,7 +26,8 @@ public record PostDetailResponse(
                 new ArrayList<>(post.getTags()),
                 post.getViewCount(),
                 post.getLikeCount(),
-                post.getCommentCount()
+                post.getCommentCount(),
+                post.getCreatedAt()
         );
     }
 }
