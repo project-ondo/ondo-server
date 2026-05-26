@@ -15,7 +15,7 @@ public interface PostLikeRepository extends JpaRepository<@NonNull PostLikeEntit
 
     boolean existsByUserAndPost(UserEntity user, PostEntity post);
 
-    @Modifying
+    @Modifying(flushAutomatically = true)
     @Query("DELETE FROM PostLikeEntity pl WHERE pl.user = :user AND pl.post = :post")
     int deleteByUserAndPost(@Param("user") UserEntity user, @Param("post") PostEntity post);
 }

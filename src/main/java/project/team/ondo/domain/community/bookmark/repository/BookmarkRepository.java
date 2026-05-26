@@ -17,7 +17,7 @@ public interface BookmarkRepository extends JpaRepository<@NonNull BookmarkEntit
 
     boolean existsByUserAndPost(UserEntity user, PostEntity post);
 
-    @Modifying
+    @Modifying(flushAutomatically = true)
     @Query("DELETE FROM BookmarkEntity b WHERE b.user = :user AND b.post = :post")
     int deleteByUserAndPost(@Param("user") UserEntity user, @Param("post") PostEntity post);
 
