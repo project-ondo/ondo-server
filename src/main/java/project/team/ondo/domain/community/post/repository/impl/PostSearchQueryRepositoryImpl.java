@@ -49,9 +49,14 @@ public class PostSearchQueryRepositoryImpl implements PostSearchQueryRepository 
 
         List<String> filterTags = request.normalizedTags();
 
+        StringPath subTag = Expressions.stringPath("subTag");
+
         BooleanExpression tagFilter = filterTags.isEmpty()
                 ? null
-                : post.tags.any().lower().in(filterTags);
+                : JPAExpressions.selectOne()
+                        .from(post.tags, subTag)
+                        .where(subTag.lower().in(filterTags))
+                        .exists();
 
         OrderSpecifier<?>[] orderBy = request.isLatest()
                 ? new OrderSpecifier[]{post.createdAt.desc()}
