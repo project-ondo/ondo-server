@@ -8,6 +8,7 @@ public record BookmarkItemResponse(
         Long postId,
         String title,
         String authorName,
+        long bookmarkCount,
         LocalDateTime bookmarkedAt
 ) {
     public static BookmarkItemResponse from(BookmarkEntity bookmark) {
@@ -15,6 +16,7 @@ public record BookmarkItemResponse(
                 bookmark.getPost().getId(),
                 bookmark.getPost().getTitle(),
                 bookmark.getPost().getAuthor().getDisplayName(),
+                bookmark.getPost().getBookmarkCount(),
                 bookmark.getCreatedAt()
         );
     }

@@ -111,6 +111,7 @@ public class PostSearchQueryRepositoryImpl implements PostSearchQueryRepository 
                         p.getViewCount(),
                         p.getLikeCount(),
                         p.getCommentCount(),
+                        p.getBookmarkCount(),
                         p.getCreatedAt()
                 ))
                 .toList();
