@@ -12,14 +12,14 @@ import project.team.ondo.domain.community.bookmark.entity.BookmarkEntity;
 import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.user.entity.UserEntity;
 
-import java.util.Optional;
-
 @Repository
 public interface BookmarkRepository extends JpaRepository<@NonNull BookmarkEntity, @NonNull Long> {
 
     boolean existsByUserAndPost(UserEntity user, PostEntity post);
 
-    Optional<BookmarkEntity> findByUserAndPost(UserEntity user, PostEntity post);
+    @Modifying
+    @Query("DELETE FROM BookmarkEntity b WHERE b.user = :user AND b.post = :post")
+    int deleteByUserAndPost(@Param("user") UserEntity user, @Param("post") PostEntity post);
 
     @Modifying
     @Query("DELETE FROM BookmarkEntity b WHERE b.post = :post")

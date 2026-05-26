@@ -19,13 +19,17 @@ public record PostDetailResponse(
         LocalDateTime createdAt
 ) {
     public static PostDetailResponse from(PostEntity post) {
+        return from(post, post.getViewCount());
+    }
+
+    public static PostDetailResponse from(PostEntity post, long viewCount) {
         return new PostDetailResponse(
                 post.getId(),
                 post.getTitle(),
                 post.getContent(),
                 post.getAuthor().getDisplayName(),
                 new ArrayList<>(post.getTags()),
-                post.getViewCount(),
+                viewCount,
                 post.getLikeCount(),
                 post.getCommentCount(),
                 post.getBookmarkCount(),

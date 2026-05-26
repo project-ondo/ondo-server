@@ -3,10 +3,10 @@ package project.team.ondo.domain.community.bookmark.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.team.ondo.domain.community.bookmark.entity.BookmarkEntity;
 import project.team.ondo.domain.community.bookmark.repository.BookmarkRepository;
 import project.team.ondo.domain.community.bookmark.service.RemoveBookmarkService;
 import project.team.ondo.domain.community.post.entity.PostEntity;
+import project.team.ondo.domain.community.post.repository.PostCommandRepository;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.user.entity.UserEntity;
 
@@ -15,6 +15,7 @@ import project.team.ondo.domain.user.entity.UserEntity;
 public class RemoveBookmarkServiceImpl implements RemoveBookmarkService {
 
     private final PostRepository postRepository;
+    private final PostCommandRepository postCommandRepository;
     private final BookmarkRepository bookmarkRepository;
 
     @Transactional
@@ -22,12 +23,8 @@ public class RemoveBookmarkServiceImpl implements RemoveBookmarkService {
     public void execute(UserEntity me, Long postId) {
         PostEntity post = postRepository.getActiveById(postId);
 
-        BookmarkEntity bookmark = bookmarkRepository.findByUserAndPost(me, post)
-                .orElse(null);
+        int removed = bookmarkRepository.deleteByUserAndPost(me, post);
 
-        if (bookmark == null) return;
-
-        bookmarkRepository.delete(bookmark);
-        post.decreaseBookmarkCount();
+        if (removed > 0) postCommandRepository.decreaseBookmarkCount(postId);
     }
 }
