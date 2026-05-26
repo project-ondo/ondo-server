@@ -10,6 +10,7 @@ import project.team.ondo.domain.community.comment.event.PostCommentCreatedEvent;
 import project.team.ondo.domain.community.comment.repository.CommentRepository;
 import project.team.ondo.domain.community.comment.service.CreateCommentService;
 import project.team.ondo.domain.community.post.entity.PostEntity;
+import project.team.ondo.domain.community.post.repository.PostCommandRepository;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.user.entity.UserEntity;
 
@@ -21,6 +22,7 @@ public class CreateCommentServiceImpl implements CreateCommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final PostCommandRepository postCommandRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -50,6 +52,6 @@ public class CreateCommentServiceImpl implements CreateCommentService {
             );
         }
 
-        post.increaseCommentCount();
+        postCommandRepository.incrementCommentCount(post.getId());
     }
 }

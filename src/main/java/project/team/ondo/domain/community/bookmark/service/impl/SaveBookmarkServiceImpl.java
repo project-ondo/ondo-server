@@ -1,6 +1,7 @@
 package project.team.ondo.domain.community.bookmark.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.team.ondo.domain.community.bookmark.entity.BookmarkEntity;
@@ -8,6 +9,7 @@ import project.team.ondo.domain.community.bookmark.exception.AlreadyBookmarkedEx
 import project.team.ondo.domain.community.bookmark.repository.BookmarkRepository;
 import project.team.ondo.domain.community.bookmark.service.SaveBookmarkService;
 import project.team.ondo.domain.community.post.entity.PostEntity;
+import project.team.ondo.domain.community.post.repository.PostCommandRepository;
 import project.team.ondo.domain.community.post.repository.PostRepository;
 import project.team.ondo.domain.user.entity.UserEntity;
 
@@ -16,6 +18,7 @@ import project.team.ondo.domain.user.entity.UserEntity;
 public class SaveBookmarkServiceImpl implements SaveBookmarkService {
 
     private final PostRepository postRepository;
+    private final PostCommandRepository postCommandRepository;
     private final BookmarkRepository bookmarkRepository;
 
     @Transactional
@@ -25,7 +28,12 @@ public class SaveBookmarkServiceImpl implements SaveBookmarkService {
 
         if (bookmarkRepository.existsByUserAndPost(me, post)) throw new AlreadyBookmarkedException();
 
-        bookmarkRepository.save(BookmarkEntity.create(me, post));
-        post.incrementBookmarkCount();
+        try {
+            bookmarkRepository.save(BookmarkEntity.create(me, post));
+        } catch (DataIntegrityViolationException e) {
+            throw new AlreadyBookmarkedException();
+        }
+
+        postCommandRepository.incrementBookmarkCount(postId);
     }
 }
