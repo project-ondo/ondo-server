@@ -69,3 +69,9 @@ oci:
 firebase:
   credentials:
     path: ${FIREBASE_CREDENTIALS_PATH}
+
+discord:
+  bot-token: ${DISCORD_BOT_TOKEN}
+  channel-id: ${DISCORD_CHANNEL_ID}
+  public-key: ${DISCORD_PUBLIC_KEY}
+

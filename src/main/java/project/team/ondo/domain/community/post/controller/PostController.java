@@ -2,6 +2,7 @@ package project.team.ondo.domain.community.post.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import java.util.List;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -18,6 +19,7 @@ import project.team.ondo.domain.community.bookmark.service.SaveBookmarkService;
 import project.team.ondo.domain.community.post.data.request.CreatePostRequest;
 import project.team.ondo.domain.community.post.data.request.SearchPostRequest;
 import project.team.ondo.domain.community.post.data.request.UpdatePostRequest;
+import project.team.ondo.domain.community.post.data.response.PopularPostResponse;
 import project.team.ondo.domain.community.post.data.response.PostDetailResponse;
 import project.team.ondo.domain.community.post.data.response.PostRecommendItemResponse;
 import project.team.ondo.domain.community.post.service.*;
@@ -35,6 +37,7 @@ import project.team.ondo.global.security.annotation.CurrentUser;
 @RequestMapping("/posts")
 public class PostController extends BaseApiController {
 
+    private final GetPopularPostsService getPopularPostsService;
     private final RecommendPostService recommendPostService;
     private final CreatePostService createPostService;
     private final UpdatePostService updatePostService;
@@ -46,6 +49,12 @@ public class PostController extends BaseApiController {
     private final SaveBookmarkService saveBookmarkService;
     private final RemoveBookmarkService removeBookmarkService;
     private final GetMyBookmarksService getMyBookmarksService;
+
+    @Operation(summary = "인기 게시글 Top 10 조회")
+    @GetMapping("/popular")
+    public ResponseEntity<@NonNull ApiResponse<List<PopularPostResponse>>> getPopularPosts() {
+        return ok("인기 게시물 조회에 성공했습니다.", getPopularPostsService.execute());
+    }
 
     @Operation(summary = "추천 게시글 목록 조회")
     @GetMapping("/recommend")

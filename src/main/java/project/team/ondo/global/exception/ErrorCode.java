@@ -14,6 +14,10 @@ public enum ErrorCode {
     INVALID_EMAIL_VERIFICATION_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 이메일 인증 토큰입니다."),
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "로그인에 실패했습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    PASSWORD_RESET_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "비밀번호 재설정 코드가 만료되었습니다."),
+    PASSWORD_RESET_CODE_ALREADY_SENT(HttpStatus.CONFLICT, "이미 발송된 비밀번호 재설정 코드가 있습니다."),
+    INVALID_PASSWORD_RESET_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 비밀번호 재설정 코드입니다."),
+    INVALID_PASSWORD_RESET_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 비밀번호 재설정 토큰입니다."),
 
     //USER
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
@@ -51,6 +55,11 @@ public enum ErrorCode {
     MATCH_NOT_ENDED(HttpStatus.BAD_REQUEST, "매칭이 종료된 후에만 평가할 수 있습니다."),
     ALREADY_RATED(HttpStatus.BAD_REQUEST, "이미 평가한 유저입니다."),
     DUPLICATE_TAG(HttpStatus.BAD_REQUEST, "중복된 태그가 포함되어 있습니다."),
+
+    //REPORT
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고를 찾을 수 없습니다."),
+    REPORT_TARGET_NOT_FOUND(HttpStatus.NOT_FOUND, "신고 대상을 찾을 수 없습니다."),
+    REPORT_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 처리된 신고입니다."),
 
     //AWS
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 미디어 타입입니다."),

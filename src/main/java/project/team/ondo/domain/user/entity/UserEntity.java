@@ -143,6 +143,10 @@ public class UserEntity extends BaseEntity {
         this.profileImageKey = profileImageKey;
     }
 
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
     public long getRatingCount() {
         return ratingStats.getRatingCount();
     }

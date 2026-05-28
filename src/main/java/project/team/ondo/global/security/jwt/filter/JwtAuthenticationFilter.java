@@ -30,7 +30,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
-            "/v3/api-docs"
+            "/v3/api-docs",
+            "/discord/interactions"
     );
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
@@ -45,6 +46,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String token = jwtParserService.resolveToken(request);
         if (token != null && jwtParserService.validateAccessToken(token)) {
             String userId = jwtParserService.getUserIdFromAccessToken(token);
