@@ -40,7 +40,7 @@ public class ApproveReportServiceImpl implements ApproveReportService {
             throw new ReportAlreadyProcessedException();
         }
 
-        UUID reportedUserPublicId = resolveReportedUser(report);
+        UUID reportedUserPublicId = deleteContentAndResolveUser(report);
 
         eventPublisher.publishEvent(new ReportApprovedEvent(
                 reportId,
@@ -50,32 +50,25 @@ public class ApproveReportServiceImpl implements ApproveReportService {
                 report.getTargetId()
         ));
 
-        deleteContent(report);
-
         reportRepository.updateStatusByTargetTypeAndTargetId(report.getTargetType(), report.getTargetId(), ReportStatus.APPROVED);
     }
 
-    private UUID resolveReportedUser(ReportEntity report) {
+    private UUID deleteContentAndResolveUser(ReportEntity report) {
         return switch (report.getTargetType()) {
-            case POST -> postRepository.findByIdAndStatus(report.getTargetId(), PostStatus.ACTIVE)
-                    .map(p -> p.getAuthor() != null ? p.getAuthor().getPublicId() : null)
-                    .orElse(null);
-            case COMMENT -> commentRepository.findByIdAndStatus(report.getTargetId(), CommentStatus.ACTIVE)
-                    .map(c -> c.getAuthor() != null ? c.getAuthor().getPublicId() : null)
-                    .orElse(null);
-            case CHAT_ROOM -> null;
+            case POST -> {
+                PostEntity post = postRepository.findByIdAndStatus(report.getTargetId(), PostStatus.ACTIVE).orElse(null);
+                if (post != null) post.delete();
+                yield post != null && post.getAuthor() != null ? post.getAuthor().getPublicId() : null;
+            }
+            case COMMENT -> {
+                CommentEntity comment = commentRepository.findByIdAndStatus(report.getTargetId(), CommentStatus.ACTIVE).orElse(null);
+                if (comment != null) comment.delete();
+                yield comment != null && comment.getAuthor() != null ? comment.getAuthor().getPublicId() : null;
+            }
+            case CHAT_ROOM -> {
+                chatRoomRepository.findById(report.getTargetId()).filter(r -> !r.isEnded()).ifPresent(ChatRoomEntity::end);
+                yield null;
+            }
         };
-    }
-
-    private void deleteContent(ReportEntity report) {
-        switch (report.getTargetType()) {
-            case POST -> postRepository.findByIdAndStatus(report.getTargetId(), PostStatus.ACTIVE)
-                    .ifPresent(PostEntity::delete);
-            case COMMENT -> commentRepository.findByIdAndStatus(report.getTargetId(), CommentStatus.ACTIVE)
-                    .ifPresent(CommentEntity::delete);
-            case CHAT_ROOM -> chatRoomRepository.findById(report.getTargetId())
-                    .filter(r -> !r.isEnded())
-                    .ifPresent(ChatRoomEntity::end);
-        }
     }
 }

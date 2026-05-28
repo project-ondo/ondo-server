@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
 
@@ -17,7 +18,9 @@ public class UserRefreshTokenIndexRepository {
 
     public void add(String userId, String refreshToken, long ttlSeconds) {
         long expireAt = System.currentTimeMillis() + (ttlSeconds * 1000);
-        stringRedisTemplate.opsForZSet().add(key(userId), refreshToken, expireAt);
+        String key = key(userId);
+        stringRedisTemplate.opsForZSet().add(key, refreshToken, expireAt);
+        stringRedisTemplate.expire(key, Duration.ofSeconds(ttlSeconds));
     }
 
     public void remove(String userId, String refreshToken) {
