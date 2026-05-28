@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.team.ondo.domain.auth.data.request.SendPasswordResetCodeRequest;
 import project.team.ondo.domain.auth.entity.PasswordResetCodeEntity;
-import project.team.ondo.domain.auth.exception.EmailNotFoundException;
 import project.team.ondo.domain.auth.exception.PasswordResetCodeAlreadySentException;
 import project.team.ondo.domain.auth.repository.PasswordResetCodeRepository;
 import project.team.ondo.domain.auth.service.SendEmailService;
@@ -30,7 +29,7 @@ public class SendPasswordResetCodeServiceImpl implements SendPasswordResetCodeSe
         String email = request.email();
 
         if (!userRepository.existsByEmail(email)) {
-            throw new EmailNotFoundException();
+            return;
         }
 
         if (passwordResetCodeRepository.existsById(email)) {

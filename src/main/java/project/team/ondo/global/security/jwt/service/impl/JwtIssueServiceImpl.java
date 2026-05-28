@@ -74,7 +74,7 @@ public class JwtIssueServiceImpl implements JwtIssueService {
                 .expiration(ttlSeconds)
                 .build()
         );
-        userRefreshTokenIndexRepository.add(publicId.toString(), token.token());
+        userRefreshTokenIndexRepository.add(publicId.toString(), token.token(), ttlSeconds);
         return token;
     }
 }

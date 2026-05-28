@@ -39,7 +39,7 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
 
         String userId = user.getPublicId().toString();
         Set<String> existingTokens = userRefreshTokenIndexRepository.findAll(userId);
-        existingTokens.forEach(refreshTokenRepository::deleteById);
+        refreshTokenRepository.deleteAllById(existingTokens);
         userRefreshTokenIndexRepository.deleteAll(userId);
 
         passwordResetTokenRepository.deleteById(request.resetToken());

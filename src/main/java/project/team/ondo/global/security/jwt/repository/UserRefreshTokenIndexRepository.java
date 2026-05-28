@@ -15,16 +15,20 @@ public class UserRefreshTokenIndexRepository {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    public void add(String userId, String refreshToken) {
-        stringRedisTemplate.opsForSet().add(key(userId), refreshToken);
+    public void add(String userId, String refreshToken, long ttlSeconds) {
+        long expireAt = System.currentTimeMillis() + (ttlSeconds * 1000);
+        stringRedisTemplate.opsForZSet().add(key(userId), refreshToken, expireAt);
     }
 
     public void remove(String userId, String refreshToken) {
-        stringRedisTemplate.opsForSet().remove(key(userId), refreshToken);
+        stringRedisTemplate.opsForZSet().remove(key(userId), refreshToken);
     }
 
     public Set<String> findAll(String userId) {
-        Set<String> tokens = stringRedisTemplate.opsForSet().members(key(userId));
+        String key = key(userId);
+        long now = System.currentTimeMillis();
+        stringRedisTemplate.opsForZSet().removeRangeByScore(key, 0, now);
+        Set<String> tokens = stringRedisTemplate.opsForZSet().range(key, 0, -1);
         return tokens != null ? tokens : Collections.emptySet();
     }
 
