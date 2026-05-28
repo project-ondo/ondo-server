@@ -17,6 +17,14 @@ public class SendEmailService {
     private final SpringTemplateEngine templateEngine;
 
     public void sendAuthCode(String to, String code) {
+        sendMail(to, "[ONDO] 이메일 인증 코드", code);
+    }
+
+    public void sendPasswordResetCode(String to, String code) {
+        sendMail(to, "[ONDO] 비밀번호 재설정 인증 코드", code);
+    }
+
+    private void sendMail(String to, String subject, String code) {
         Context context = new Context();
         context.setVariable("code", code);
 
@@ -28,7 +36,7 @@ public class SendEmailService {
                     new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("[ONDO] 이메일 인증 코드");
+            helper.setSubject(subject);
             helper.setText(html, true);
 
             javaMailSender.send(message);

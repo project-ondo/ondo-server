@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.team.ondo.domain.auth.data.request.*;
 import project.team.ondo.domain.auth.data.response.AuthTokenResponse;
+import project.team.ondo.domain.auth.data.response.PasswordResetTokenResponse;
 import project.team.ondo.domain.auth.data.response.VerificationTokenResponse;
 import project.team.ondo.domain.auth.service.*;
 import project.team.ondo.global.controller.BaseApiController;
@@ -28,6 +29,9 @@ public class AuthController extends BaseApiController {
     private final SignInService signInService;
     private final RefreshService refreshService;
     private final LogoutService logoutService;
+    private final SendPasswordResetCodeService sendPasswordResetCodeService;
+    private final VerifyPasswordResetCodeService verifyPasswordResetCodeService;
+    private final ResetPasswordService resetPasswordService;
 
     @Operation(summary = "이메일 인증코드 발송")
     @PostMapping("/email/send")
@@ -67,5 +71,25 @@ public class AuthController extends BaseApiController {
     public ResponseEntity<@NonNull ApiResponse<Void>> logout(@Valid @RequestBody LogoutRequest request) {
         logoutService.execute(request);
         return ok("로그아웃이 성공적으로 완료되었습니다.");
+    }
+
+    @Operation(summary = "비밀번호 재설정 인증코드 발송")
+    @PostMapping("/password/send")
+    public ResponseEntity<@NonNull ApiResponse<Void>> sendPasswordResetCode(@Valid @RequestBody SendPasswordResetCodeRequest request) {
+        sendPasswordResetCodeService.execute(request);
+        return ok("비밀번호 재설정 인증코드가 성공적으로 발송되었습니다.");
+    }
+
+    @Operation(summary = "비밀번호 재설정 인증코드 검증 및 재설정 토큰 발급")
+    @PostMapping("/password/verify")
+    public ResponseEntity<@NonNull ApiResponse<PasswordResetTokenResponse>> verifyPasswordResetCode(@Valid @RequestBody VerifyPasswordResetCodeRequest request) {
+        return ok("인증이 성공적으로 완료되었습니다.", verifyPasswordResetCodeService.execute(request));
+    }
+
+    @Operation(summary = "비밀번호 재설정")
+    @PostMapping("/password/reset")
+    public ResponseEntity<@NonNull ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        resetPasswordService.execute(request);
+        return ok("비밀번호가 성공적으로 재설정되었습니다.");
     }
 }
