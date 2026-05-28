@@ -10,6 +10,7 @@ import project.team.ondo.global.data.AuthToken;
 import project.team.ondo.global.data.JwtEnvironment;
 import project.team.ondo.global.security.jwt.entity.RefreshTokenEntity;
 import project.team.ondo.global.security.jwt.repository.RefreshTokenRepository;
+import project.team.ondo.global.security.jwt.repository.UserRefreshTokenIndexRepository;
 import project.team.ondo.global.security.jwt.service.JwtIssueService;
 
 import javax.crypto.SecretKey;
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class JwtIssueServiceImpl implements JwtIssueService {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRefreshTokenIndexRepository userRefreshTokenIndexRepository;
     private final JwtEnvironment jwtEnvironment;
 
     private SecretKey accessTokenKey;
@@ -72,6 +74,7 @@ public class JwtIssueServiceImpl implements JwtIssueService {
                 .expiration(ttlSeconds)
                 .build()
         );
+        userRefreshTokenIndexRepository.add(publicId.toString(), token.token());
         return token;
     }
 }
