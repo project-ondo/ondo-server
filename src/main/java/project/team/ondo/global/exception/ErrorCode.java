@@ -56,6 +56,10 @@ public enum ErrorCode {
     ALREADY_RATED(HttpStatus.BAD_REQUEST, "이미 평가한 유저입니다."),
     DUPLICATE_TAG(HttpStatus.BAD_REQUEST, "중복된 태그가 포함되어 있습니다."),
 
+    //REPORT
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고를 찾을 수 없습니다."),
+    REPORT_TARGET_NOT_FOUND(HttpStatus.NOT_FOUND, "신고 대상을 찾을 수 없습니다."),
+
     //AWS
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 미디어 타입입니다."),
     INVALID_MEDIA_KEY(HttpStatus.BAD_REQUEST, "유효하지 않은 미디어 키입니다.");
