@@ -29,6 +29,10 @@ public class PopularPostCacheScheduler {
 
     @EventListener(ApplicationReadyEvent.class)
     public void warmUp() {
-        refresh();
+        try {
+            refresh();
+        } catch (Exception e) {
+            log.error("인기 게시물 캐시 초기 워밍업 실패 (스케줄러에 의해 추후 재시도됨)", e);
+        }
     }
 }

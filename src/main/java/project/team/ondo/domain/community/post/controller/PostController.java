@@ -52,9 +52,7 @@ public class PostController extends BaseApiController {
 
     @Operation(summary = "인기 게시글 Top 10 조회")
     @GetMapping("/popular")
-    public ResponseEntity<@NonNull ApiResponse<List<PopularPostResponse>>> getPopularPosts(
-            @CurrentUser UserEntity me
-    ) {
+    public ResponseEntity<@NonNull ApiResponse<List<PopularPostResponse>>> getPopularPosts() {
         return ok("인기 게시물 조회에 성공했습니다.", getPopularPostsService.execute());
     }
 
