@@ -9,9 +9,9 @@ public class DomainAuthorizationConfig {
     public void configureAuthorization(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/ws/**", "/ws").permitAll()
+                .requestMatchers("/discord/interactions").permitAll()
                 .requestMatchers(
                         "/swagger-ui/**",
                         "/swagger-ui.html",

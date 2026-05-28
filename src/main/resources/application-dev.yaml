@@ -68,6 +68,12 @@ oci:
       put-expiration-seconds: ${AWS_PRESIGN_PUT_EXP:120}
       get-expiration-seconds: ${AWS_PRESIGN_GET_EXP:600}
 
+discord:
+  webhook-url: ${DISCORD_WEBHOOK_URL}
+  bot-token: ${DISCORD_BOT_TOKEN}
+  channel-id: ${DISCORD_CHANNEL_ID}
+  public-key: ${DISCORD_PUBLIC_KEY}
+
 springdoc:
   api-docs:
     enabled: true
