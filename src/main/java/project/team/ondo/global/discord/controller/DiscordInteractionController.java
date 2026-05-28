@@ -90,7 +90,6 @@ public class DiscordInteractionController {
         }
     }
 
-    // UPDATE_MESSAGE: 원본 메시지를 덮어쓰고 버튼 제거
     private Map<String, Object> updateMessage(String title, String description, int color) {
         Map<String, Object> embed = new LinkedHashMap<>();
         embed.put("title", title);
@@ -99,10 +98,9 @@ public class DiscordInteractionController {
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("embeds", List.of(embed));
-        data.put("components", List.of());
 
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("type", 7);
+        response.put("type", 4);
         response.put("data", data);
         return response;
     }
@@ -110,7 +108,7 @@ public class DiscordInteractionController {
     private Map<String, Object> errorResponse(String message) {
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("content", "⚠️ " + message);
-        data.put("flags", 64);  // EPHEMERAL: 클릭한 사람에게만 표시
+        data.put("flags", 64);
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("type", 4);
