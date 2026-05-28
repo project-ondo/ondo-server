@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.team.ondo.domain.report.constant.ReportStatus;
 import project.team.ondo.domain.report.entity.ReportEntity;
 import project.team.ondo.domain.report.event.ReportRejectedEvent;
+import project.team.ondo.domain.report.exception.ReportAlreadyProcessedException;
 import project.team.ondo.domain.report.repository.ReportRepository;
 import project.team.ondo.domain.report.service.RejectReportService;
 
@@ -20,6 +22,11 @@ public class RejectReportServiceImpl implements RejectReportService {
     @Override
     public void execute(Long reportId) {
         ReportEntity report = reportRepository.getByIdOrThrow(reportId);
+
+        if (report.getStatus() != ReportStatus.PENDING) {
+            throw new ReportAlreadyProcessedException();
+        }
+
         report.reject();
 
         eventPublisher.publishEvent(new ReportRejectedEvent(

@@ -68,7 +68,7 @@ public class CreateReportServiceImpl implements CreateReportService {
             case COMMENT -> {
                 CommentEntity comment = commentRepository.findByIdAndStatus(targetId, CommentStatus.ACTIVE)
                         .orElseThrow(ReportTargetNotFoundException::new);
-                String content = comment.getContent();
+                String content = comment.getContent() != null ? comment.getContent() : "";
                 String preview = content.length() > 200 ? content.substring(0, 200) + "..." : content;
                 yield "[댓글] " + preview;
             }

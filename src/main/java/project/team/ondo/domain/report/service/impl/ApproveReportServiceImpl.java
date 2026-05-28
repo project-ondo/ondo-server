@@ -12,8 +12,10 @@ import project.team.ondo.domain.community.comment.repository.CommentRepository;
 import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.repository.PostRepository;
+import project.team.ondo.domain.report.constant.ReportStatus;
 import project.team.ondo.domain.report.entity.ReportEntity;
 import project.team.ondo.domain.report.event.ReportApprovedEvent;
+import project.team.ondo.domain.report.exception.ReportAlreadyProcessedException;
 import project.team.ondo.domain.report.repository.ReportRepository;
 import project.team.ondo.domain.report.service.ApproveReportService;
 
@@ -34,9 +36,12 @@ public class ApproveReportServiceImpl implements ApproveReportService {
     public void execute(Long reportId) {
         ReportEntity report = reportRepository.getByIdOrThrow(reportId);
 
+        if (report.getStatus() != ReportStatus.PENDING) {
+            throw new ReportAlreadyProcessedException();
+        }
+
         UUID reportedUserPublicId = resolveReportedUser(report);
 
-        // Publish event before deletion so listeners carry all necessary data
         eventPublisher.publishEvent(new ReportApprovedEvent(
                 reportId,
                 report.getReporterPublicId(),
@@ -47,16 +52,16 @@ public class ApproveReportServiceImpl implements ApproveReportService {
 
         deleteContent(report);
 
-        reportRepository.deleteAllByTargetTypeAndTargetId(report.getTargetType(), report.getTargetId());
+        reportRepository.updateStatusByTargetTypeAndTargetId(report.getTargetType(), report.getTargetId(), ReportStatus.APPROVED);
     }
 
     private UUID resolveReportedUser(ReportEntity report) {
         return switch (report.getTargetType()) {
             case POST -> postRepository.findByIdAndStatus(report.getTargetId(), PostStatus.ACTIVE)
-                    .map(p -> p.getAuthor().getPublicId())
+                    .map(p -> p.getAuthor() != null ? p.getAuthor().getPublicId() : null)
                     .orElse(null);
             case COMMENT -> commentRepository.findByIdAndStatus(report.getTargetId(), CommentStatus.ACTIVE)
-                    .map(c -> c.getAuthor().getPublicId())
+                    .map(c -> c.getAuthor() != null ? c.getAuthor().getPublicId() : null)
                     .orElse(null);
             case CHAT_ROOM -> null;
         };

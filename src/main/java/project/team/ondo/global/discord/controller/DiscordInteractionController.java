@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import project.team.ondo.domain.report.exception.ReportAlreadyProcessedException;
 import project.team.ondo.domain.report.exception.ReportNotFoundException;
 import project.team.ondo.domain.report.service.ApproveReportService;
 import project.team.ondo.domain.report.service.RejectReportService;
@@ -81,7 +82,7 @@ public class DiscordInteractionController {
                 }
                 default -> errorResponse("알 수 없는 액션입니다.");
             };
-        } catch (ReportNotFoundException e) {
+        } catch (ReportNotFoundException | ReportAlreadyProcessedException e) {
             return errorResponse("이미 처리되었거나 존재하지 않는 신고입니다.");
         } catch (Exception e) {
             log.error("Failed to process Discord interaction action={} reportId={}", action, reportId, e);

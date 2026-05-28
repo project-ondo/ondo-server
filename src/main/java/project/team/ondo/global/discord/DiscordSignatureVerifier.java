@@ -25,8 +25,8 @@ public class DiscordSignatureVerifier {
 
     public boolean verify(String signatureHex, String timestamp, byte[] bodyBytes) {
         if (publicKeyHex == null || publicKeyHex.isBlank()) {
-            log.warn("discord.public-key not configured — skipping signature verification");
-            return true;
+            log.error("discord.public-key is not configured. Signature verification failed.");
+            return false;
         }
         try {
             byte[] rawKey = HexFormat.of().parseHex(publicKeyHex);

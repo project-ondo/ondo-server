@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import project.team.ondo.domain.report.constant.ReportStatus;
 import project.team.ondo.domain.report.constant.ReportTargetType;
 import project.team.ondo.domain.report.entity.ReportEntity;
 import project.team.ondo.domain.report.exception.ReportNotFoundException;
@@ -14,10 +15,11 @@ import project.team.ondo.domain.report.exception.ReportNotFoundException;
 public interface ReportRepository extends JpaRepository<@NonNull ReportEntity, @NonNull Long> {
 
     @Modifying
-    @Query("DELETE FROM ReportEntity r WHERE r.targetType = :targetType AND r.targetId = :targetId")
-    void deleteAllByTargetTypeAndTargetId(
+    @Query("UPDATE ReportEntity r SET r.status = :status WHERE r.targetType = :targetType AND r.targetId = :targetId")
+    void updateStatusByTargetTypeAndTargetId(
             @Param("targetType") ReportTargetType targetType,
-            @Param("targetId") Long targetId
+            @Param("targetId") Long targetId,
+            @Param("status") ReportStatus status
     );
 
     default ReportEntity getByIdOrThrow(Long id) {
