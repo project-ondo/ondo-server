@@ -10,6 +10,7 @@ import project.team.ondo.domain.auth.service.RefreshService;
 import project.team.ondo.domain.user.entity.UserEntity;
 import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.global.data.AuthToken;
+import project.team.ondo.global.security.jwt.repository.UserRefreshTokenIndexRepository;
 import project.team.ondo.global.security.jwt.service.JwtIssueService;
 import project.team.ondo.global.security.jwt.service.JwtParserService;
 import project.team.ondo.global.security.jwt.service.JwtRefreshTokenManagementService;
@@ -24,6 +25,7 @@ public class RefreshServiceImpl implements RefreshService {
     private final UserRepository userRepository;
     private final JwtIssueService jwtIssueService;
     private final JwtRefreshTokenManagementService jwtRefreshTokenManagementService;
+    private final UserRefreshTokenIndexRepository userRefreshTokenIndexRepository;
 
     @Transactional
     @Override
@@ -37,6 +39,7 @@ public class RefreshServiceImpl implements RefreshService {
         UserEntity user = userRepository.getByPublicId(publicId);
 
         jwtRefreshTokenManagementService.execute(refreshToken);
+        userRefreshTokenIndexRepository.remove(publicId.toString(), refreshToken);
 
         AuthToken newAccessToken = jwtIssueService.issueAccessToken(publicId, user.getRole());
         AuthToken newRefreshToken = jwtIssueService.issueRefreshToken(publicId);
