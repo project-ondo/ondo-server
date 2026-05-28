@@ -17,18 +17,18 @@ public class SendEmailService {
     private final SpringTemplateEngine templateEngine;
 
     public void sendAuthCode(String to, String code) {
-        sendMail(to, "[ONDO] 이메일 인증 코드", code);
+        sendMail(to, "[ONDO] 이메일 인증 코드", "MailTemplate", code);
     }
 
     public void sendPasswordResetCode(String to, String code) {
-        sendMail(to, "[ONDO] 비밀번호 재설정 인증 코드", code);
+        sendMail(to, "[ONDO] 비밀번호 재설정 인증 코드", "PasswordResetMailTemplate", code);
     }
 
-    private void sendMail(String to, String subject, String code) {
+    private void sendMail(String to, String subject, String template, String code) {
         Context context = new Context();
         context.setVariable("code", code);
 
-        String html = templateEngine.process("MailTemplate", context);
+        String html = templateEngine.process(template, context);
 
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
