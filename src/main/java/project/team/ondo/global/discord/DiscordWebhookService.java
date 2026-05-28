@@ -28,6 +28,19 @@ public class DiscordWebhookService {
 
     private final RestClient restClient = RestClient.create();
 
+    public void removeButtons(String applicationId, String interactionToken) {
+        try {
+            restClient.patch()
+                    .uri(DISCORD_API + "/webhooks/{appId}/{token}/messages/@original", applicationId, interactionToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of("components", List.of()))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (Exception e) {
+            log.warn("Failed to remove buttons from original Discord message appId={}", applicationId, e);
+        }
+    }
+
     public void sendReportNotification(ReportCreatedEvent event) {
         if (botToken.isBlank() || channelId.isBlank()) {
             log.warn("Discord bot-token or channel-id not configured, skipping report notification");
