@@ -12,6 +12,7 @@ import project.team.ondo.domain.report.exception.ReportNotFoundException;
 import project.team.ondo.domain.report.service.ApproveReportService;
 import project.team.ondo.domain.report.service.RejectReportService;
 import project.team.ondo.global.discord.DiscordSignatureVerifier;
+import project.team.ondo.global.discord.DiscordWebhookService;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ public class DiscordInteractionController {
     private static final int TYPE_COMPONENT = 3;
 
     private final DiscordSignatureVerifier signatureVerifier;
+    private final DiscordWebhookService discordWebhookService;
     private final ApproveReportService approveReportService;
     private final RejectReportService rejectReportService;
     private final ObjectMapper objectMapper;
@@ -51,14 +53,16 @@ public class DiscordInteractionController {
         }
 
         if (type == TYPE_COMPONENT) {
-            String customId = body.path("data").path("custom_id").asText();
-            return ResponseEntity.ok(handleButton(customId));
+            String customId       = body.path("data").path("custom_id").asText();
+            String token          = body.path("token").asText();
+            String applicationId  = body.path("application_id").asText();
+            return ResponseEntity.ok(handleButton(customId, token, applicationId));
         }
 
         return ResponseEntity.ok(Map.of("type", 1));
     }
 
-    private Map<String, Object> handleButton(String customId) {
+    private Map<String, Object> handleButton(String customId, String token, String applicationId) {
         String[] parts = customId.split(":", 2);
         if (parts.length != 2) return errorResponse("잘못된 요청입니다.");
 
@@ -74,11 +78,13 @@ public class DiscordInteractionController {
             return switch (action) {
                 case "approve" -> {
                     approveReportService.execute(reportId);
-                    yield updateMessage("✅ 신고 승인됨", "콘텐츠가 삭제되고 신고자에게 결과가 통보되었습니다.", 5763719);
+                    discordWebhookService.removeButtons(applicationId, token);
+                    yield resultMessage("✅ 신고 승인됨", "콘텐츠가 삭제되고 신고자에게 결과가 통보되었습니다.", 5763719);
                 }
                 case "reject" -> {
                     rejectReportService.execute(reportId);
-                    yield updateMessage("❌ 신고 기각됨", "신고자에게 기각 사실이 통보되었습니다.", 10197915);
+                    discordWebhookService.removeButtons(applicationId, token);
+                    yield resultMessage("❌ 신고 기각됨", "신고자에게 기각 사실이 통보되었습니다.", 10197915);
                 }
                 default -> errorResponse("알 수 없는 액션입니다.");
             };
@@ -90,8 +96,7 @@ public class DiscordInteractionController {
         }
     }
 
-    // UPDATE_MESSAGE: 원본 메시지를 덮어쓰고 버튼 제거
-    private Map<String, Object> updateMessage(String title, String description, int color) {
+    private Map<String, Object> resultMessage(String title, String description, int color) {
         Map<String, Object> embed = new LinkedHashMap<>();
         embed.put("title", title);
         embed.put("description", description);
@@ -99,10 +104,9 @@ public class DiscordInteractionController {
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("embeds", List.of(embed));
-        data.put("components", List.of());
 
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("type", 7);
+        response.put("type", 4);
         response.put("data", data);
         return response;
     }
@@ -110,7 +114,7 @@ public class DiscordInteractionController {
     private Map<String, Object> errorResponse(String message) {
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("content", "⚠️ " + message);
-        data.put("flags", 64);  // EPHEMERAL: 클릭한 사람에게만 표시
+        data.put("flags", 64); // EPHEMERAL: 클릭한 사람에게만 표시
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("type", 4);
