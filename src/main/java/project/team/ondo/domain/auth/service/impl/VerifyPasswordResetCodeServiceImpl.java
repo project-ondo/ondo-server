@@ -1,6 +1,7 @@
 package project.team.ondo.domain.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import project.team.ondo.domain.auth.data.request.VerifyPasswordResetCodeRequest;
 import project.team.ondo.domain.auth.data.response.PasswordResetTokenResponse;
@@ -19,11 +20,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class VerifyPasswordResetCodeServiceImpl implements VerifyPasswordResetCodeService {
 
+    private static final String RESET_CODE_KEY_PREFIX = "password_reset_code:";
     private static final long RESET_TOKEN_TTL = 600L;
     private static final int MAX_ATTEMPTS = 5;
 
     private final PasswordResetCodeRepository passwordResetCodeRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Override
     public PasswordResetTokenResponse execute(VerifyPasswordResetCodeRequest request) {
@@ -38,9 +41,9 @@ public class VerifyPasswordResetCodeServiceImpl implements VerifyPasswordResetCo
         }
 
         if (!savedCode.getCode().equals(code)) {
-            savedCode.increaseAttemptCount();
-            passwordResetCodeRepository.save(savedCode);
-            if (savedCode.getAttemptCount() >= MAX_ATTEMPTS) {
+            Long newCount = stringRedisTemplate.opsForHash()
+                    .increment(RESET_CODE_KEY_PREFIX + email, "attemptCount", 1L);
+            if (newCount != null && newCount >= MAX_ATTEMPTS) {
                 throw new AttemptLimitExceededException();
             }
             throw new InvalidPasswordResetCodeException();
