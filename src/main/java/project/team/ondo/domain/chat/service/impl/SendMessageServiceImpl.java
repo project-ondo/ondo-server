@@ -39,8 +39,7 @@ public class SendMessageServiceImpl implements SendMessageService {
 
     @Transactional
     @Override
-    public ChatMessageEntity execute(UUID senderPublicId, UUID chatRoomId, MessageType messageType, String content) {
-        UserEntity me = userRepository.getByPublicId(senderPublicId);
+    public ChatMessageEntity execute(UserEntity me, UUID chatRoomId, MessageType messageType, String content) {
         ChatRoomEntity chatRoom = chatRoomRepository.findByPublicId(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
 
         ChatRoomMemberEntity myMember = chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), me.getId())

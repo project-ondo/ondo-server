@@ -17,10 +17,13 @@ import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.chat.service.GetRoomMessagesService;
 import project.team.ondo.domain.user.entity.UserEntity;
+import project.team.ondo.domain.user.repository.UserRepository;
 import project.team.ondo.global.response.CursorResponse;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class GetRoomMessagesServiceImpl implements GetRoomMessagesService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     @Override
@@ -40,6 +44,11 @@ public class GetRoomMessagesServiceImpl implements GetRoomMessagesService {
         chatRoomMemberRepository.findByRoomIdAndUserId(chatRoom.getId(), me.getId())
                 .orElseThrow(ChatRoomMemberNotFoundException::new);
 
+        Map<Long, UserEntity> senderMap = userRepository
+                .findAllById(List.of(chatRoom.getUserAId(), chatRoom.getUserBId()))
+                .stream()
+                .collect(Collectors.toMap(UserEntity::getId, u -> u));
+
         Pageable pageable = PageRequest.of(0, size);
 
         Page<@NonNull ChatMessageEntity> page = (cursor == null)
@@ -47,7 +56,7 @@ public class GetRoomMessagesServiceImpl implements GetRoomMessagesService {
                 : chatMessageRepository.findAllByRoomIdAndIdLessThanOrderByIdDesc(chatRoom.getId(), cursor, pageable);
 
         List<ChatMessageResponse> items = page.getContent().stream()
-                .map(message -> ChatMessageResponse.from(message, roomPublicId))
+                .map(message -> ChatMessageResponse.from(message, roomPublicId, senderMap.get(message.getSenderId())))
                 .toList();
 
         Long nextCursor = items.isEmpty() ? null : items.getLast().messageId();

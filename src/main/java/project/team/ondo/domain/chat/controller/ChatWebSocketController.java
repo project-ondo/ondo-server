@@ -42,22 +42,16 @@ public class ChatWebSocketController {
     public void send(@Valid @Payload SendMessageRequest request, Principal principal) {
 
         UUID senderPublicId = UUID.fromString(principal.getName());
+        var me = userRepository.getByPublicId(senderPublicId);
 
         ChatMessageEntity savedMessage = sendMessageService.execute(
-                senderPublicId,
+                me,
                 request.chatRoomPublicId(),
                 request.messageType(),
                 request.content()
         );
 
-        ChatMessageResponse payload = new ChatMessageResponse(
-                savedMessage.getId(),
-                request.chatRoomPublicId(),
-                savedMessage.getSenderId(),
-                savedMessage.getMessageType(),
-                savedMessage.getContent(),
-                savedMessage.getCreatedAt()
-        );
+        ChatMessageResponse payload = ChatMessageResponse.from(savedMessage, request.chatRoomPublicId(), me);
 
         simpMessagingTemplate.convertAndSend("/topic/chat.rooms." + request.chatRoomPublicId(), payload);
         chatOutboxDispatchService.markDispatched(savedMessage.getId());
