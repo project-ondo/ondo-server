@@ -45,7 +45,7 @@ public class ChatWebSocketController {
         var me = userRepository.getByPublicId(senderPublicId);
 
         ChatMessageEntity savedMessage = sendMessageService.execute(
-                senderPublicId,
+                me,
                 request.chatRoomPublicId(),
                 request.messageType(),
                 request.content()

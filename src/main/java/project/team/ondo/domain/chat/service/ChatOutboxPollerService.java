@@ -37,7 +37,11 @@ public class ChatOutboxPollerService {
         List<ChatMessageOutboxEntity> pending =
                 outboxRepository.findByStatusAndCreatedAtBefore(OutboxStatus.PENDING, threshold);
 
-        List<Long> messageIds = pending.stream().map(ChatMessageOutboxEntity::getMessageId).toList();
+        if (pending.isEmpty()) {
+            return;
+        }
+
+        List<Long> messageIds = pending.stream().map(ChatMessageOutboxEntity::getMessageId).distinct().toList();
         Map<Long, ChatMessageEntity> messageMap = messageRepository.findAllById(messageIds)
                 .stream().collect(Collectors.toMap(ChatMessageEntity::getId, m -> m));
 
