@@ -107,7 +107,7 @@ public class CreateReportServiceImpl implements CreateReportService {
     private UUID parseUuid(String raw) {
         try {
             return UUID.fromString(raw);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException | IllegalArgumentException e) {
             throw new InvalidReportTargetException();
         }
     }
