@@ -7,6 +7,6 @@ import project.team.ondo.domain.report.constant.ReportTargetType;
 
 public record CreateReportRequest(
         @NotNull ReportTargetType targetType,
-        @NotNull Long targetId,
+        @NotBlank String targetId,
         @NotBlank @Size(max = 1000) String description
 ) {}

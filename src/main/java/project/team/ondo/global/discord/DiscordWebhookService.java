@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import project.team.ondo.domain.report.event.ReportCreatedEvent;
@@ -28,20 +27,6 @@ public class DiscordWebhookService {
     private String channelId;
 
     private final RestClient restClient = RestClient.create();
-
-    @Async
-    public void removeButtons(String applicationId, String interactionToken) {
-        try {
-            restClient.patch()
-                    .uri(DISCORD_API + "/webhooks/{appId}/{token}/messages/@original", applicationId, interactionToken)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(Map.of("components", List.of()))
-                    .retrieve()
-                    .toBodilessEntity();
-        } catch (Exception e) {
-            log.warn("Failed to remove buttons from original Discord message appId={}", applicationId, e);
-        }
-    }
 
     public void sendReportNotification(ReportCreatedEvent event) {
         if (botToken.isBlank() || channelId.isBlank()) {
