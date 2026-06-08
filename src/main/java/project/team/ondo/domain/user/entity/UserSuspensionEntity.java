@@ -49,6 +49,8 @@ public class UserSuspensionEntity {
         LocalDateTime now = LocalDateTime.now();
         this.reportId = reportId;
         this.suspendedAt = now;
-        this.suspendedUntil = now.plusDays(suspensionDays);
+        this.suspendedUntil = this.suspendedUntil != null && this.suspendedUntil.isAfter(now)
+                ? this.suspendedUntil.plusDays(suspensionDays)
+                : now.plusDays(suspensionDays);
     }
 }

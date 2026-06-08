@@ -126,7 +126,7 @@ public class DiscordInteractionController {
 
         try {
             approveUserReportService.execute(reportId, suspensionDays);
-            return ephemeralMessage("✅ " + suspensionDays + "일 계정 정지가 적용되었습니다. 신고자에게 결과가 통보되었습니다.");
+            return updateMessage("✅ " + suspensionDays + "일 계정 정지가 적용되었습니다. 신고자에게 결과가 통보되었습니다.");
         } catch (ReportNotFoundException | ReportAlreadyProcessedException e) {
             return errorResponse("이미 처리되었거나 존재하지 않는 신고입니다.");
         } catch (Exception e) {
