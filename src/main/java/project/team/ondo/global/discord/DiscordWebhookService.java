@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import project.team.ondo.domain.report.constant.ReportTargetType;
 import project.team.ondo.domain.report.event.ReportCreatedEvent;
 
 import java.util.ArrayList;
@@ -28,20 +28,6 @@ public class DiscordWebhookService {
     private String channelId;
 
     private final RestClient restClient = RestClient.create();
-
-    @Async
-    public void removeButtons(String applicationId, String interactionToken) {
-        try {
-            restClient.patch()
-                    .uri(DISCORD_API + "/webhooks/{appId}/{token}/messages/@original", applicationId, interactionToken)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(Map.of("components", List.of()))
-                    .retrieve()
-                    .toBodilessEntity();
-        } catch (Exception e) {
-            log.warn("Failed to remove buttons from original Discord message appId={}", applicationId, e);
-        }
-    }
 
     public void sendReportNotification(ReportCreatedEvent event) {
         if (botToken.isBlank() || channelId.isBlank()) {
@@ -75,7 +61,10 @@ public class DiscordWebhookService {
         embed.put("color", 15548997);  // red
         embed.put("fields", fields);
 
-        Map<String, Object> approveBtn = button(3, "✅ 승인 (콘텐츠 삭제)", "approve:" + event.reportId());
+        boolean isUserReport = event.targetType() == ReportTargetType.USER;
+        String approveCustomId = isUserReport ? "approve_user:" + event.reportId() : "approve:" + event.reportId();
+        String approveLabel    = isUserReport ? "✅ 승인 (계정 정지)" : "✅ 승인 (콘텐츠 삭제)";
+        Map<String, Object> approveBtn = button(3, approveLabel, approveCustomId);
         Map<String, Object> rejectBtn  = button(4, "❌ 기각", "reject:" + event.reportId());
 
         Map<String, Object> actionRow = new LinkedHashMap<>();

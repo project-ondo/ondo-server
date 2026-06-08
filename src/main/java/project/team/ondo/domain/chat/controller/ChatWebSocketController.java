@@ -80,10 +80,10 @@ public class ChatWebSocketController {
     public void typing(@Valid @Payload TypingWsRequest request, Principal principal) {
         UUID userPublicId = UUID.fromString(principal.getName());
 
+        if (!chatTypingThrottleService.allow(request.chatRoomPublicId(), userPublicId)) return;
+
         long userId = userRepository.getByPublicId(userPublicId).getId();
         chatRoomMembershipService.validateAndGet(request.chatRoomPublicId(), userId);
-
-        if (!chatTypingThrottleService.allow(request.chatRoomPublicId(), userPublicId)) return;
 
         ChatTypingEventPayload payload = new ChatTypingEventPayload(
                 request.chatRoomPublicId(),

@@ -60,6 +60,10 @@ public enum ErrorCode {
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고를 찾을 수 없습니다."),
     REPORT_TARGET_NOT_FOUND(HttpStatus.NOT_FOUND, "신고 대상을 찾을 수 없습니다."),
     REPORT_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 처리된 신고입니다."),
+    INVALID_TARGET_ID(HttpStatus.BAD_REQUEST, "유효하지 않은 신고 대상 식별자입니다."),
+    SELF_REPORT(HttpStatus.BAD_REQUEST, "자기 자신을 신고할 수 없습니다."),
+    DUPLICATE_PENDING_REPORT(HttpStatus.CONFLICT, "이미 처리 대기 중인 신고가 있습니다."),
+    USER_SUSPENDED(HttpStatus.FORBIDDEN, "정지된 계정입니다."),
 
     //AWS
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 미디어 타입입니다."),

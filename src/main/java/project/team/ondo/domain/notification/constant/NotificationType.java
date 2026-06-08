@@ -15,7 +15,8 @@ public enum NotificationType {
     CHAT_MEMBER_LEFT("상대방 퇴장", "상대방이 채팅방을 나갔습니다."),
     REPORT_RECEIVED("신고 접수", "신고가 접수되었습니다."),
     REPORT_RESOLVED("신고 처리 완료", "신고가 처리되었습니다."),
-    REPORT_CONTENT_DELETED("콘텐츠 삭제", "회원님의 콘텐츠가 운영 정책 위반으로 삭제되었습니다.");
+    REPORT_CONTENT_DELETED("콘텐츠 삭제", "회원님의 콘텐츠가 운영 정책 위반으로 삭제되었습니다."),
+    USER_SUSPENDED("계정 정지", "운영 정책 위반으로 계정이 일시 정지되었습니다.");
 
     private final String title;
     private final String body;
