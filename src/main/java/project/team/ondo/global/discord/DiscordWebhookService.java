@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import project.team.ondo.domain.report.constant.ReportTargetType;
 import project.team.ondo.domain.report.event.ReportCreatedEvent;
 
 import java.util.ArrayList;
@@ -75,7 +76,10 @@ public class DiscordWebhookService {
         embed.put("color", 15548997);  // red
         embed.put("fields", fields);
 
-        Map<String, Object> approveBtn = button(3, "✅ 승인 (콘텐츠 삭제)", "approve:" + event.reportId());
+        boolean isUserReport = event.targetType() == ReportTargetType.USER;
+        String approveCustomId = isUserReport ? "approve_user:" + event.reportId() : "approve:" + event.reportId();
+        String approveLabel    = isUserReport ? "✅ 승인 (계정 정지)" : "✅ 승인 (콘텐츠 삭제)";
+        Map<String, Object> approveBtn = button(3, approveLabel, approveCustomId);
         Map<String, Object> rejectBtn  = button(4, "❌ 기각", "reject:" + event.reportId());
 
         Map<String, Object> actionRow = new LinkedHashMap<>();

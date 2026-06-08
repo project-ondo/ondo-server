@@ -69,6 +69,7 @@ public class ApproveReportServiceImpl implements ApproveReportService {
                 chatRoomRepository.findById(report.getTargetId()).filter(r -> !r.isEnded()).ifPresent(ChatRoomEntity::end);
                 yield null;
             }
+            case USER -> throw new IllegalStateException("USER 신고는 ApproveUserReportService를 사용해야 합니다.");
         };
     }
 }
