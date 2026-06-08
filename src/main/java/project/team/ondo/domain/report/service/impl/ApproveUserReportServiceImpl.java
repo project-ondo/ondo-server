@@ -9,6 +9,7 @@ import project.team.ondo.domain.report.constant.ReportTargetType;
 import project.team.ondo.domain.report.entity.ReportEntity;
 import project.team.ondo.domain.report.event.ReportApprovedEvent;
 import project.team.ondo.domain.report.exception.ReportAlreadyProcessedException;
+import project.team.ondo.domain.report.exception.ReportTargetNotFoundException;
 import project.team.ondo.domain.report.repository.ReportRepository;
 import project.team.ondo.domain.report.service.ApproveUserReportService;
 import project.team.ondo.domain.user.entity.UserEntity;
@@ -34,18 +35,20 @@ public class ApproveUserReportServiceImpl implements ApproveUserReportService {
             throw new ReportAlreadyProcessedException();
         }
 
-        UserEntity targetUser = userRepository.findById(report.getTargetId()).orElse(null);
+        UserEntity targetUser = userRepository.findById(report.getTargetId())
+                .orElseThrow(ReportTargetNotFoundException::new);
 
-        if (targetUser != null) {
-            userSuspensionRepository.deleteByUserPublicId(targetUser.getPublicId());
-            userSuspensionRepository.save(UserSuspensionEntity.create(
-                    targetUser.getPublicId(), reportId, suspensionDays));
-        }
+        userSuspensionRepository.findByUserPublicId(targetUser.getPublicId())
+                .ifPresentOrElse(
+                        suspension -> suspension.update(reportId, suspensionDays),
+                        () -> userSuspensionRepository.save(UserSuspensionEntity.create(
+                                targetUser.getPublicId(), reportId, suspensionDays))
+                );
 
         eventPublisher.publishEvent(new ReportApprovedEvent(
                 reportId,
                 report.getReporterPublicId(),
-                targetUser != null ? targetUser.getPublicId() : null,
+                targetUser.getPublicId(),
                 ReportTargetType.USER,
                 report.getTargetId()
         ));

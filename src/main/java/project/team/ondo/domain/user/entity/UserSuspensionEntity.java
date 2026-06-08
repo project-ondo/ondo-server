@@ -44,4 +44,11 @@ public class UserSuspensionEntity {
                 .suspendedUntil(now.plusDays(suspensionDays))
                 .build();
     }
+
+    public void update(Long reportId, int suspensionDays) {
+        LocalDateTime now = LocalDateTime.now();
+        this.reportId = reportId;
+        this.suspendedAt = now;
+        this.suspendedUntil = now.plusDays(suspensionDays);
+    }
 }

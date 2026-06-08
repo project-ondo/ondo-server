@@ -13,13 +13,16 @@ import project.team.ondo.domain.report.constant.ReportTargetType;
 import project.team.ondo.domain.report.event.ReportApprovedEvent;
 import project.team.ondo.domain.report.event.ReportCreatedEvent;
 import project.team.ondo.domain.report.event.ReportRejectedEvent;
-import project.team.ondo.domain.user.entity.UserSuspensionEntity;
 import project.team.ondo.domain.user.repository.UserSuspensionRepository;
 import project.team.ondo.global.discord.DiscordWebhookService;
+
+import java.time.format.DateTimeFormatter;
 
 @Component
 @RequiredArgsConstructor
 public class ReportEventListener {
+
+    private static final DateTimeFormatter SUSPENSION_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final CreateNotificationService createNotificationService;
     private final DiscordWebhookService discordWebhookService;
@@ -56,7 +59,7 @@ public class ReportEventListener {
             if (event.targetType() == ReportTargetType.USER) {
                 String suspendedUntilMsg = userSuspensionRepository
                         .findByUserPublicId(event.reportedUserPublicId())
-                        .map(s -> s.getSuspendedUntil().toString())
+                        .map(s -> s.getSuspendedUntil().format(SUSPENSION_DATE_FMT))
                         .orElse("알 수 없음");
                 createNotificationService.create(
                         event.reportedUserPublicId(),

@@ -10,5 +10,4 @@ import java.util.UUID;
 @Repository
 public interface UserSuspensionRepository extends JpaRepository<UserSuspensionEntity, Long> {
     Optional<UserSuspensionEntity> findByUserPublicId(UUID userPublicId);
-    void deleteByUserPublicId(UUID userPublicId);
 }
