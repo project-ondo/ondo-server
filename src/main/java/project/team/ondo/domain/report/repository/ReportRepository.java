@@ -11,6 +11,8 @@ import project.team.ondo.domain.report.constant.ReportTargetType;
 import project.team.ondo.domain.report.entity.ReportEntity;
 import project.team.ondo.domain.report.exception.ReportNotFoundException;
 
+import java.util.UUID;
+
 @Repository
 public interface ReportRepository extends JpaRepository<@NonNull ReportEntity, @NonNull Long> {
 
@@ -21,6 +23,9 @@ public interface ReportRepository extends JpaRepository<@NonNull ReportEntity, @
             @Param("targetId") Long targetId,
             @Param("status") ReportStatus status
     );
+
+    boolean existsByReporterPublicIdAndTargetTypeAndTargetIdAndStatus(
+            UUID reporterPublicId, ReportTargetType targetType, Long targetId, ReportStatus status);
 
     default ReportEntity getByIdOrThrow(Long id) {
         return findById(id).orElseThrow(ReportNotFoundException::new);

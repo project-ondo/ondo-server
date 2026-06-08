@@ -12,15 +12,19 @@ import project.team.ondo.domain.community.comment.repository.CommentRepository;
 import project.team.ondo.domain.community.post.constant.PostStatus;
 import project.team.ondo.domain.community.post.entity.PostEntity;
 import project.team.ondo.domain.community.post.repository.PostRepository;
+import project.team.ondo.domain.report.constant.ReportStatus;
 import project.team.ondo.domain.report.constant.ReportTargetType;
 import project.team.ondo.domain.report.data.request.CreateReportRequest;
 import project.team.ondo.domain.report.entity.ReportEntity;
 import project.team.ondo.domain.report.event.ReportCreatedEvent;
+import project.team.ondo.domain.report.exception.DuplicatePendingReportException;
 import project.team.ondo.domain.report.exception.InvalidReportTargetException;
 import project.team.ondo.domain.report.exception.ReportTargetNotFoundException;
+import project.team.ondo.domain.report.exception.SelfReportException;
 import project.team.ondo.domain.report.repository.ReportRepository;
 import project.team.ondo.domain.report.service.CreateReportService;
 import project.team.ondo.domain.user.entity.UserEntity;
+import project.team.ondo.domain.user.repository.UserRepository;
 
 import java.util.UUID;
 
@@ -32,12 +36,19 @@ public class CreateReportServiceImpl implements CreateReportService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
     public Long execute(UserEntity reporter, CreateReportRequest request) {
         ResolvedTarget target = resolveTarget(reporter, request.targetType(), request.targetId());
+
+        if (request.targetType() == ReportTargetType.USER &&
+                reportRepository.existsByReporterPublicIdAndTargetTypeAndTargetIdAndStatus(
+                        reporter.getPublicId(), ReportTargetType.USER, target.internalId(), ReportStatus.PENDING)) {
+            throw new DuplicatePendingReportException();
+        }
 
         ReportEntity report = ReportEntity.create(
                 reporter.getPublicId(),
@@ -61,7 +72,7 @@ public class CreateReportServiceImpl implements CreateReportService {
 
     /**
      * 클라이언트가 보낸 식별자 문자열을 type별로 해석해 내부 PK(Long)와 스냅샷을 함께 산출한다.
-     * POST/COMMENT는 노출되는 식별자가 곧 내부 PK이고, CHAT_ROOM은 publicId(UUID)이므로 내부 id로 변환한다.
+     * POST/COMMENT는 노출되는 식별자가 곧 내부 PK이고, CHAT_ROOM/USER는 publicId(UUID)이므로 내부 id로 변환한다.
      */
     private ResolvedTarget resolveTarget(UserEntity reporter, ReportTargetType targetType, String rawTargetId) {
         return switch (targetType) {
@@ -88,6 +99,15 @@ public class CreateReportServiceImpl implements CreateReportService {
                     throw new ReportTargetNotFoundException();
                 }
                 yield new ResolvedTarget(room.getId(), "[채팅방] publicId=" + room.getPublicId());
+            }
+            case USER -> {
+                UUID targetPublicId = parseUuid(rawTargetId);
+                if (reporter.getPublicId().equals(targetPublicId)) {
+                    throw new SelfReportException();
+                }
+                UserEntity targetUser = userRepository.findByPublicId(targetPublicId)
+                        .orElseThrow(ReportTargetNotFoundException::new);
+                yield new ResolvedTarget(targetUser.getId(), "[유저] " + targetUser.getDisplayName());
             }
         };
     }
