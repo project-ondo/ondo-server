@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.team.ondo.domain.chat.entity.ChatRoomEntity;
+import project.team.ondo.domain.chat.repository.ChatMessageOutboxRepository;
+import project.team.ondo.domain.chat.repository.ChatMessageRepository;
+import project.team.ondo.domain.chat.repository.ChatRoomMemberRepository;
 import project.team.ondo.domain.chat.repository.ChatRoomRepository;
 import project.team.ondo.domain.community.comment.constant.CommentStatus;
 import project.team.ondo.domain.community.comment.entity.CommentEntity;
@@ -29,6 +31,9 @@ public class ApproveReportServiceImpl implements ApproveReportService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatRoomMemberRepository chatRoomMemberRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageOutboxRepository chatMessageOutboxRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -66,7 +71,14 @@ public class ApproveReportServiceImpl implements ApproveReportService {
                 yield comment != null && comment.getAuthor() != null ? comment.getAuthor().getPublicId() : null;
             }
             case CHAT_ROOM -> {
-                chatRoomRepository.findById(report.getTargetId()).filter(r -> !r.isEnded()).ifPresent(ChatRoomEntity::end);
+                chatRoomRepository.findById(report.getTargetId())
+                        .filter(r -> !r.isEnded())
+                        .ifPresent(room -> {
+                            chatMessageOutboxRepository.deleteAllByRoomPublicId(room.getPublicId());
+                            chatMessageRepository.deleteAllByRoomId(room.getId());
+                            chatRoomMemberRepository.deleteAllByRoomId(room.getId());
+                            room.end();
+                        });
                 yield null;
             }
             case USER -> throw new IllegalStateException("USER 신고는 ApproveUserReportService를 사용해야 합니다.");
