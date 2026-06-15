@@ -114,6 +114,7 @@ public class PostRecommendQueryRepositoryImpl implements PostRecommendQueryRepos
                 .filter(Objects::nonNull)
                 .map(p -> new PostRecommendItemResponse(
                         p.getId(),
+                        p.getAuthor().getPublicId(),
                         p.getTitle(),
                         p.getAuthor().getDisplayName(),
                         new ArrayList<>(p.getTags()),

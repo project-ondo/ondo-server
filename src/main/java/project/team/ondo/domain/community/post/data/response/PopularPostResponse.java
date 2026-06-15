@@ -5,10 +5,12 @@ import project.team.ondo.domain.community.post.entity.PostEntity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public record PopularPostResponse(
         int rank,
         Long postId,
+        UUID userPublicId,
         String title,
         String authorName,
         List<String> tags,
@@ -22,6 +24,7 @@ public record PopularPostResponse(
         return new PopularPostResponse(
                 rank,
                 post.getId(),
+                post.getAuthor().getPublicId(),
                 post.getTitle(),
                 post.getAuthor().getDisplayName(),
                 new ArrayList<>(post.getTags()),
